@@ -1,7 +1,7 @@
 //sextern crate std;
 extern crate rand;
 extern crate rsmcmc;
-use rsmcmc::sample;
+use rsmcmc::ensemble_sample::sample as ff;
 
 
 fn logprob(x: &Vec<f64>) -> f64 {
@@ -27,7 +27,7 @@ fn main() {
 
     //    foo(&x, 1);
     for k in 0..10000000 {
-        let aaa = sample(logprob, &(x, y), &mut rng, 2.0, 1);
+        let aaa = ff(logprob, &(x, y), &mut rng, 2.0, 1);
         x = aaa.0;
         y = aaa.1;
         if k % 100 == 0 {

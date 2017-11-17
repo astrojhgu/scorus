@@ -4,14 +4,12 @@ extern crate scoped_threadpool;
 
 extern crate rand;
 mod utils;
-mod ensemble_sample;
+pub mod ensemble_sample;
 use num_traits::float::Float;
 pub use utils::HasLength;
 pub use utils::Resizeable;
 pub use utils::ItemSwapable;
 pub use utils::shuffle;
-pub use utils::draw_z;
-pub use ensemble_sample::sample;
 
 impl<T> HasLength for Vec<T> {
     fn length(&self) -> usize {
