@@ -64,7 +64,6 @@ where
             nwalkers
         ));
     }
-    let unit: T = one();
     let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
 
     let half_nwalkers = nwalkers / 2;
@@ -139,7 +138,7 @@ where
             let new_y = scale_vec(&ensemble[k], &ensemble[walker_group[ni][j]], z);
             let lp_y = flogprob(&new_y);
 
-            let q = ((ndims - unit) * (z.ln()) + lp_y - lp_last_y).exp();
+            let q = ((ndims - one::<T>()) * (z.ln()) + lp_y - lp_last_y).exp();
             {
                 let mut yy = result_ensemble.lock().unwrap();
                 let mut lpyy = result_logprob.lock().unwrap();
@@ -163,8 +162,6 @@ where
         let task = create_task();
         task();
     }
-
-
 
     let result_ensemble = (&result_ensemble).lock().unwrap();
     let result_logprob = (&result_logprob).lock().unwrap();

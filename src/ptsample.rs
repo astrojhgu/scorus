@@ -65,7 +65,7 @@ where
     }
     let ndims: T = NumCast::from(new_ensemble[0].length()).unwrap();
     let half_nwalkers = nwalkers / 2;
-    let unit: T = one();
+
 
     let mut walker_group: Vec<Vec<Vec<usize>>> = Vec::new();
     walker_group.resize(nbeta, vec![Vec::new(), Vec::new()]);
@@ -167,7 +167,7 @@ where
             let delta_lp = lp_y - lp_last_y;
             let beta = beta_list[ibeta];
 
-            let q = ((ndims - unit) * (z.ln()) + delta_lp * beta).exp();
+            let q = ((ndims - one::<T>()) * (z.ln()) + delta_lp * beta).exp();
             //println!("{} {} {} {} {} {} ",ibeta, k, lp_y, lp_last_y, z, j);
             {
                 let mut yy = new_ensemble.lock().unwrap();
