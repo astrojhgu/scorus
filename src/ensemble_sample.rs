@@ -1,6 +1,6 @@
-extern crate std;
 extern crate rand;
 extern crate scoped_threadpool;
+extern crate std;
 use scoped_threadpool::Pool;
 
 
@@ -37,7 +37,12 @@ where
         + std::fmt::Display,
     U: rand::Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
-    W: Clone + IndexMut<usize, Output = V> + HasLength + std::marker::Sync + std::marker::Send + Drop,
+    W: Clone
+        + IndexMut<usize, Output = V>
+        + HasLength
+        + std::marker::Sync
+        + std::marker::Send
+        + Drop,
     X: Clone
         + IndexMut<usize, Output = T>
         + HasLength
@@ -149,10 +154,11 @@ where
 
     if nthread > 1 {
         let mut pool = Pool::new(nthread as u32);
-        pool.scoped(|scope| for _ in 0..nthread {
-            scope.execute(create_task());
+        pool.scoped(|scope| {
+            for _ in 0..nthread {
+                scope.execute(create_task());
+            }
         });
-
     } else {
         let task = create_task();
         task();

@@ -32,7 +32,14 @@ impl<T> ItemSwapable for Vec<T> {
     }
 }
 
-pub fn bar<T:Float+rand::Rand+std::cmp::PartialOrd+rand::distributions::range::SampleRange, U: rand::Rng>(rng: &mut U, x1:T, x2:T)-> T{
+pub fn bar<
+    T: Float + rand::Rand + std::cmp::PartialOrd + rand::distributions::range::SampleRange,
+    U: rand::Rng,
+>(
+    rng: &mut U,
+    x1: T,
+    x2: T,
+) -> T {
     let xx = vec![1, 2, 3];
     xx.length();
     rng.gen_range(x2 - x1, x2 + x1)
