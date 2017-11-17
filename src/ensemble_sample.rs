@@ -8,6 +8,7 @@ use utils::draw_z;
 use utils::HasLength;
 use utils::Resizeable;
 use std::sync::Mutex;
+use utils::scale_vec;
 
 use std::ops::IndexMut;
 use num_traits::float::Float;
@@ -16,19 +17,7 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 
 
-pub fn scale_vec<T, U>(x1: &U, x2: &U, z: T) -> U
-where
-    T: Float,
-    U: Clone + IndexMut<usize, Output = T> + HasLength,
-{
-    let mut result = (*x1).clone();
-    let unit: T = one();
-    for l in 0..x1.length() {
-        result[l] = z * x1[l] + (unit - z) * x2[l];
-    }
 
-    result
-}
 
 pub fn sample<T, U, V, W, X>(
     flogprob: fn(&V) -> T,

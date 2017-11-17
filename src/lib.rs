@@ -10,6 +10,8 @@ pub use utils::HasLength;
 pub use utils::Resizeable;
 pub use utils::ItemSwapable;
 pub use utils::shuffle;
+pub mod ptsample;
+
 
 impl<T> HasLength for Vec<T> {
     fn length(&self) -> usize {
