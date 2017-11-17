@@ -17,7 +17,11 @@ pub trait ItemSwapable {
     fn swap_items(&mut self, i: usize, j: usize);
 }
 
-pub fn shuffle<T: HasLength + Clone + ItemSwapable, U: rand::Rng>(arr: &T, rng: &mut U) -> T {
+pub fn shuffle<T, U>(arr: &T, rng: &mut U) -> T
+where
+    T: HasLength + Clone + ItemSwapable,
+    U: rand::Rng,
+{
     let mut x = arr.clone();
     let l = arr.length();
     for i in (1..l).rev() {
@@ -27,13 +31,11 @@ pub fn shuffle<T: HasLength + Clone + ItemSwapable, U: rand::Rng>(arr: &T, rng: 
     x
 }
 
-pub fn draw_z<
+pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
+where
     T: Float + rand::Rand + std::cmp::PartialOrd + rand::distributions::range::SampleRange,
     U: rand::Rng,
->(
-    rng: &mut U,
-    a: T,
-) -> T {
+{
     let sqrt_a: T = a.sqrt();
     let unit: T = one();
     let two = unit + unit;
