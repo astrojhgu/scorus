@@ -70,9 +70,9 @@ where
         + std::fmt::Display,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
-    let unit: T = one();
-    match x > unit {
-        true => unit,
+    
+    match x > one::<T>() {
+        true => one::<T>(),
         false => x,
     }
 }
@@ -117,6 +117,11 @@ where
     if nwalker_per_beta * nbeta != new_ensemble.length() {
         panic!("Error nensemble/nbeta%0!=0");
     }
+    let mut jvec = Vec::new();
+    jvec.reserve(nwalker_per_beta);
+    for j in 0..nwalker_per_beta {
+        jvec.push(j);
+    }
 
     if perform_swap && new_ensemble.length() == new_logprob.length() {
         for i in (1..nbeta).rev() {
@@ -124,11 +129,6 @@ where
             let beta2 = beta_list[i - 1];
             if beta1 >= beta2 {
                 panic!("beta list must be in decreasing order, with no duplicatation");
-            }
-            let mut jvec = Vec::new();
-            jvec.reserve(nwalker_per_beta);
-            for j in 0..nwalker_per_beta {
-                jvec.push(j);
             }
             rng.shuffle(&mut jvec);
             //let jvec=shuffle(&jvec, &mut rng);

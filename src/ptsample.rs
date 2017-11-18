@@ -57,6 +57,8 @@ where
     let (mut new_ensemble, mut new_logprob) =
         swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap);
 
+    let cached_logprob=new_logprob.clone();
+
     let nbeta = beta_list.length();
     let nwalkers = new_ensemble.length() / nbeta;
 
@@ -123,7 +125,7 @@ where
         let new_ensemble = &new_ensemble;
         let new_logprob = &new_logprob;
         let ensemble = &ensemble_logprob.0;
-        let cached_logprob = &ensemble_logprob.1;
+        let cached_logprob = &cached_logprob;
         let zvec = &zvec;
         let walker_group = &walker_group;
         let walker_group_id = &walker_group_id;
@@ -152,7 +154,7 @@ where
                     lpyy[ibeta * nwalkers + k] = yy1;
                     yy1
                 }
-                _ => cached_logprob[ibeta * nwalkers + k],
+                _ => { cached_logprob[ibeta*nwalkers + k] }
             };
             if lp_last_y.is_infinite() || lp_last_y.is_nan() {
                 panic!("Error, old lpy cannot be inf or nan")

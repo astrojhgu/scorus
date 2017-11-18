@@ -127,9 +127,15 @@ where
             }
 
             let lp_last_y = match lp_cached {
-                false => flogprob(&ensemble[k]),
-                _ => cached_logprob[k],
+                false => {
+                    let yy1 = flogprob(&ensemble[ k]);
+                    let mut lpyy = result_logprob.lock().unwrap();
+                    lpyy[ k] = yy1;
+                    yy1
+                }
+                _ => cached_logprob[ k],
             };
+
             let i = walker_group_id[k];
             let j = jvec[k];
             let ni = 1 - i;
