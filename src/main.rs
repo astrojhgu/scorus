@@ -24,24 +24,19 @@ fn bimodal(x: &Vec<f64>) -> f64 {
         return -1.0 / 0.0;
     }
 
-    let (mu, sigma) = if x[1]<0.5 {
-        (-5.0, 0.1)
-    }
-    else{
-     (5.0, 1.0)
-    };
+    let (mu, sigma) = if x[1] < 0.5 { (-5.0, 0.1) } else { (5.0, 1.0) };
 
     -(x[0] - mu) * (x[0] - mu) / (2.0 * sigma * sigma) - sigma.ln()
 }
 
-fn foo(x:&Vec<f64>) -> f64{
-    let x1=x[0];
-    if x1<0.0 ||x1 >1.0 || x[1] <0.0 || x[1] >1.0 {
-        return -1.0/0.0;
+fn foo(x: &Vec<f64>) -> f64 {
+    let x1 = x[0];
+    if x1 < 0.0 || x1 > 1.0 || x[1] < 0.0 || x[1] > 1.0 {
+        return -1.0 / 0.0;
     }
-    match x1{
-        x if x> 0.5 => (0.1).ln(),
-        _  => (0.9).ln()
+    match x1 {
+        x if x > 0.5 => (0.1).ln(),
+        _ => (0.9).ln(),
     }
 }
 
@@ -86,13 +81,13 @@ fn main() {
 
     //let aa=(x,y);
     //let mut x=shuffle(&x, &mut rng);
-    
-    let blist=vec![1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125];
+
+    let blist = vec![1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125];
 
     for k in 0..1000000 {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        //let aaa = ff1(bimodal, &(x, y), &mut rng, &blist, k % 10 == 0, 2.0, 1);
-        let aaa = ff1(foo, &(x, y), &mut rng, &blist, k%10==0, 2.0, 1);
+        let aaa = ff1(bimodal, &(x, y), &mut rng, &blist, k % 10 == 0, 2.0, 1);
+        //let aaa = ff1(foo, &(x, y), &mut rng, &blist,k%10==0, 2.0, 1);
         //let aaa=ff1(|x|{-x[0]*x[0]-x[1]*x[1]}, &(x,y), &mut rng, &blist, k%10==0, 2.0, 2);
         x = aaa.0;
         y = aaa.1;

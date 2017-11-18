@@ -70,7 +70,7 @@ where
         + std::fmt::Display,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
-    
+
     match x > one::<T>() {
         true => one::<T>(),
         false => x,
