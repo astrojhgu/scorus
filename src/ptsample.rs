@@ -146,7 +146,12 @@ where
                                           //println!("{} {} {} {}", n, ibeta, k, ibeta*nwalkers+k);
 
             let lp_last_y = match lp_cached {
-                false => flogprob(&ensemble[ibeta * nwalkers + k]),
+                false => {
+                    let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
+                    let mut lpyy = new_logprob.lock().unwrap();
+                    lpyy[ibeta * nwalkers + k] = yy1;
+                    yy1
+                }
                 _ => cached_logprob[ibeta * nwalkers + k],
             };
             if lp_last_y.is_infinite() || lp_last_y.is_nan() {
@@ -172,7 +177,7 @@ where
             {
                 let mut yy = new_ensemble.lock().unwrap();
                 let mut lpyy = new_logprob.lock().unwrap();
-                if r <= q || !lp_cached {
+                if r <= q {
                     //println!("{} {} {} {}", n, ibeta, k, ibeta*nwalkers+k);
                     yy[ibeta * nwalkers + k] = new_y;
                     lpyy[ibeta * nwalkers + k] = lp_y;
