@@ -3,7 +3,7 @@ extern crate num_traits;
 extern crate scoped_threadpool;
 
 extern crate rand;
-mod utils;
+pub mod utils;
 pub mod ensemble_sample;
 use num_traits::float::Float;
 pub use utils::HasLength;

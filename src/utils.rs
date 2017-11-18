@@ -125,6 +125,7 @@ where
 
     if perform_swap && new_ensemble.length() == new_logprob.length() {
         for i in (1..nbeta).rev() {
+            //println!("ibeta={}", i);
             let beta1 = beta_list[i];
             let beta2 = beta_list[i - 1];
             if beta1 >= beta2 {
@@ -139,7 +140,7 @@ where
                 let lp1 = new_logprob[i * nwalker_per_beta + j1];
                 let lp2 = new_logprob[(i - 1) * nwalker_per_beta + j2];
                 let ep = exchange_prob(lp1, lp2, beta1, beta2);
-
+                //println!("{}",ep);
                 let r: T = rng.gen_range(zero(), one());
                 if r < ep {
                     new_ensemble

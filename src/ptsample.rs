@@ -54,46 +54,59 @@ where
         + Drop
         + ItemSwapable,
 {
-    let (mut new_ensemble, mut new_logprob) =
+    let (mut result_ensemble, mut result_logprob) =
         swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap);
 
-    let cached_logprob=new_logprob.clone();
+    let ensemble = result_ensemble.clone();
+    let cached_logprob = result_logprob.clone();
 
-    let nbeta = beta_list.length();
-    let nwalkers = new_ensemble.length() / nbeta;
+    let nbeta=beta_list.length();
+    let nwalkers = ensemble.length()/nbeta;
 
-    if nwalkers % 2 != 0 {
-        panic!(format!("nwalker={} is not even!", nwalkers));
+    if nwalkers == 0 || nwalkers % 2 != 0 {
+        panic!(format!(
+            "Error, nwalkers must be even and cannot be zero, which is {} now",
+            nwalkers
+        ));
     }
-    let ndims: T = NumCast::from(new_ensemble[0].length()).unwrap();
+
+    if nbeta*nwalkers != ensemble.length(){
+        panic!(format!("Error, nbeta={} x nwalkers {} != ensemble.length ={}", nbeta, nwalkers, ensemble.length()));
+    }
+
+
+
+    let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
+
     let half_nwalkers = nwalkers / 2;
-
-
     let mut walker_group: Vec<Vec<Vec<usize>>> = Vec::new();
-    walker_group.resize(nbeta, vec![Vec::new(), Vec::new()]);
-
+    walker_group.reserve(nbeta);
     let mut walker_group_id: Vec<Vec<usize>> = Vec::new();
-    walker_group_id.resize(nbeta, Vec::new());
-    let mut rvec: Vec<Vec<T>> = Vec::new();
-    rvec.resize(nbeta, Vec::new());
-    let mut jvec: Vec<Vec<usize>> = Vec::new();
-    jvec.resize(nbeta, Vec::new());
+    walker_group_id.reserve(nbeta);
+
+    let mut rvec: Vec<Vec<T> > = Vec::new();
+    let mut jvec: Vec<Vec<usize> > = Vec::new();
     let mut zvec: Vec<Vec<T>> = Vec::new();
-    zvec.resize(nbeta, Vec::new());
+    
 
-
-    for i in 0..nbeta {
-        //println!("ibeta={}", i);
+    for i in 0..nbeta{
+        walker_group.push(vec![Vec::new(), Vec::new()]);
         walker_group[i][0].reserve(half_nwalkers);
         walker_group[i][1].reserve(half_nwalkers);
+
+        walker_group_id.push(Vec::new());
         walker_group_id[i].reserve(nwalkers);
+
+        rvec.push(Vec::new());
+        jvec.push(Vec::new());
+        zvec.push(Vec::new());
+
         rvec[i].reserve(nwalkers);
         jvec[i].reserve(nwalkers);
         zvec[i].reserve(nwalkers);
 
         for j in 0..nwalkers {
             let mut gid: usize = rng.gen_range(0, 2);
-
             if walker_group[i][gid].len() == half_nwalkers {
                 gid = 1 - gid;
             }
@@ -103,35 +116,32 @@ where
             jvec[i].push(rng.gen_range(0, half_nwalkers));
             zvec[i].push(draw_z(rng, a));
         }
-        for j in 0..half_nwalkers {
-            //println!("{} {}", walker_group[i][0][j], walker_group[i][1][j]);
-        }
-        for j in 0..nwalkers {
-            //println!("{}", walker_group_id[i][j]);
-        }
     }
 
+
     let atomic_k = Mutex::new(0);
-    let lp_cached = new_logprob.length() == nwalkers * nbeta;
-    //println!("cached:{}", lp_cached);
+    let lp_cached = result_logprob.length() == result_ensemble.length();
+
     if !lp_cached {
-        new_logprob.resize(nwalkers * nbeta);
+        result_logprob.resize(result_ensemble.length());
     }
-    let new_ensemble = Mutex::new(new_ensemble);
-    let new_logprob = Mutex::new(new_logprob);
+    //let lp_cached=cached_logprob.length()!=0;
+    let result_ensemble = Mutex::new(result_ensemble);
+    let result_logprob = Mutex::new(result_logprob);
 
     let create_task = || {
         let atomic_k = &atomic_k;
-        let new_ensemble = &new_ensemble;
-        let new_logprob = &new_logprob;
-        let ensemble = &ensemble_logprob.0;
+        let result_ensemble = &result_ensemble;
+        let result_logprob = &result_logprob;
+        let ensemble = &ensemble;
         let cached_logprob = &cached_logprob;
         let zvec = &zvec;
         let walker_group = &walker_group;
         let walker_group_id = &walker_group_id;
         let jvec = &jvec;
+        //let rvec=Arc::clone(&rvec);
         let rvec = &rvec;
-        let beta_list = &beta_list;
+        //let nwalkers=nwalkers;
         let task = move || loop {
             let n: usize;
             {
@@ -139,50 +149,39 @@ where
                 n = *k1;
                 *k1 += 1;
             }
-            if n >= nwalkers * nbeta {
+            if n >= nwalkers*nbeta {
                 break;
             }
 
-            let ibeta = n / nwalkers; //i in beta list
-            let k = n - ibeta * nwalkers; //i in each beta
-                                          //println!("{} {} {} {}", n, ibeta, k, ibeta*nwalkers+k);
+            let ibeta=n/nwalkers;
+            let k=n-ibeta*nwalkers;
 
             let lp_last_y = match lp_cached {
                 false => {
-                    let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
-                    let mut lpyy = new_logprob.lock().unwrap();
-                    lpyy[ibeta * nwalkers + k] = yy1;
+                    let yy1 = flogprob(&ensemble[ibeta*nwalkers+ k]);
+                    let mut lpyy = result_logprob.lock().unwrap();
+                    lpyy[ ibeta*nwalkers + k] = yy1;
                     yy1
                 }
-                _ => { cached_logprob[ibeta*nwalkers + k] }
+                _ => cached_logprob[ k],
             };
-            if lp_last_y.is_infinite() || lp_last_y.is_nan() {
-                panic!("Error, old lpy cannot be inf or nan")
-            }
 
             let i = walker_group_id[ibeta][k];
             let j = jvec[ibeta][k];
             let ni = 1 - i;
             let z = zvec[ibeta][k];
             let r = rvec[ibeta][k];
-            let new_y = scale_vec(
-                &ensemble[ibeta * nwalkers + k],
-                &ensemble[ibeta * nwalkers + walker_group[ibeta][ni][j]],
-                z,
-            );
+            let new_y = scale_vec(&ensemble[ibeta*nwalkers+ k], &ensemble[ibeta*nwalkers+walker_group[ibeta][ni][j]], z);
             let lp_y = flogprob(&new_y);
-            let delta_lp = lp_y - lp_last_y;
-            let beta = beta_list[ibeta];
-
-            let q = ((ndims - one::<T>()) * (z.ln()) + delta_lp * beta).exp();
-            //println!("{} {} {} {} {} {} ",ibeta, k, lp_y, lp_last_y, z, j);
+            let beta=beta_list[ibeta];
+            let delta_lp=lp_y-lp_last_y;
+            let q = ((ndims - one::<T>()) * (z.ln()) + delta_lp*beta).exp();
             {
-                let mut yy = new_ensemble.lock().unwrap();
-                let mut lpyy = new_logprob.lock().unwrap();
+                let mut yy = result_ensemble.lock().unwrap();
+                let mut lpyy = result_logprob.lock().unwrap();
                 if r <= q {
-                    //println!("{} {} {} {}", n, ibeta, k, ibeta*nwalkers+k);
-                    yy[ibeta * nwalkers + k] = new_y;
-                    lpyy[ibeta * nwalkers + k] = lp_y;
+                    yy[ibeta*nwalkers+k] = new_y;
+                    lpyy[ibeta*nwalkers+k] = lp_y;
                 }
             }
         };
@@ -201,10 +200,8 @@ where
         task();
     }
 
+    let result_ensemble = (&result_ensemble).lock().unwrap();
+    let result_logprob = (&result_logprob).lock().unwrap();
 
-
-    let new_ensemble = (&new_ensemble).lock().unwrap();
-    let new_logprob = (&new_logprob).lock().unwrap();
-
-    (new_ensemble.clone(), new_logprob.clone())
+    (result_ensemble.clone(), result_logprob.clone())
 }
