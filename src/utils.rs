@@ -117,11 +117,7 @@ where
     if nwalker_per_beta * nbeta != new_ensemble.length() {
         panic!("Error nensemble/nbeta%0!=0");
     }
-    let mut jvec = Vec::new();
-    jvec.reserve(nwalker_per_beta);
-    for j in 0..nwalker_per_beta {
-        jvec.push(j);
-    }
+    let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
 
     if perform_swap && new_ensemble.length() == new_logprob.length() {
         for i in (1..nbeta).rev() {

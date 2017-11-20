@@ -4,11 +4,10 @@ extern crate rsmcmc;
 
 use num_traits::float::Float;
 use rsmcmc::get_one_init_realization;
-use rsmcmc::ptsample::sample;
+use rsmcmc::ensemble_sample::sample;
 
 const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;
-const NBETA: u32 = 4;
 const P: f64 = 0.2;
 
 fn target_dist(x: &Vec<f64>) -> f64 {
@@ -28,29 +27,15 @@ fn target_dist(x: &Vec<f64>) -> f64 {
 #[test]
 fn test() {
     let mut ensemble = Vec::new();
-    let mut betalist = Vec::new();
     let mut rng = rand::thread_rng();
     let mut cached_logprob = Vec::new();
-    for i in 0..NBETA {
-        for j in 0..NWALKERS {
-            ensemble.push(get_one_init_realization(&vec![0.0], &vec![1.0], &mut rng));
-        }
-        let fi: f64 = i as f64;
-        betalist.push(1.0 / fi.exp2());
-        println!("{}", 1.0 / fi.exp2());
+    for i in 0..NWALKERS {
+        ensemble.push(get_one_init_realization(&vec![0.0], &vec![1.0], &mut rng));
     }
 
     let mut result = Vec::new();
     for i in 0..NITER {
-        let aaa = sample(
-            target_dist,
-            &(ensemble, cached_logprob),
-            &mut rng,
-            &betalist,
-            i % 10 == 0,
-            2.0,
-            1,
-        );
+        let aaa = sample(target_dist, &(ensemble, cached_logprob), &mut rng, 2.0, 1);
         ensemble = aaa.0;
         cached_logprob = aaa.1;
         result.push(ensemble[0][0]);
