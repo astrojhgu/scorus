@@ -5,6 +5,7 @@ authors = ["Gu Junhua <jhgu@nao.cas.cn>"]
 
 [profile.dev]
 opt-level = 3
+debug =true
 
 [dependencies]
 num = ">0.1.*"
@@ -12,3 +13,11 @@ num-traits = ">0.1.*"
 rand = ">0.3.*"
 scoped_threadpool = ">0.1.*"
 quickersort = ">=3.0.0"
+
+[[example]]
+name="sample_bimodal"
+path="examples/sample_bimodal.rs"
+
+[[test]]
+name="ptsample_test1"
+path="tests/ptsample_test1.rs"

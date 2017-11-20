@@ -22,7 +22,8 @@ impl<T> HasLength for Vec<T> {
 
 impl<T: std::default::Default> Resizeable for Vec<T> {
     fn resize(&mut self, x: usize) {
-        (*self).resize_default(x)
+        //(*self).resize_default(x)
+        Vec::resize_default(self, x);
     }
 }
 

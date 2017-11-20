@@ -102,75 +102,77 @@ where
     let result_ensemble = Mutex::new(result_ensemble);
     let result_logprob = Mutex::new(result_logprob);
 
-    let create_task = || {
-        let atomic_k = &atomic_k;
-        let result_ensemble = &result_ensemble;
-        let result_logprob = &result_logprob;
-        let ensemble = &ensemble;
-        let cached_logprob = &cached_logprob;
-        let zvec = &zvec;
-        let walker_group = &walker_group;
-        let walker_group_id = &walker_group_id;
-        let jvec = &jvec;
-        //let rvec=Arc::clone(&rvec);
-        let rvec = &rvec;
-        //let nwalkers=nwalkers;
-        let task = move || loop {
-            let k: usize;
-            {
-                let mut k1 = atomic_k.lock().unwrap();
-                k = *k1;
-                *k1 += 1;
-            }
-            if k >= nwalkers {
-                break;
-            }
+    {
+        let create_task = || {
+            let atomic_k = &atomic_k;
+            let result_ensemble = &result_ensemble;
+            let result_logprob = &result_logprob;
+            let ensemble = &ensemble;
+            let cached_logprob = &cached_logprob;
+            let zvec = &zvec;
+            let walker_group = &walker_group;
+            let walker_group_id = &walker_group_id;
+            let jvec = &jvec;
+            //let rvec=Arc::clone(&rvec);
+            let rvec = &rvec;
+            //let nwalkers=nwalkers;
+            let task = move || loop {
+                let k: usize;
+                {
+                    let mut k1 = atomic_k.lock().unwrap();
+                    k = *k1;
+                    *k1 += 1;
+                }
+                if k >= nwalkers {
+                    break;
+                }
 
-            let lp_last_y = match lp_cached {
-                false => {
-                    let yy1 = flogprob(&ensemble[k]);
+                let lp_last_y = match lp_cached {
+                    false => {
+                        let yy1 = flogprob(&ensemble[k]);
+                        let mut lpyy = result_logprob.lock().unwrap();
+                        lpyy[k] = yy1;
+                        yy1
+                    }
+                    _ => cached_logprob[k],
+                };
+
+                let i = walker_group_id[k];
+                let j = jvec[k];
+                let ni = 1 - i;
+                let z = zvec[k];
+                let r = rvec[k];
+                let new_y = scale_vec(&ensemble[k], &ensemble[walker_group[ni][j]], z);
+                let lp_y = flogprob(&new_y);
+
+                let q = ((ndims - one::<T>()) * (z.ln()) + lp_y - lp_last_y).exp();
+                {
+                    let mut yy = result_ensemble.lock().unwrap();
                     let mut lpyy = result_logprob.lock().unwrap();
-                    lpyy[k] = yy1;
-                    yy1
+                    if r <= q {
+                        yy[k] = new_y;
+                        lpyy[k] = lp_y;
+                    }
                 }
-                _ => cached_logprob[k],
             };
-
-            let i = walker_group_id[k];
-            let j = jvec[k];
-            let ni = 1 - i;
-            let z = zvec[k];
-            let r = rvec[k];
-            let new_y = scale_vec(&ensemble[k], &ensemble[walker_group[ni][j]], z);
-            let lp_y = flogprob(&new_y);
-
-            let q = ((ndims - one::<T>()) * (z.ln()) + lp_y - lp_last_y).exp();
-            {
-                let mut yy = result_ensemble.lock().unwrap();
-                let mut lpyy = result_logprob.lock().unwrap();
-                if r <= q {
-                    yy[k] = new_y;
-                    lpyy[k] = lp_y;
-                }
-            }
+            task
         };
-        task
-    };
 
-    if nthread > 1 {
-        let mut pool = Pool::new(nthread as u32);
-        pool.scoped(|scope| {
-            for _ in 0..nthread {
-                scope.execute(create_task());
-            }
-        });
-    } else {
-        let task = create_task();
-        task();
+        if nthread > 1 {
+            let mut pool = Pool::new(nthread as u32);
+            pool.scoped(|scope| {
+                for _ in 0..nthread {
+                    scope.execute(create_task());
+                }
+            });
+        } else {
+            let task = create_task();
+            task();
+        }
     }
 
-    let result_ensemble = (&result_ensemble).lock().unwrap();
-    let result_logprob = (&result_logprob).lock().unwrap();
+    let result_ensemble = result_ensemble.into_inner().unwrap();
+    let result_logprob = result_logprob.into_inner().unwrap();
 
-    (result_ensemble.clone(), result_logprob.clone())
+    (result_ensemble, result_logprob)
 }
