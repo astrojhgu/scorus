@@ -3,7 +3,7 @@ extern crate scoped_threadpool;
 extern crate std;
 use scoped_threadpool::Pool;
 
-
+use mcmc_errors::McmcErrs;
 use utils::draw_z;
 use utils::HasLength;
 use utils::Resizeable;
@@ -26,7 +26,7 @@ pub fn sample<T, U, V, W, X>(
     perform_swap: bool,
     a: T,
     nthread: usize,
-) -> (W, X)
+) -> Result<(W, X), McmcErrs>
 where
     T: Float
         + NumCast
@@ -55,7 +55,12 @@ where
         + ItemSwapable,
 {
     let (mut result_ensemble, mut result_logprob) =
-        swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap);
+        match swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap) {
+            Ok((a, b)) => (a, b),
+            Err(x) => return Err(x),
+        };
+
+
 
     let ensemble = result_ensemble.clone();
     let cached_logprob = result_logprob.clone();
@@ -63,20 +68,16 @@ where
     let nbeta = beta_list.length();
     let nwalkers = ensemble.length() / nbeta;
 
-    if nwalkers == 0 || nwalkers % 2 != 0 {
-        panic!(format!(
-            "Error, nwalkers must be even and cannot be zero, which is {} now",
-            nwalkers
-        ));
+    if nwalkers == 0 {
+        return Err(McmcErrs::NWalkersIsZero);
+    }
+    if nwalkers % 2 != 0 {
+        return Err(McmcErrs::NWalkersIsNotEven);
     }
 
+
     if nbeta * nwalkers != ensemble.length() {
-        panic!(format!(
-            "Error, nbeta={} x nwalkers {} != ensemble.length ={}",
-            nbeta,
-            nwalkers,
-            ensemble.length()
-        ));
+        return Err(McmcErrs::NWalkersMismatchesNBeta);
     }
 
 
@@ -213,5 +214,5 @@ where
     let result_ensemble = result_ensemble.into_inner().unwrap();
     let result_logprob = result_logprob.into_inner().unwrap();
 
-    (result_ensemble, result_logprob)
+    Ok((result_ensemble, result_logprob))
 }

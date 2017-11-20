@@ -3,7 +3,7 @@ extern crate scoped_threadpool;
 extern crate std;
 use scoped_threadpool::Pool;
 
-
+use mcmc_errors::McmcErrs;
 use utils::draw_z;
 use utils::HasLength;
 use utils::Resizeable;
@@ -25,7 +25,7 @@ pub fn sample<T, U, V, W, X>(
     rng: &mut U,
     a: T,
     nthread: usize,
-) -> (W, X)
+) -> Result<(W, X), McmcErrs>
 where
     T: Float
         + NumCast
@@ -58,12 +58,14 @@ where
 
     let nwalkers = ensemble.length();
 
-    if nwalkers == 0 || nwalkers % 2 != 0 {
-        panic!(format!(
-            "Error, nwalkers must be even and cannot be zero, which is {} now",
-            nwalkers
-        ));
+    if nwalkers == 0 {
+        return Err(McmcErrs::NWalkersIsZero);
     }
+
+    if nwalkers % 2 != 0 {
+        return Err(McmcErrs::NWalkersIsNotEven);
+    }
+
     let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
 
     let half_nwalkers = nwalkers / 2;
@@ -174,5 +176,5 @@ where
     let result_ensemble = result_ensemble.into_inner().unwrap();
     let result_logprob = result_logprob.into_inner().unwrap();
 
-    (result_ensemble, result_logprob)
+    Ok((result_ensemble, result_logprob))
 }

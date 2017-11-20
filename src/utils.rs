@@ -5,6 +5,8 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 use num_traits::NumCast;
 use std::ops::IndexMut;
+use mcmc_errors::McmcErrs;
+
 pub trait HasLength {
     fn length(&self) -> usize;
 }
@@ -30,6 +32,7 @@ where
     }
     x
 }
+
 
 pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
 where
@@ -82,7 +85,7 @@ pub fn swap_walkers<T, U, V, W, X>(
     rng: &mut U,
     beta_list: &X,
     perform_swap: bool,
-) -> (W, X)
+) -> Result<(W, X), McmcErrs>
 where
     T: Float
         + NumCast
@@ -115,7 +118,8 @@ where
     let nbeta = beta_list.length();
     let nwalker_per_beta = new_ensemble.length() / nbeta;
     if nwalker_per_beta * nbeta != new_ensemble.length() {
-        panic!("Error nensemble/nbeta%0!=0");
+        //panic!("Error nensemble/nbeta%0!=0");
+        return Err(McmcErrs::NWalkersMismatchesNBeta);
     }
     let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
 
@@ -125,7 +129,8 @@ where
             let beta1 = beta_list[i];
             let beta2 = beta_list[i - 1];
             if beta1 >= beta2 {
-                panic!("beta list must be in decreasing order, with no duplicatation");
+                //panic!("beta list must be in decreasing order, with no duplicatation");
+                return Err(McmcErrs::BetaNotInDecrOrd);
             }
             rng.shuffle(&mut jvec);
             //let jvec=shuffle(&jvec, &mut rng);
@@ -148,5 +153,5 @@ where
         }
     }
 
-    (new_ensemble, new_logprob)
+    Ok((new_ensemble, new_logprob))
 }

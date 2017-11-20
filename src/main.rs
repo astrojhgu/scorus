@@ -77,6 +77,7 @@ fn main() {
         vec![0.20, 0.24],
         vec![0.20, 0.12],
         vec![0.23, 0.12],
+        vec![0.23, 0.12],
     ];
     let mut y = vec![0.0];
     //let mut rng = rand::thread_rng();
@@ -98,7 +99,7 @@ fn main() {
 
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        let aaa = ff1(bimodal, &(x, y), &mut rng, &blist, k % 10 == 0, 2.0, 1);
+        let aaa = ff1(bimodal, &(x, y), &mut rng, &blist, k % 10 == 0, 2.0, 1).unwrap();
         //let aaa = ff1(foo, &(x, y), &mut rng, &blist,k%10==0, 2.0, 1);
         //let aaa=ff1(|x|{-x[0]*x[0]-x[1]*x[1]}, &(x,y), &mut rng, &blist, k%10==0, 2.0, 2);
         x = aaa.0;
