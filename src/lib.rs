@@ -1,16 +1,20 @@
 #![feature(vec_resize_default)]
 extern crate num_traits;
 extern crate scoped_threadpool;
-
 extern crate rand;
+
+use num_traits::float::Float;
+
 pub mod utils;
 pub mod ensemble_sample;
-use num_traits::float::Float;
+pub mod ptsample;
+pub mod init_ensemble;
+
 pub use utils::HasLength;
 pub use utils::Resizeable;
 pub use utils::ItemSwapable;
 pub use utils::shuffle;
-pub mod ptsample;
+pub use init_ensemble::get_one_init_realization;
 
 
 impl<T> HasLength for Vec<T> {
