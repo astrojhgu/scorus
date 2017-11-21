@@ -54,11 +54,7 @@ where
         + Drop
         + ItemSwapable,
 {
-    let (mut result_ensemble, mut result_logprob) =
-        match swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap) {
-            Ok((a, b)) => (a, b),
-            Err(x) => return Err(x),
-        };
+    let (mut result_ensemble, mut result_logprob) = swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap) ?;
 
 
 
