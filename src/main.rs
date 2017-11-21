@@ -77,7 +77,6 @@ fn main() {
         vec![0.20, 0.24],
         vec![0.20, 0.12],
         vec![0.23, 0.12],
-        vec![0.23, 0.12],
     ];
     let mut y = vec![0.0];
     //let mut rng = rand::thread_rng();
