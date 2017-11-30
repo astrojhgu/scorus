@@ -1,4 +1,4 @@
-//sextern crate std;
+//extern crate std;
 extern crate num_traits;
 extern crate quickersort;
 extern crate rand;
