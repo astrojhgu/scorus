@@ -10,6 +10,7 @@ pub mod ensemble_sample;
 pub mod ptsample;
 pub mod init_ensemble;
 pub mod mcmc_errors;
+pub mod arms;
 pub use utils::HasLength;
 pub use utils::Resizeable;
 pub use utils::ItemSwapable;

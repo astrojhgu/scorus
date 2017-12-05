@@ -3,6 +3,7 @@ extern crate scoped_threadpool;
 extern crate std;
 use scoped_threadpool::Pool;
 
+use std::sync::Arc;
 use mcmc_errors::McmcErrs;
 use utils::draw_z;
 use utils::HasLength;
@@ -18,8 +19,8 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 
 
-pub fn sample<T, U, V, W, X>(
-    flogprob: fn(&V) -> T,
+pub fn sample<T, U, V, W, X, F>(
+    flogprob: &F,
     ensemble_logprob: &(W, X),
     mut rng: &mut U,
     beta_list: &X,
@@ -53,11 +54,12 @@ where
         + std::marker::Send
         + Drop
         + ItemSwapable,
+    F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
     let (mut result_ensemble, mut result_logprob) =
         swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap)?;
 
-
+    //let pflogprob=Arc::new(flogprob);
 
     let ensemble = result_ensemble.clone();
     let cached_logprob = result_logprob.clone();
@@ -144,6 +146,7 @@ where
             let jvec = &jvec;
             //let rvec=Arc::clone(&rvec);
             let rvec = &rvec;
+            let flogprob = &flogprob;
             //let nwalkers=nwalkers;
             let task = move || loop {
                 let n: usize;
@@ -161,6 +164,7 @@ where
 
                 let lp_last_y = match lp_cached {
                     false => {
+                        //let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
                         let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
                         let mut lpyy = result_logprob.lock().unwrap();
                         lpyy[ibeta * nwalkers + k] = yy1;

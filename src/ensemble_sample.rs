@@ -2,7 +2,7 @@ extern crate rand;
 extern crate scoped_threadpool;
 extern crate std;
 use scoped_threadpool::Pool;
-
+use std::sync::Arc;
 use mcmc_errors::McmcErrs;
 use utils::draw_z;
 use utils::HasLength;
@@ -19,8 +19,8 @@ use num_traits::identities::zero;
 
 
 
-pub fn sample<T, U, V, W, X>(
-    flogprob: fn(&V) -> T,
+pub fn sample<T, U, V, W, X, F>(
+    flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     a: T,
@@ -50,12 +50,13 @@ where
         + Resizeable
         + std::marker::Send
         + Drop,
+    F: Fn(&V) -> T + std::marker::Send + std::marker::Sync,
 {
     let ensemble = &ensemble_logprob.0;
     let cached_logprob = &ensemble_logprob.1;
     let result_ensemble = ensemble.clone();
     let mut result_logprob = cached_logprob.clone();
-
+    //let pflogprob=Arc::new(&flogprob);
     let nwalkers = ensemble.length();
 
     if nwalkers == 0 {
@@ -115,6 +116,7 @@ where
             let walker_group = &walker_group;
             let walker_group_id = &walker_group_id;
             let jvec = &jvec;
+            let flogprob = &flogprob;
             //let rvec=Arc::clone(&rvec);
             let rvec = &rvec;
             //let nwalkers=nwalkers;
