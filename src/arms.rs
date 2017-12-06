@@ -163,6 +163,7 @@ where
         }
     } {
         r if r.is_nan() => {
+            println!("{} {} {} {} {}", z, x1, y1, x2, y2);
             panic!("c");
             Err(ArmsErrs::ResultIsNan)
         }
@@ -213,6 +214,7 @@ where
     }
 }
 
+/*
 impl<T> std::marker::Copy for Section<T>
 where
     T: Float
@@ -225,7 +227,7 @@ where
         + std::fmt::Display,
 {
 }
-
+*/
 impl<T> Section<T>
 where
     T: Float
@@ -631,7 +633,7 @@ where
     new_list.reserve(1);
     loop {
         match section_list.pop_front() {
-            Some(s) if s.x_l() < x && s.x_u() > x => {
+            Some(ref s) if s.x_l() < x && s.x_u() > x => {
                 let mut news1 = Section::new();
                 let y = eval_log(pd, x, scale)?;
                 news1.set_x_l(s.x_l());
@@ -672,9 +674,11 @@ where
                     )?;
                     new_list.back_mut().unwrap()._x_i = xi;
                     new_list.back_mut().unwrap()._y_i = yi;
-                    let aa = new_list.back_mut().unwrap().calc_int_exp_y()?;
-                    new_list.back_mut().unwrap()._int_exp_y_l = aa._int_exp_y_l;
-                    new_list.back_mut().unwrap()._int_exp_y_u = aa._int_exp_y_u;
+                    //let aa = new_list.back_mut().unwrap().calc_int_exp_y()?;
+                    let aa = new_list.pop_back().unwrap().calc_int_exp_y()?;
+                    new_list.push_back(aa);
+                    //new_list.back_mut().unwrap()._int_exp_y_l = aa._int_exp_y_l;
+                    //new_list.back_mut().unwrap()._int_exp_y_u = aa._int_exp_y_u;
                 }
                 if section_list.len() > 1 {
                     let (xi, yi) = calc_intersection(
@@ -684,9 +688,11 @@ where
                     )?;
                     section_list.front_mut().unwrap()._x_i = xi;
                     section_list.front_mut().unwrap()._y_i = yi;
-                    let aa = section_list.front_mut().unwrap().calc_int_exp_y()?;
-                    section_list.front_mut().unwrap()._int_exp_y_l = aa._int_exp_y_l;
-                    section_list.front_mut().unwrap()._int_exp_y_u = aa._int_exp_y_u;
+                    //let aa = section_list.pop_front().unwrap().calc_int_exp_y()?;
+                    let aa = section_list.pop_front().unwrap().calc_int_exp_y()?;
+                    section_list.push_front(aa);
+                    //section_list.front_mut().unwrap()._int_exp_y_l = aa._int_exp_y_l;
+                    //section_list.front_mut().unwrap()._int_exp_y_u = aa._int_exp_y_u;
                 }
                 new_list.push_back(news1);
                 new_list.push_back(news2);
@@ -761,7 +767,7 @@ where
         };
         section_list[i]._x_i = xi;
         section_list[i]._y_i = yi;
-        section_list[i] = section_list[i].calc_int_exp_y()?;
+        section_list[i] = section_list[i].clone().calc_int_exp_y()?;
     }
 
     calc_cum_int_exp_y(&mut section_list);
