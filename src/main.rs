@@ -9,6 +9,7 @@ use rsmcmc::ptsample::sample as ff1;
 use rsmcmc::shuffle;
 use rand::Rng;
 use quickersort::sort_by;
+use rsmcmc::arms::sample;
 
 
 fn normal_dist(x: &Vec<f64>) -> f64 {
@@ -43,85 +44,25 @@ fn foo(x: &Vec<f64>) -> f64 {
     }
 }
 
+fn unigauss(x: f64) -> f64 {
+    -x * x
+}
+
 fn main() {
-    let mut x = vec![
-        vec![0.10, 0.20],
-        vec![0.20, 0.10],
-        vec![0.23, 0.21],
-        vec![0.03, 0.22],
-        vec![0.10, 0.20],
-        vec![0.20, 0.24],
-        vec![0.20, 0.12],
-        vec![0.23, 0.12],
-        vec![0.10, 0.20],
-        vec![0.20, 0.10],
-        vec![0.23, 0.21],
-        vec![0.03, 0.22],
-        vec![0.10, 0.20],
-        vec![0.20, 0.24],
-        vec![0.20, 0.12],
-        vec![0.23, 0.12],
-        vec![0.10, 0.20],
-        vec![0.20, 0.10],
-        vec![0.23, 0.21],
-        vec![0.03, 0.22],
-        vec![0.10, 0.20],
-        vec![0.20, 0.24],
-        vec![0.20, 0.12],
-        vec![0.23, 0.12],
-        vec![0.10, 0.20],
-        vec![0.20, 0.10],
-        vec![0.23, 0.21],
-        vec![0.03, 0.22],
-        vec![0.10, 0.20],
-        vec![0.20, 0.24],
-        vec![0.20, 0.12],
-        vec![0.23, 0.12],
-    ];
-    let mut y = vec![0.0];
-    //let mut rng = rand::thread_rng();
-    let mut rng = rand::StdRng::new().unwrap();
+    let mut rng = rand::thread_rng();
+    let mut cnt = 0;
 
-    //let aa=(x,y);
-    //let mut x=shuffle(&x, &mut rng);
 
-    let blist = vec![1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125];
-    let nbeta = blist.len();
-    let nwalkers = x.len() / nbeta;
-    let mut results: Vec<Vec<f64>> = Vec::new();
-    let niter = 100000;
-    for i in 0..nbeta {
-        results.push(Vec::new());
-        results[i].reserve(niter);
-    }
-    let foo1 = |x: &Vec<f64>| bimodal(&x);
-
-    for k in 0..niter {
-        //let aaa = ff(&normal_dist, &(x, y), &mut rng, 2.0, 1).unwrap();
-        let aaa = ff1(&foo1, &(x, y), &mut rng, &blist, k % 10 == 0, 2.0, 1).unwrap();
-        //let aaa = ff1(foo, &(x, y), &mut rng, &blist,k%10==0, 2.0, 1);
-        //let aaa=ff1(|x|{-x[0]*x[0]-x[1]*x[1]}, &(x,y), &mut rng, &blist, k%10==0, 2.0, 2);
-        x = aaa.0;
-        y = aaa.1;
-
-        for i in 0..nbeta {
-            results[i].push(x[i * nwalkers + 0][0]);
-        }
-    }
-
-    for i in 0..nbeta {
-        sort_by(&mut results[i], &|x, y| {
-            if x > y {
-                std::cmp::Ordering::Greater
-            } else if x < y {
-                std::cmp::Ordering::Less
-            } else {
-                std::cmp::Ordering::Equal
-            }
-        });
-        for j in 0..niter {
-            println!("{} {}", results[i][j], j);
-        }
-        println!("no no no");
+    match sample(
+        &unigauss,
+        (-3.0, 3.0),
+        &vec![-1.5, -1.0, 1.0, 1.5],
+        0.0,
+        10,
+        &mut rng,
+        &mut cnt,
+    ) {
+        Ok(x) => println!("{}", x),
+        Err(x) => println!("{:?}", x),
     }
 }
