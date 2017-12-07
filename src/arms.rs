@@ -33,7 +33,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     if x > y {
         y
@@ -51,7 +52,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     if x < y {
         y
@@ -71,7 +73,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     match pd(x) {
@@ -93,7 +96,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -135,12 +139,14 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
 
     let k: T = (y2 - y1) / (x2 - x1);
+    //println!("k={}", k);
     match if (x1 == x2) && z.is_zero() {
         x1
     } else {
@@ -151,6 +157,7 @@ where
             }
         } else {
             let u: T = one::<T>() + k * z * (-y1).exp();
+            //println!("u={}", u);
             if u.is_infinite() {
                 x1 + ((k * z).ln() - y1) / k
             } else {
@@ -164,7 +171,7 @@ where
     } {
         r if r.is_nan() => {
             println!("{} {} {} {} {}", z, x1, y1, x2, y2);
-            panic!("c");
+            //panic!("c");
             Err(ArmsErrs::ResultIsNan)
         }
         r => Ok(r),
@@ -172,7 +179,7 @@ where
 }
 
 
-
+#[derive(Debug)]
 pub struct Section<T>
 where
     T: Float
@@ -182,21 +189,26 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
-    _x_l: T,
-    _x_u: T,
-    _x_i: T,
+    pub _x_l: T,
+    pub _y_l: T,
 
-    _y_l: T,
-    _y_u: T,
-    _y_i: T,
+    pub _x_u: T,
+    pub _y_u: T,
 
-    _int_exp_y_l: T,
-    _int_exp_y_u: T,
-    _cum_int_exp_y_l: T,
-    _cum_int_exp_y_u: T,
+    pub _x_i: Option<T>,
+    pub _y_i: Option<T>,
+
+    pub _int_exp_y_l: Option<T>,
+    pub _int_exp_y_u: Option<T>,
+
+    pub _cum_int_exp_y_l: Option<T>,
+    pub _cum_int_exp_y_u: Option<T>,
 }
+
+
 
 impl<T> std::clone::Clone for Section<T>
 where
@@ -207,7 +219,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     fn clone(&self) -> Self {
         Section { ..*self }
@@ -237,21 +250,22 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
-    fn new() -> Self {
-        let nan = Float::nan();
+    fn new(xl: T, yl: T, xu: T, yu: T) -> Self {
+        //let nan = Float::nan();
         Section {
-            _x_l: nan,
-            _x_u: nan,
-            _x_i: nan,
-            _y_l: nan,
-            _y_u: nan,
-            _y_i: nan,
-            _int_exp_y_l: nan,
-            _int_exp_y_u: nan,
-            _cum_int_exp_y_l: nan,
-            _cum_int_exp_y_u: nan,
+            _x_l: xl,
+            _x_u: xu,
+            _x_i: None,
+            _y_l: yl,
+            _y_u: yu,
+            _y_i: None,
+            _int_exp_y_l: None,
+            _int_exp_y_u: None,
+            _cum_int_exp_y_l: None,
+            _cum_int_exp_y_u: None,
         }
     }
 
@@ -264,7 +278,7 @@ where
     }
 
     fn x_i(&self) -> T {
-        self._x_i
+        self._x_i.unwrap()
     }
 
     fn y_l(&self) -> T {
@@ -276,19 +290,19 @@ where
     }
 
     fn y_i(&self) -> T {
-        self._y_i
+        self._y_i.unwrap()
     }
     fn int_exp_y_l(&self) -> T {
-        self._int_exp_y_l
+        self._int_exp_y_l.unwrap()
     }
     fn int_exp_y_u(&self) -> T {
-        self._int_exp_y_u
+        self._int_exp_y_u.unwrap()
     }
     fn cum_int_exp_y_l(&self) -> T {
-        self._cum_int_exp_y_l
+        self._cum_int_exp_y_l.unwrap()
     }
     fn cum_int_exp_y_u(&self) -> T {
-        self._cum_int_exp_y_u
+        self._cum_int_exp_y_u.unwrap()
     }
     fn set_x_l(&mut self, x: T) {
         self._x_l = x;
@@ -297,12 +311,12 @@ where
         self._x_u = x;
     }
     fn set_x_i(&mut self, x: T) {
-        self._x_i = x;
-        if self._x_i < self._x_l {
-            self._x_i = self._x_l;
+        self._x_i = Some(x);
+        if self._x_i.unwrap() < self._x_l {
+            self._x_i = Some(self._x_l);
         }
-        if self._x_i > self._x_u {
-            self._x_i = self._x_u;
+        if self._x_i.unwrap() > self._x_u {
+            self._x_i = Some(self._x_u);
         }
     }
 
@@ -313,40 +327,41 @@ where
         self._y_u = y;
     }
     fn set_y_i(&mut self, y: T) {
-        self._y_i = y;
+        self._y_i = Some(y);
     }
 
     fn set_int_exp_y_l(&mut self, y: T) {
-        self._int_exp_y_l = y;
+        self._int_exp_y_l = Some(y);
     }
     fn set_int_exp_y_u(&mut self, y: T) {
-        self._int_exp_y_u = y;
+        self._int_exp_y_u = Some(y);
     }
     fn set_cum_int_exp_y_l(&mut self, y: T) {
-        self._cum_int_exp_y_l = y;
+        self._cum_int_exp_y_l = Some(y);
     }
     fn set_cum_int_exp_y_u(&mut self, y: T) {
-        self._cum_int_exp_y_u = y;
+        self._cum_int_exp_y_u = Some(y);
     }
     fn encloses(&self, x: T) -> bool {
         (x >= self._x_l) && (x <= self._x_u)
     }
-    fn calc_int_exp_y(self) -> Result<Self, ArmsErrs> {
+
+    pub fn calc_int_exp_y(self) -> Result<Self, ArmsErrs> {
         //println!("aaa");
-        let _int_exp_y_l: T = if self._x_i == self._x_l {
+        let _int_exp_y_l: T = if self._x_i.unwrap() == self._x_l {
             zero()
         } else {
-            int_exp_y(self._x_i, (self._x_l, self._y_l), (self._x_i, self._y_i))?
+            int_exp_y(self.x_i(), (self._x_l, self._y_l), (self.x_i(), self.y_i()))?
         };
-        let _int_exp_y_u: T = if self._x_i == self._x_u {
+        let _int_exp_y_u: T = if self.x_i() == self._x_u {
             zero()
         } else {
-            int_exp_y(self._x_u, (self._x_i, self._y_i), (self._x_u, self._y_u))?
+            int_exp_y(self._x_u, (self.x_i(), self.y_i()), (self._x_u, self._y_u))?
         };
         //println!("inty={} {}", _int_exp_y_l, _int_exp_y_u);
         Ok(Section::<T> {
-            _int_exp_y_l: _int_exp_y_l,
-            _int_exp_y_u: _int_exp_y_u,
+            _int_exp_y_l: Some(_int_exp_y_l),
+            _int_exp_y_u: Some(_int_exp_y_u),
             ..self
         })
     }
@@ -356,12 +371,12 @@ where
             self._y_l
         } else if x == self._x_u {
             self._y_u
-        } else if x == self._x_i {
-            self._y_i
-        } else if x < self._x_i {
-            self._y_l + (x - self._x_l) * (self._y_i - self._y_l) / (self._x_i - self._x_l)
+        } else if x == self.x_i() {
+            self.y_i()
+        } else if x < self._x_i.unwrap() {
+            self._y_l + (x - self._x_l) * (self.y_i() - self._y_l) / (self.x_i() - self._x_l)
         } else {
-            self._y_u + (x - self._x_u) * (self._y_i - self._y_u) / (self._x_i - self._x_u)
+            self._y_u + (x - self._x_u) * (self.y_i() - self._y_u) / (self.x_i() - self._x_u)
         }
     }
 }
@@ -376,7 +391,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     for i in section_list.iter() {
         if i.encloses(x) {
@@ -395,7 +411,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     let y = eval(x, section_list)?;
     Ok(y.exp())
@@ -416,7 +433,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -484,7 +502,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     match (before, after) {
         (Some(a), Some(b)) => solve_intersection(
@@ -513,9 +532,9 @@ where
 }
 
 enum InsertionResult {
-    SUCCEEDED,
-    SEARCH_FAILED,
-    POINT_OVERLAPPED,
+    Succeed,
+    SearchFailed,
+    PointOverlapped,
 }
 
 fn calc_cum_int_exp_y<T>(section_list: &mut VecDeque<Section<T>>)
@@ -527,13 +546,14 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     let mut cy = zero::<T>();
     for i in section_list {
-        i._cum_int_exp_y_l = cy + i._int_exp_y_l;
-        i._cum_int_exp_y_u = i._cum_int_exp_y_l + i._int_exp_y_u;
-        cy = i._cum_int_exp_y_u;
+        i._cum_int_exp_y_l = Some(cy + i._int_exp_y_l.unwrap());
+        i._cum_int_exp_y_u = Some(i._cum_int_exp_y_l.unwrap() + i._int_exp_y_u.unwrap());
+        cy = i._cum_int_exp_y_u.unwrap();
         //println!("cy={}", cy);
     }
 }
@@ -547,7 +567,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     let mut scale: T = Float::neg_infinity();
     for i in section_list {
@@ -579,7 +600,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
 {
     let mut section_list = section_list;
     let new_scale = calc_scale(&section_list)?;
@@ -588,9 +610,9 @@ where
     for i in &mut section_list {
         i._y_l = i._y_l - new_scale;
         i._y_u = i._y_u - new_scale;
-        i._y_i = i._y_i - new_scale;
-        i._cum_int_exp_y_u = i._cum_int_exp_y_u / new_scale.exp();
-        i._cum_int_exp_y_l = i._cum_int_exp_y_l / new_scale.exp();
+        //i._y_i = Some(i._y_i.unwrap() - new_scale);
+        //i._cum_int_exp_y_u = i._cum_int_exp_y_u / new_scale.exp();
+        //i._cum_int_exp_y_l = i._cum_int_exp_y_l / new_scale.exp();
     }
 
     for i in 0..section_list.len() {
@@ -603,8 +625,10 @@ where
             },
             section_list.get(i + 1),
         )?;
-        section_list[i]._x_i = xi;
-        section_list[i]._y_i = yi;
+        section_list[i]._x_i = Some(xi);
+        section_list[i]._y_i = Some(yi);
+        let aa = section_list[i].clone().calc_int_exp_y()?;
+        section_list[i] = aa;
     }
     calc_cum_int_exp_y(&mut section_list);
     *scale = *scale + new_scale;
@@ -625,7 +649,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let mut section_list = section_list;
@@ -634,18 +659,9 @@ where
     loop {
         match section_list.pop_front() {
             Some(ref s) if s.x_l() < x && s.x_u() > x => {
-                let mut news1 = Section::new();
                 let y = eval_log(pd, x, scale)?;
-                news1.set_x_l(s.x_l());
-                news1.set_x_u(x);
-                news1.set_y_l(s.y_l());
-                news1.set_y_u(y);
-
-                let mut news2 = Section::new();
-                news2.set_x_l(x);
-                news2.set_x_u(s.x_u());
-                news2.set_y_l(y);
-                news2.set_y_u(s.y_u());
+                let mut news1 = Section::new(s.x_l(), s.y_l(), x, y);
+                let mut news2 = Section::new(x, y, s.x_u(), s.y_u());
                 {
                     let (xi, yi) = calc_intersection(
                         &news1,
@@ -656,14 +672,14 @@ where
                         },
                         Some(&news2),
                     )?;
-                    news1._x_i = xi;
-                    news1._y_i = yi;
+                    news1._x_i = Some(xi);
+                    news1._y_i = Some(yi);
                     news1 = news1.calc_int_exp_y()?;
                 }
                 {
                     let (xi, yi) = calc_intersection(&news2, Some(&news1), section_list.get(0))?;
-                    news2._x_i = xi;
-                    news2._y_i = yi;
+                    news2._x_i = Some(xi);
+                    news2._y_i = Some(yi);
                     news2 = news2.calc_int_exp_y()?;
                 }
                 if new_list.len() > 1 {
@@ -672,8 +688,8 @@ where
                         new_list.get(new_list.len() - 2),
                         Some(&news1),
                     )?;
-                    new_list.back_mut().unwrap()._x_i = xi;
-                    new_list.back_mut().unwrap()._y_i = yi;
+                    new_list.back_mut().unwrap()._x_i = Some(xi);
+                    new_list.back_mut().unwrap()._y_i = Some(yi);
                     //let aa = new_list.back_mut().unwrap().calc_int_exp_y()?;
                     let aa = new_list.pop_back().unwrap().calc_int_exp_y()?;
                     new_list.push_back(aa);
@@ -686,8 +702,8 @@ where
                         Some(&news2),
                         section_list.get(1),
                     )?;
-                    section_list.front_mut().unwrap()._x_i = xi;
-                    section_list.front_mut().unwrap()._y_i = yi;
+                    section_list.front_mut().unwrap()._x_i = Some(xi);
+                    section_list.front_mut().unwrap()._y_i = Some(yi);
                     //let aa = section_list.pop_front().unwrap().calc_int_exp_y()?;
                     let aa = section_list.pop_front().unwrap().calc_int_exp_y()?;
                     section_list.push_front(aa);
@@ -719,7 +735,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
 {
@@ -738,11 +755,16 @@ where
 
     let mut section_list = VecDeque::<Section<T>>::new();
     for i in 0..(init_x.length() - 1) {
-        let mut s = Section::new();
-        s.set_x_l(init_x[i]);
-        s.set_x_u(init_x[i + 1]);
-        s.set_y_l(eval_log(pd, init_x[i], zero())?);
-        s.set_y_u(eval_log(pd, init_x[i + 1], zero())?);
+        let mut s = Section::new(
+            init_x[i],
+            eval_log(pd, init_x[i], zero())?,
+            init_x[i + 1],
+            eval_log(pd, init_x[i + 1], zero())?,
+        );
+        //s.set_x_l(init_x[i]);
+        //s.set_x_u(init_x[i + 1]);
+        //s.set_y_l(eval_log(pd, init_x[i], zero())?);
+        //s.set_y_u(eval_log(pd, init_x[i + 1], zero())?);
         section_list.push_back(s);
     }
 
@@ -765,14 +787,22 @@ where
                 Some(&section_list[i + 1]),
             )?
         };
-        section_list[i]._x_i = xi;
-        section_list[i]._y_i = yi;
+        section_list[i]._x_i = Some(xi);
+        section_list[i]._y_i = Some(yi);
         section_list[i] = section_list[i].clone().calc_int_exp_y()?;
+        //println!("{:?}", &section_list[i]);
     }
 
     calc_cum_int_exp_y(&mut section_list);
 
-    assert!(section_list.back().unwrap()._cum_int_exp_y_u.is_finite());
+    assert!(
+        section_list
+            .back()
+            .unwrap()
+            ._cum_int_exp_y_u
+            .unwrap()
+            .is_finite()
+    );
     Ok(section_list)
 }
 
@@ -791,12 +821,13 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let x = {
         match section_list.back() {
-            Some(x) => p * x._cum_int_exp_y_u,
+            Some(x) => p * x._cum_int_exp_y_u.unwrap(),
             _ => {
                 panic!("#2");
                 return Err(ArmsErrs::IllConditionedDistribution);
@@ -805,7 +836,7 @@ where
     };
 
     for i in 0..section_list.len() {
-        let xx = section_list[i]._cum_int_exp_y_u;
+        let xx = section_list[i]._cum_int_exp_y_u.unwrap();
         if (p < one() && x < xx) || (p == one() && x <= xx) {
             return Ok(i);
         }
@@ -827,7 +858,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let mut section_list = section_list;
@@ -836,8 +868,8 @@ where
         let mut has_inf = false;
         let mut n = section_list.len();
         for i in 0..section_list.len() {
-            if section_list[i]._cum_int_exp_y_u.is_infinite()
-                || section_list[i]._cum_int_exp_y_l.is_infinite()
+            if section_list[i]._cum_int_exp_y_u.unwrap().is_infinite()
+                || section_list[i]._cum_int_exp_y_l.unwrap().is_infinite()
             {
                 has_inf = true;
                 n = i;
@@ -846,10 +878,10 @@ where
         }
 
         if has_inf {
-            let x = if section_list[n]._cum_int_exp_y_l.is_infinite() {
-                (section_list[n]._x_l + section_list[n]._x_i) / two
+            let x = if section_list[n]._cum_int_exp_y_l.unwrap().is_infinite() {
+                (section_list[n]._x_l + section_list[n]._x_i.unwrap()) / two
             } else {
-                (section_list[n]._x_i + section_list[n]._x_u) / two
+                (section_list[n]._x_i.unwrap() + section_list[n]._x_u) / two
             };
             section_list = insert_point(pd, section_list, x, *scale)?;
             section_list = update_scale(section_list, scale)?;
@@ -874,48 +906,68 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     R: rand::Rng,
 {
     let p = rng.gen_range(zero(), one());
     let n = search_point(section_list, p, pd, scale)?;
     let y: T = match section_list.back() {
-        Some(s) => p * s._cum_int_exp_y_u,
+        Some(s) => p * s._cum_int_exp_y_u.unwrap(),
         _ => return Err(ArmsErrs::IllConditionedDistribution),
     };
-    let (ybase, x1, y1, x2, y2) =
-        if (y >= section_list[n]._cum_int_exp_y_l && y <= section_list[n]._cum_int_exp_y_u) {
-            (
-                section_list[n]._cum_int_exp_y_l,
-                section_list[n]._x_i,
-                section_list[n]._y_i,
-                section_list[n]._x_u,
-                section_list[n]._y_u,
-            )
-        } else if (y < section_list[n]._cum_int_exp_y_l) {
-            (
-                if n > 1 {
-                    match section_list.get(n - 1) {
-                        Some(s) => s._cum_int_exp_y_u,
-                        _ => zero::<T>(),
+    let (ybase, x1, y1, x2, y2) = if (y >= section_list[n]._cum_int_exp_y_l.unwrap()
+        && y <= section_list[n]._cum_int_exp_y_u.unwrap())
+    {
+        (
+            section_list[n]._cum_int_exp_y_l.unwrap(),
+            section_list[n]._x_i.unwrap(),
+            section_list[n]._y_i.unwrap(),
+            section_list[n]._x_u,
+            section_list[n]._y_u,
+        )
+    } else if (y < section_list[n]._cum_int_exp_y_l.unwrap()) {
+        (
+            if n > 0 {
+                match section_list.get(n - 1) {
+                    Some(s) => {
+                        assert!(
+                            y - s._cum_int_exp_y_u.unwrap()
+                                < section_list.get(n).unwrap()._int_exp_y_l.unwrap()
+                        );
+                        s._cum_int_exp_y_u.unwrap()
                     }
-                } else {
-                    zero::<T>()
-                },
-                section_list[n]._x_l,
-                section_list[n]._y_l,
-                section_list[n]._x_i,
-                section_list[n]._y_i,
-            )
-        } else {
-            return Err(ArmsErrs::IllConditionedDistribution);
-        };
+                    _ => zero::<T>(),
+                }
+            } else {
+                zero::<T>()
+            },
+            section_list[n]._x_l,
+            section_list[n]._y_l,
+            section_list[n]._x_i.unwrap(),
+            section_list[n]._y_i.unwrap(),
+        )
+    } else {
+        return Err(ArmsErrs::IllConditionedDistribution);
+    };
 
     if y == ybase {
         Ok(x1)
     } else {
-        Ok(inv_int_exp_y(y - ybase, (x1, y1), (x2, y2))?)
+        match inv_int_exp_y(y - ybase, (x1, y1), (x2, y2)) {
+            Ok(x) => Ok(x),
+            Err(x) => {
+                println!("n={}", n);
+                println!("y={} ybase={}", y, ybase);
+                for i in section_list {
+                    println!("{:?}", i);
+                }
+                panic!("aaa");
+                Err(x)
+            }
+        }
+        //Ok(inv_int_exp_y(y - ybase, (x1, y1), (x2, y2))?)
     }
 }
 
@@ -938,7 +990,8 @@ where
         + rand::distributions::range::SampleRange
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Display
+        + std::fmt::Debug,
     R: rand::Rng,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
@@ -960,7 +1013,7 @@ where
             section_list = update_scale(section_list, &mut scale)?;
 
             let need_cr = if let Some(x) = section_list.back() {
-                if x._cum_int_exp_y_u.is_infinite() {
+                if x._cum_int_exp_y_u.unwrap().is_infinite() {
                     true
                 } else {
                     false

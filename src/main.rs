@@ -3,6 +3,7 @@ extern crate num_traits;
 extern crate quickersort;
 extern crate rand;
 extern crate rsmcmc;
+
 use num_traits::float::Float;
 use rsmcmc::ensemble_sample::sample as ff;
 use rsmcmc::ptsample::sample as ff1;
@@ -10,6 +11,8 @@ use rsmcmc::shuffle;
 use rand::Rng;
 use quickersort::sort_by;
 use rsmcmc::arms::sample;
+use rsmcmc::arms::inv_int_exp_y;
+use rsmcmc::arms::int_exp_y;
 
 
 fn normal_dist(x: &Vec<f64>) -> f64 {
@@ -51,18 +54,47 @@ fn unigauss(x: f64) -> f64 {
 fn main() {
     let mut rng = rand::thread_rng();
     let mut cnt = 0;
+    //println!("int={}",int_exp_y(-1.4449533639622274, (-1.5, -1.25),(-1.4449533639622274, -1.5909203561648322)).unwrap());
+    //inv_int_exp_y(0.05202309822310175, (-1.5, -1.25), (-1.4449533639622274, -1.5909203561648322));
 
+    /*
+    println!(
+        "{}",
+        int_exp_y(
+            1.0906301300564414,
+            (1.090630130056439, -1.1894740805869248),
+            (1.0906301300564414, -1.1894740805870607)
+        ).unwrap()
+    );
+    println!(
+        "{}",
+        int_exp_y(1.5, (1.0906301300564414, -1.1894740805870607), (1.5, -1.25)).unwrap()
+    );
+    let s = rsmcmc::arms::Section {
+        _x_l: 1.090630130056439,
+        _x_u: 1.5,
+        _x_i: Some(1.0906301300564414),
+        _y_l: -1.1894740805869248,
+        _y_u: -1.25,
+        _y_i: Some(-1.1894740805870607),
+        _int_exp_y_l: Some(0.06136897988341142),
+        _int_exp_y_u: Some(0.05953959385346115),
+        _cum_int_exp_y_l: Some(1.7060441118071998),
+        _cum_int_exp_y_u: Some(1.765583705660661),
+    };
 
-    match sample(
-        &unigauss,
-        (-5.0, 5.0),
-        &vec![-1.5, -1.0, 1.0, 1.5],
-        0.0,
-        10,
-        &mut rng,
-        &mut cnt,
-    ) {
-        Ok(x) => println!("{}", x),
-        Err(x) => println!("{:?}", x),
-    }
+    println!("{:?}", s.calc_int_exp_y().unwrap());
+*/
+    println!(
+        "{}",
+        sample(
+            &unigauss,
+            (-15.0, 15.0),
+            &vec![-1.5, -1.0, 1.0, 1.5],
+            0.0,
+            10,
+            &mut rng,
+            &mut cnt,
+        ).unwrap()
+    );
 }
