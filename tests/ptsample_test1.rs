@@ -43,7 +43,7 @@ fn test() {
     let mut result = Vec::new();
     for i in 0..NITER {
         let aaa = sample(
-            target_dist,
+            &target_dist,
             &(ensemble, cached_logprob),
             &mut rng,
             &betalist,

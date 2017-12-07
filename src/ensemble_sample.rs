@@ -2,7 +2,7 @@ extern crate rand;
 extern crate scoped_threadpool;
 extern crate std;
 use scoped_threadpool::Pool;
-use std::sync::Arc;
+//use std::sync::Arc;
 use mcmc_errors::McmcErrs;
 use utils::draw_z;
 use utils::HasLength;

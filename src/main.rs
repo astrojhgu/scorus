@@ -13,7 +13,10 @@ use quickersort::sort_by;
 use rsmcmc::arms::sample;
 use rsmcmc::arms::inv_int_exp_y;
 use rsmcmc::arms::int_exp_y;
-
+use rsmcmc::arms::init;
+use rsmcmc::arms::dump_section_list;
+use rsmcmc::arms::insert_point;
+use rsmcmc::arms::update_scale;
 
 fn normal_dist(x: &Vec<f64>) -> f64 {
     let mut result = 0_f64;
@@ -51,12 +54,18 @@ fn unigauss(x: f64) -> f64 {
     -x * x
 }
 
+fn bigauss(x: f64) -> f64 {
+    if x < 0.0 {
+        -(x + 1.) * (x + 1.)
+    } else {
+        -(x - 1.) * (x - 1.)
+    }
+}
+
 fn main() {
     let mut rng = rand::thread_rng();
     let mut cnt = 0;
-    //println!("int={}",int_exp_y(-1.4449533639622274, (-1.5, -1.25),(-1.4449533639622274, -1.5909203561648322)).unwrap());
-    //inv_int_exp_y(0.05202309822310175, (-1.5, -1.25), (-1.4449533639622274, -1.5909203561648322));
-
+    let mut x = 0.0;
     /*
     println!(
         "{}",
@@ -85,16 +94,26 @@ fn main() {
 
     println!("{:?}", s.calc_int_exp_y().unwrap());
 */
-    println!(
-        "{}",
-        sample(
-            &unigauss,
-            (-15.0, 15.0),
-            &vec![-1.5, -1.0, 1.0, 1.5],
-            0.0,
+    /*
+    let mut scale=0.0;
+    let xx=init(&unigauss, (-10.0, 10.0), &vec![-5.0, -1.0, 1.0, 5.0], &mut scale).unwrap();
+    let xx=insert_point(&unigauss, xx, 3.0, scale).unwrap();
+    //let xx=insert_point(&unigauss, xx, 0.0, scale).unwrap();
+    let xx= update_scale(xx, &mut scale).unwrap();
+    dump_section_list(&xx, Some(&unigauss), 0.1, scale);
+    eprintln!("{}", scale);
+    */
+
+    for i in 0..100000 {
+        x = sample(
+            &bigauss,
+            (-125.0, 125.0),
+            &vec![-10.0, -1.5, -1.0, 1.0, 1.5, 20.0],
+            x,
             10,
             &mut rng,
             &mut cnt,
-        ).unwrap()
-    );
+        ).unwrap();
+        println!("{}", x);
+    }
 }

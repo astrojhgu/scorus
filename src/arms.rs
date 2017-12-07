@@ -2,15 +2,15 @@ extern crate rand;
 extern crate std;
 
 use std::ops::IndexMut;
-use rand::Rand;
+//use rand::Rand;
 use std::collections::VecDeque;
 use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 use utils::HasLength;
-use utils::Resizeable;
-use utils::ItemSwapable;
+//use utils::Resizeable;
+//use utils::ItemSwapable;
 
 #[derive(Debug)]
 pub enum ArmsErrs {
@@ -77,10 +77,10 @@ where
         + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
-    match pd(x) {
+    match pd(x) - scale {
         y if y.is_infinite() => Err(ArmsErrs::ResultIsInf),
         y if y.is_nan() => {
-            panic!("a");
+            //panic!("a");
             Err(ArmsErrs::ResultIsNan)
         }
         y => Ok(y),
@@ -110,22 +110,23 @@ where
             y1.exp() * (x - x1)
         } else {
             match ((k * (x - x1)).exp() - one()) * y1.exp() / k {
-                x if x.is_nan() => ((k * (x - x1) + y1).exp() - y1.exp()) / k,
-                x => x,
+                inty if inty.is_nan() => ((k * (x - x1) + y1).exp() - y1.exp()) / k,
+                inty => inty,
             }
         }
     } else {
         zero()
     } {
-        x if x.is_nan() => {
-            panic!("b");
+        inty if inty.is_nan() => {
+            println!("{} {} {} {} {}", x, x1, y1, x2, y2);
+            //panic!("b");
             Err(ArmsErrs::ResultIsNan)
         }
-        x if x.is_infinite() => {
-            panic!("cc");
+        inty if inty.is_infinite() => {
+            //panic!("cc");
             Err(ArmsErrs::ResultIsInf)
         }
-        x => Ok(x),
+        inty => Ok(inty),
     }
 }
 
@@ -253,7 +254,7 @@ where
         + std::fmt::Display
         + std::fmt::Debug,
 {
-    fn new(xl: T, yl: T, xu: T, yu: T) -> Self {
+    pub fn new(xl: T, yl: T, xu: T, yu: T) -> Self {
         //let nan = Float::nan();
         Section {
             _x_l: xl,
@@ -269,80 +270,102 @@ where
         }
     }
 
-    fn x_l(&self) -> T {
+    pub fn x_l(&self) -> T {
         self._x_l
     }
 
-    fn x_u(&self) -> T {
+    pub fn x_u(&self) -> T {
         self._x_u
     }
 
-    fn x_i(&self) -> T {
+    pub fn x_i(&self) -> T {
         self._x_i.unwrap()
     }
 
-    fn y_l(&self) -> T {
+    pub fn y_l(&self) -> T {
         self._y_l
     }
 
-    fn y_u(&self) -> T {
+    pub fn y_u(&self) -> T {
         self._y_u
     }
 
-    fn y_i(&self) -> T {
+    pub fn y_i(&self) -> T {
         self._y_i.unwrap()
     }
-    fn int_exp_y_l(&self) -> T {
+
+    pub fn int_exp_y_l(&self) -> T {
         self._int_exp_y_l.unwrap()
     }
-    fn int_exp_y_u(&self) -> T {
+
+    pub fn int_exp_y_u(&self) -> T {
         self._int_exp_y_u.unwrap()
     }
-    fn cum_int_exp_y_l(&self) -> T {
+
+    pub fn cum_int_exp_y_l(&self) -> T {
         self._cum_int_exp_y_l.unwrap()
     }
-    fn cum_int_exp_y_u(&self) -> T {
+
+
+    pub fn cum_int_exp_y_u(&self) -> T {
         self._cum_int_exp_y_u.unwrap()
     }
-    fn set_x_l(&mut self, x: T) {
+
+    pub fn set_x_l(&mut self, x: T) {
         self._x_l = x;
     }
-    fn set_x_u(&mut self, x: T) {
+
+    pub fn set_x_u(&mut self, x: T) {
         self._x_u = x;
     }
-    fn set_x_i(&mut self, x: T) {
-        self._x_i = Some(x);
-        if self._x_i.unwrap() < self._x_l {
-            self._x_i = Some(self._x_l);
+
+    pub fn set_x_i(&mut self, x: T) {
+        if x.is_nan() {
+            panic!("x cannot be nan");
         }
-        if self._x_i.unwrap() > self._x_u {
-            self._x_i = Some(self._x_u);
+        self._x_i = Some(x);
+        if self.x_i() < self.x_l() {
+            let x = self.x_l();
+            self._x_i = Some(x);
+        }
+        if self.x_i() > self.x_u() {
+            let x = self.x_u();
+            self._x_i = Some(x);
         }
     }
 
-    fn set_y_l(&mut self, y: T) {
+    pub fn set_y_l(&mut self, y: T) {
         self._y_l = y;
     }
-    fn set_y_u(&mut self, y: T) {
+
+    pub fn set_y_u(&mut self, y: T) {
         self._y_u = y;
     }
-    fn set_y_i(&mut self, y: T) {
+
+    pub fn set_y_i(&mut self, y: T) {
+        if y.is_nan() {
+            panic!("y cannot be nan");
+        }
         self._y_i = Some(y);
     }
 
-    fn set_int_exp_y_l(&mut self, y: T) {
+    pub fn set_int_exp_y_l(&mut self, y: T) {
         self._int_exp_y_l = Some(y);
     }
-    fn set_int_exp_y_u(&mut self, y: T) {
+
+    pub fn set_int_exp_y_u(&mut self, y: T) {
         self._int_exp_y_u = Some(y);
     }
-    fn set_cum_int_exp_y_l(&mut self, y: T) {
+
+    pub fn set_cum_int_exp_y_l(&mut self, y: T) {
         self._cum_int_exp_y_l = Some(y);
     }
-    fn set_cum_int_exp_y_u(&mut self, y: T) {
+
+    pub fn set_cum_int_exp_y_u(&mut self, y: T) {
         self._cum_int_exp_y_u = Some(y);
     }
-    fn encloses(&self, x: T) -> bool {
+
+    pub fn encloses(&self, x: T) -> bool {
         (x >= self._x_l) && (x <= self._x_u)
     }
 
@@ -351,13 +374,22 @@ where
         let _int_exp_y_l: T = if self._x_i.unwrap() == self._x_l {
             zero()
         } else {
-            int_exp_y(self.x_i(), (self._x_l, self._y_l), (self.x_i(), self.y_i()))?
+            int_exp_y(
+                self.x_i(),
+                (self.x_l(), self.y_l()),
+                (self.x_i(), self.y_i()),
+            )?
         };
         let _int_exp_y_u: T = if self.x_i() == self._x_u {
             zero()
         } else {
-            int_exp_y(self._x_u, (self.x_i(), self.y_i()), (self._x_u, self._y_u))?
+            int_exp_y(
+                self._x_u,
+                (self.x_i(), self.y_i()),
+                (self.x_u(), self.y_u()),
+            )?
         };
+
         //println!("inty={} {}", _int_exp_y_l, _int_exp_y_u);
         Ok(Section::<T> {
             _int_exp_y_l: Some(_int_exp_y_l),
@@ -366,17 +398,17 @@ where
         })
     }
 
-    fn eval_y(&self, x: T) -> T {
+    pub fn eval_y(&self, x: T) -> T {
         if x == self._x_l {
-            self._y_l
+            self.y_l()
         } else if x == self._x_u {
-            self._y_u
+            self.y_u()
         } else if x == self.x_i() {
             self.y_i()
         } else if x < self._x_i.unwrap() {
-            self._y_l + (x - self._x_l) * (self.y_i() - self._y_l) / (self.x_i() - self._x_l)
+            self.y_l() + (x - self.x_l()) * (self.y_i() - self.y_l()) / (self.x_i() - self.x_l())
         } else {
-            self._y_u + (x - self._x_u) * (self.y_i() - self._y_u) / (self.x_i() - self._x_u)
+            self.y_u() + (x - self.x_u()) * (self.y_i() - self.y_u()) / (self.x_i() - self.x_u())
         }
     }
 }
@@ -441,17 +473,24 @@ where
     let (x3, y3) = p3;
     let (x4, y4) = p4;
 
+    /*
+    eprintln!("l {} {}", s.x_l(), s.y_l());
+    eprintln!("u {} {}", s.x_u(), s.y_u());
 
-
+    eprintln!("p1 {} {}", x1, y1);
+    eprintln!("p2 {} {}", x2, y2);
+    eprintln!("p3 {} {}", x3, y3);
+    eprintln!("p4 {} {}", x4, y4);
+    */
     let two = one::<T>() + one::<T>();
     match if y2.is_infinite() {
         match (x1, y4 + (x1 - x4) / (x3 - x4) * (y3 - y4)) {
-            (x_i, y_i) if y_i < y1 => ((s.x_l() + s.x_u()) / two, (s.y_l() + s.y_u()) / two),
+            (_, y_i) if y_i < y1 => ((s.x_l() + s.x_u()) / two, (s.y_l() + s.y_u()) / two),
             (x_i, y_i) => (x_i, y_i),
         }
-    } else if (y4.is_infinite()) {
+    } else if y4.is_infinite() {
         match (x3, y1 + (x3 - x1) / (x2 - x1) * (y2 - y1)) {
-            (x_i, y_i) if y_i < y3 => ((s.x_l() + s.x_u()) / two, (s.y_l() + s.y_u()) / two),
+            (_, y_i) if y_i < y3 => ((s.x_l() + s.x_u()) / two, (s.y_l() + s.y_u()) / two),
             (x_i, y_i) => (x_i, y_i),
         }
     } else {
@@ -460,11 +499,13 @@ where
         let y_i = -(x2 * y1 * y3 - x4 * y1 * y3 - x1 * y2 * y3 + x4 * y2 * y3 - x2 * y1 * y4
             + x3 * y1 * y4 + x1 * y2 * y4 - x3 * y2 * y4)
             / (-x3 * y1 + x4 * y1 + x3 * y2 - x4 * y2 + x1 * y3 - x2 * y3 - x1 * y4 + x2 * y4);
-        //println!("{} {} {} {}", x1, x2, x3, x4);
-        //println!("{} {} {} {}", y1, y2, y3, y4);
-        //println!("{} {}", x_i, y_i);
+        /*
+        eprintln!("pi {} {}", x_i, y_i);
+        eprintln!("");
+        */
+
         match (x_i, y_i) {
-            (x_i, y_i)
+            (_, y_i)
                 if ((y3 - y1) * (x2 - x1) == (y2 - y1) * (x3 - x1)
                     && (y4 - y1) * (x2 - x1) == (y2 - y1) * (x4 - x1))
                     || (y2 - y1) * (x4 - x3) == (x2 - x1) * (y4 - y3)
@@ -482,7 +523,7 @@ where
         }
     } {
         (x_i, y_i) if x_i.is_nan() || y_i.is_nan() => {
-            panic!("d");
+            //panic!("d");
             Err(ArmsErrs::ResultIsNan)
         }
         (x_i, y_i) => Ok((x_i, y_i)),
@@ -516,7 +557,7 @@ where
         (None, Some(b)) => solve_intersection(
             s,
             (s.x_l(), s.y_l()),
-            (s.x_u(), s.y_u()),
+            (s.x_l(), Float::infinity()),
             (b.x_l(), b.y_l()),
             (b.x_u(), b.y_u()),
         ),
@@ -524,18 +565,18 @@ where
             s,
             (a.x_l(), a.y_l()),
             (a.x_u(), a.y_u()),
-            (s.x_l(), s.y_l()),
             (s.x_u(), s.y_u()),
+            (s.x_u(), Float::infinity()),
         ),
         _ => Err(ArmsErrs::InvalidNeighbor),
     }
 }
-
+/*
 enum InsertionResult {
     Succeed,
     SearchFailed,
     PointOverlapped,
-}
+}*/
 
 fn calc_cum_int_exp_y<T>(section_list: &mut VecDeque<Section<T>>)
 where
@@ -581,14 +622,14 @@ where
     }
     match scale {
         scale if scale.is_infinite() => {
-            panic!("#1");
+            //panic!("#1");
             Err(ArmsErrs::IllConditionedDistribution)
         }
         _ => Ok(scale),
     }
 }
 
-fn update_scale<T>(
+pub fn update_scale<T>(
     section_list: VecDeque<Section<T>>,
     scale: &mut T,
 ) -> Result<VecDeque<Section<T>>, ArmsErrs>
@@ -625,8 +666,8 @@ where
             },
             section_list.get(i + 1),
         )?;
-        section_list[i]._x_i = Some(xi);
-        section_list[i]._y_i = Some(yi);
+        section_list[i].set_x_i(xi);
+        section_list[i].set_y_i(yi);
         let aa = section_list[i].clone().calc_int_exp_y()?;
         section_list[i] = aa;
     }
@@ -672,14 +713,14 @@ where
                         },
                         Some(&news2),
                     )?;
-                    news1._x_i = Some(xi);
-                    news1._y_i = Some(yi);
+                    news1.set_x_i(xi);
+                    news1.set_y_i(yi);
                     news1 = news1.calc_int_exp_y()?;
                 }
                 {
                     let (xi, yi) = calc_intersection(&news2, Some(&news1), section_list.get(0))?;
-                    news2._x_i = Some(xi);
-                    news2._y_i = Some(yi);
+                    news2.set_x_i(xi);
+                    news2.set_y_i(yi);
                     news2 = news2.calc_int_exp_y()?;
                 }
                 if new_list.len() > 1 {
@@ -688,8 +729,8 @@ where
                         new_list.get(new_list.len() - 2),
                         Some(&news1),
                     )?;
-                    new_list.back_mut().unwrap()._x_i = Some(xi);
-                    new_list.back_mut().unwrap()._y_i = Some(yi);
+                    new_list.back_mut().unwrap().set_x_i(xi);
+                    new_list.back_mut().unwrap().set_y_i(yi);
                     //let aa = new_list.back_mut().unwrap().calc_int_exp_y()?;
                     let aa = new_list.pop_back().unwrap().calc_int_exp_y()?;
                     new_list.push_back(aa);
@@ -702,8 +743,8 @@ where
                         Some(&news2),
                         section_list.get(1),
                     )?;
-                    section_list.front_mut().unwrap()._x_i = Some(xi);
-                    section_list.front_mut().unwrap()._y_i = Some(yi);
+                    section_list.front_mut().unwrap().set_x_i(xi);
+                    section_list.front_mut().unwrap().set_y_i(yi);
                     //let aa = section_list.pop_front().unwrap().calc_int_exp_y()?;
                     let aa = section_list.pop_front().unwrap().calc_int_exp_y()?;
                     section_list.push_front(aa);
@@ -752,6 +793,7 @@ where
     for i in 0..init_x1.length() {
         init_x.push(init_x1[i]);
     }
+    init_x.push(xrange.1);
 
     let mut section_list = VecDeque::<Section<T>>::new();
     for i in 0..(init_x.length() - 1) {
@@ -769,7 +811,7 @@ where
     }
 
     *scale = calc_scale(&section_list)?;
-
+    //println!("{}", *scale);
     for s in &mut section_list {
         s._y_l = s._y_l - *scale;
         s._y_u = s._y_u - *scale;
@@ -783,18 +825,19 @@ where
         } else {
             calc_intersection(
                 &section_list[i],
-                Some(&section_list[i]),
+                Some(&section_list[i - 1]),
                 Some(&section_list[i + 1]),
             )?
         };
-        section_list[i]._x_i = Some(xi);
-        section_list[i]._y_i = Some(yi);
+
+        section_list[i].set_x_i(xi);
+        section_list[i].set_y_i(yi);
         section_list[i] = section_list[i].clone().calc_int_exp_y()?;
         //println!("{:?}", &section_list[i]);
     }
 
     calc_cum_int_exp_y(&mut section_list);
-
+    //
     assert!(
         section_list
             .back()
@@ -807,11 +850,11 @@ where
 }
 
 
-pub fn search_point<T, F>(
+pub fn search_point<T>(
     section_list: &VecDeque<Section<T>>,
     p: T,
-    pd: &F,
-    scale: T,
+    //pd: &F,
+    //scale: T,
 ) -> Result<usize, ArmsErrs>
 where
     T: Float
@@ -823,25 +866,25 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
+    //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let x = {
         match section_list.back() {
-            Some(x) => p * x._cum_int_exp_y_u.unwrap(),
+            Some(x) => p * x.cum_int_exp_y_u(),
             _ => {
-                panic!("#2");
+                //panic!("#2");
                 return Err(ArmsErrs::IllConditionedDistribution);
             }
         }
     };
 
     for i in 0..section_list.len() {
-        let xx = section_list[i]._cum_int_exp_y_u.unwrap();
+        let xx = section_list[i].cum_int_exp_y_u();
         if (p < one() && x < xx) || (p == one() && x <= xx) {
             return Ok(i);
         }
     }
-    panic!("#3");
+    //panic!("#3");
     Err(ArmsErrs::IllConditionedDistribution)
 }
 
@@ -892,11 +935,11 @@ where
     Ok(section_list)
 }
 
-pub fn fetch_one<T, R, F>(
+pub fn fetch_one<T, R>(
     section_list: &VecDeque<Section<T>>,
     rng: &mut R,
-    pd: &F,
-    scale: T,
+    //pd: &F,
+    //scale: T,
 ) -> Result<T, ArmsErrs>
 where
     T: Float
@@ -908,26 +951,26 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
+    //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     R: rand::Rng,
 {
     let p = rng.gen_range(zero(), one());
-    let n = search_point(section_list, p, pd, scale)?;
+    let n = search_point(section_list, p /*, pd, scale*/)?;
     let y: T = match section_list.back() {
         Some(s) => p * s._cum_int_exp_y_u.unwrap(),
         _ => return Err(ArmsErrs::IllConditionedDistribution),
     };
-    let (ybase, x1, y1, x2, y2) = if (y >= section_list[n]._cum_int_exp_y_l.unwrap()
-        && y <= section_list[n]._cum_int_exp_y_u.unwrap())
+    let (ybase, x1, y1, x2, y2) = if y >= section_list[n]._cum_int_exp_y_l.unwrap()
+        && y <= section_list[n]._cum_int_exp_y_u.unwrap()
     {
         (
             section_list[n]._cum_int_exp_y_l.unwrap(),
-            section_list[n]._x_i.unwrap(),
-            section_list[n]._y_i.unwrap(),
-            section_list[n]._x_u,
-            section_list[n]._y_u,
+            section_list[n].x_i(),
+            section_list[n].y_i(),
+            section_list[n].x_u(),
+            section_list[n].y_u(),
         )
-    } else if (y < section_list[n]._cum_int_exp_y_l.unwrap()) {
+    } else if y < section_list[n]._cum_int_exp_y_l.unwrap() {
         (
             if n > 0 {
                 match section_list.get(n - 1) {
@@ -943,10 +986,10 @@ where
             } else {
                 zero::<T>()
             },
-            section_list[n]._x_l,
-            section_list[n]._y_l,
-            section_list[n]._x_i.unwrap(),
-            section_list[n]._y_i.unwrap(),
+            section_list[n].x_l(),
+            section_list[n].y_l(),
+            section_list[n].x_i(),
+            section_list[n].y_i(),
         )
     } else {
         return Err(ArmsErrs::IllConditionedDistribution);
@@ -963,7 +1006,7 @@ where
                 for i in section_list {
                     println!("{:?}", i);
                 }
-                panic!("aaa");
+                //panic!("aaa");
                 Err(x)
             }
         }
@@ -971,6 +1014,46 @@ where
     }
 }
 
+
+pub fn dump_section_list<T, F>(section_list: &VecDeque<Section<T>>, pd: Option<&F>, dx: T, scale: T)
+where
+    T: Float
+        + NumCast
+        + rand::Rand
+        + std::cmp::PartialOrd
+        + rand::distributions::range::SampleRange
+        + std::marker::Sync
+        + std::marker::Send
+        + std::fmt::Display
+        + std::fmt::Debug,
+    F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
+{
+    for s in section_list {
+        println!("{} {}", s.x_l(), s.y_l());
+        println!("{} {}", s.x_i(), s.y_i());
+        println!("{} {}", s.x_u(), s.y_u());
+        println!("");
+    }
+
+    println!("no no no");
+    //return;
+    match pd {
+        Some(ref f) => {
+            let xmin = section_list.front().unwrap().x_l();
+            let xmax = section_list.back().unwrap().x_u();
+            let mut x = xmin;
+            loop {
+                println!("{} {}", x, eval_log(f, x, scale).unwrap());
+                x = x + dx;
+                if x > xmax {
+                    break;
+                }
+            }
+        }
+        _ => (),
+    }
+    //println!("{}", scale)
+}
 
 
 pub fn sample<T, F, R, V>(
@@ -996,15 +1079,15 @@ where
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
 {
-    let two = one::<T>() + one::<T>();
+    //let two = one::<T>() + one::<T>();
     let mut xcur = xcur;
     let mut scale = zero();
     let mut section_list = init(pd, xrange, init_x, &mut scale)?;
-    let mut x = zero();
+    let mut x: T;
     let mut xm = xcur;
     let mut i = 0;
     while i < n {
-        x = fetch_one(&section_list, &mut rng, pd, scale)?;
+        x = fetch_one(&section_list, &mut rng /*, pd, scale*/)?;
 
         let xa = if rng.gen_range(zero::<T>(), one::<T>()).ln() + eval(x, &section_list)?
             > eval_log(&pd, x, scale)?

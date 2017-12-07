@@ -3,7 +3,7 @@ extern crate scoped_threadpool;
 extern crate std;
 use scoped_threadpool::Pool;
 
-use std::sync::Arc;
+//use std::sync::Arc;
 use mcmc_errors::McmcErrs;
 use utils::draw_z;
 use utils::HasLength;
@@ -56,7 +56,7 @@ where
         + ItemSwapable,
     F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
-    let (mut result_ensemble, mut result_logprob) =
+    let (result_ensemble, mut result_logprob) =
         swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap)?;
 
     //let pflogprob=Arc::new(flogprob);
