@@ -56,9 +56,9 @@ fn unigauss(x: f64) -> f64 {
 
 fn bigauss(x: f64) -> f64 {
     if x < 0.0 {
-        -(x + 1.) * (x + 1.)
+        -(x + 10.) * (x + 10.)
     } else {
-        -(x - 1.) * (x - 1.)
+        -(x - 10.) * (x - 10.)
     }
 }
 
@@ -94,16 +94,19 @@ fn main() {
 
     println!("{:?}", s.calc_int_exp_y().unwrap());
 */
-    /*
+
     let mut scale=0.0;
-    let xx=init(&unigauss, (-10.0, 10.0), &vec![-5.0, -1.0, 1.0, 5.0], &mut scale).unwrap();
-    let xx=insert_point(&unigauss, xx, 3.0, scale).unwrap();
+    let xx=init(&bigauss, (-20.0, 20.0), &vec![-15.0, -10.0, -5.0, 5.0, 10.0, 15.0], &mut scale).unwrap();
+    let xx=insert_point(&bigauss, xx, 3.0, scale).unwrap();
+    let xx=insert_point(&bigauss, xx, -1.0, scale).unwrap();
+
     //let xx=insert_point(&unigauss, xx, 0.0, scale).unwrap();
     let xx= update_scale(xx, &mut scale).unwrap();
-    dump_section_list(&xx, Some(&unigauss), 0.1, scale);
+    dump_section_list(&xx, Some(&bigauss), 0.1, scale);
     eprintln!("{}", scale);
-    */
 
+
+    /*
     for i in 0..100000 {
         x = sample(
             &bigauss,
@@ -115,5 +118,5 @@ fn main() {
             &mut cnt,
         ).unwrap();
         println!("{}", x);
-    }
+    }*/
 }
