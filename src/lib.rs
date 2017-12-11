@@ -17,13 +17,11 @@ pub use utils::ItemSwapable;
 pub use utils::shuffle;
 pub use init_ensemble::get_one_init_realization;
 
-
 impl<T> HasLength for Vec<T> {
     fn length(&self) -> usize {
         (*self).len()
     }
 }
-
 
 impl<T: std::default::Default> Resizeable for Vec<T> {
     fn resize(&mut self, x: usize) {

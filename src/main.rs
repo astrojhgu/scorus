@@ -95,6 +95,7 @@ fn main() {
     println!("{:?}", s.calc_int_exp_y().unwrap());
 */
 
+    /*
     let mut scale=0.0;
     let xx=init(&bigauss, (-20.0, 20.0), &vec![-15.0, -10.0, -5.0, 5.0, 10.0, 15.0], &mut scale).unwrap();
     let xx=insert_point(&bigauss, xx, 3.0, scale).unwrap();
@@ -104,13 +105,12 @@ fn main() {
     let xx= update_scale(xx, &mut scale).unwrap();
     dump_section_list(&xx, Some(&bigauss), 0.1, scale);
     eprintln!("{}", scale);
+    */
 
-
-    /*
     for i in 0..100000 {
         x = sample(
             &bigauss,
-            (-125.0, 125.0),
+            (-25.0, 25.0),
             &vec![-10.0, -1.5, -1.0, 1.0, 1.5, 20.0],
             x,
             10,
@@ -118,5 +118,5 @@ fn main() {
             &mut cnt,
         ).unwrap();
         println!("{}", x);
-    }*/
+    }
 }

@@ -13,16 +13,59 @@ use utils::HasLength;
 //use utils::ItemSwapable;
 
 #[derive(Debug)]
-pub enum ArmsErrs {
-    ResultIsInf,
-    ResultIsNan,
-    VarOutOfRange,
-    InvalidNeighbor,
-    IllConditionedDistribution,
-    TooFewInitPoints,
-    DataNotInOrder,
+pub struct Section<T>
+where
+    T: Float
+        + NumCast
+        + rand::Rand
+        + std::cmp::PartialOrd
+        + rand::distributions::range::SampleRange
+        + std::marker::Sync
+        + std::marker::Send
+        + std::fmt::Display
+        + std::fmt::Debug,
+{
+    pub _x_l: T,
+    pub _y_l: T,
+
+    pub _x_u: T,
+    pub _y_u: T,
+
+    pub _x_i: Option<T>,
+    pub _y_i: Option<T>,
+
+    pub _int_exp_y_l: Option<T>,
+    pub _int_exp_y_u: Option<T>,
+
+    pub _cum_int_exp_y_l: Option<T>,
+    pub _cum_int_exp_y_u: Option<T>,
 }
 
+#[derive(Debug)]
+pub enum ArmsErrs<T>
+where
+    T: Float
+        + NumCast
+        + rand::Rand
+        + std::cmp::PartialOrd
+        + rand::distributions::range::SampleRange
+        + std::marker::Sync
+        + std::marker::Send
+        + std::fmt::Display
+        + std::fmt::Debug,
+{
+    LogProbIsInf(String, T),
+    LogProbIsNan(String, T),
+    SectionIntIsInf(String, T, (T, T), (T, T)),
+    SectionIntIsNan(String, T, (T, T), (T, T)),
+    InvIntErr(String, T, (T, T), (T, T)),
+    VarOutOfRange(String, T),
+    SolveInterSectionErr(String, Section<T>, (T, T), (T, T), (T, T), (T, T)),
+    InvalidNeighbor(String),
+    IllConditionedDistribution(String, VecDeque<Section<T>>),
+    TooFewInitPoints(String),
+    DataNotInOrder(String),
+}
 
 fn fmin<T>(x: T, y: T) -> T
 where
@@ -62,9 +105,7 @@ where
     }
 }
 
-
-
-fn eval_log<T, F>(pd: &F, x: T, scale: T) -> Result<T, ArmsErrs>
+fn eval_log<T, F>(pd: &F, x: T, scale: T) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -78,16 +119,16 @@ where
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     match pd(x) - scale {
-        y if y.is_infinite() => Err(ArmsErrs::ResultIsInf),
+        y if y.is_infinite() => Err(ArmsErrs::LogProbIsInf(format!("Error@{}", line!()), x)),
         y if y.is_nan() => {
             //panic!("a");
-            Err(ArmsErrs::ResultIsNan)
+            Err(ArmsErrs::LogProbIsNan(format!("Error@{}", line!()), x))
         }
         y => Ok(y),
     }
 }
 
-pub fn int_exp_y<T>(x: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErrs>
+pub fn int_exp_y<T>(x: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -120,18 +161,27 @@ where
         inty if inty.is_nan() => {
             println!("{} {} {} {} {}", x, x1, y1, x2, y2);
             //panic!("b");
-            Err(ArmsErrs::ResultIsNan)
+            Err(ArmsErrs::SectionIntIsNan(
+                format!("Error@{}", line!()),
+                x,
+                p1,
+                p2,
+            ))
         }
         inty if inty.is_infinite() => {
             //panic!("cc");
-            Err(ArmsErrs::ResultIsInf)
+            Err(ArmsErrs::SectionIntIsInf(
+                format!("Error@{}", line!()),
+                x,
+                p1,
+                p2,
+            ))
         }
         inty => Ok(inty),
     }
 }
 
-
-pub fn inv_int_exp_y<T>(z: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErrs>
+pub fn inv_int_exp_y<T>(z: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -173,43 +223,11 @@ where
         r if r.is_nan() => {
             println!("{} {} {} {} {}", z, x1, y1, x2, y2);
             //panic!("c");
-            Err(ArmsErrs::ResultIsNan)
+            Err(ArmsErrs::InvIntErr(format!("Error@{}", line!()), z, p1, p2))
         }
         r => Ok(r),
     }
 }
-
-
-#[derive(Debug)]
-pub struct Section<T>
-where
-    T: Float
-        + NumCast
-        + rand::Rand
-        + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
-        + std::marker::Sync
-        + std::marker::Send
-        + std::fmt::Display
-        + std::fmt::Debug,
-{
-    pub _x_l: T,
-    pub _y_l: T,
-
-    pub _x_u: T,
-    pub _y_u: T,
-
-    pub _x_i: Option<T>,
-    pub _y_i: Option<T>,
-
-    pub _int_exp_y_l: Option<T>,
-    pub _int_exp_y_u: Option<T>,
-
-    pub _cum_int_exp_y_l: Option<T>,
-    pub _cum_int_exp_y_u: Option<T>,
-}
-
-
 
 impl<T> std::clone::Clone for Section<T>
 where
@@ -306,7 +324,6 @@ where
         self._cum_int_exp_y_l.unwrap()
     }
 
-
     pub fn cum_int_exp_y_u(&self) -> T {
         self._cum_int_exp_y_u.unwrap()
     }
@@ -369,7 +386,7 @@ where
         (x >= self._x_l) && (x <= self._x_u)
     }
 
-    pub fn calc_int_exp_y(self) -> Result<Self, ArmsErrs> {
+    pub fn calc_int_exp_y(self) -> Result<Self, ArmsErrs<T>> {
         //println!("aaa");
         let _int_exp_y_l: T = if self._x_i.unwrap() == self._x_l {
             zero()
@@ -413,8 +430,7 @@ where
     }
 }
 
-
-pub fn eval<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErrs>
+pub fn eval<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -431,10 +447,10 @@ where
             return Ok(i.eval_y(x));
         }
     }
-    Err(ArmsErrs::VarOutOfRange)
+    Err(ArmsErrs::VarOutOfRange(format!("Error@{}", line!()), x))
 }
 
-pub fn eval_ey<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErrs>
+pub fn eval_ey<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -456,7 +472,7 @@ pub fn solve_intersection<T>(
     p2: (T, T),
     p3: (T, T),
     p4: (T, T),
-) -> Result<(T, T), ArmsErrs>
+) -> Result<(T, T), ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -524,7 +540,14 @@ where
     } {
         (x_i, y_i) if x_i.is_nan() || y_i.is_nan() => {
             //panic!("d");
-            Err(ArmsErrs::ResultIsNan)
+            Err(ArmsErrs::SolveInterSectionErr(
+                format!("Error@{}", line!()),
+                s.clone(),
+                p1,
+                p2,
+                p3,
+                p4,
+            ))
         }
         (x_i, y_i) => Ok((x_i, y_i)),
     }
@@ -534,7 +557,7 @@ pub fn calc_intersection<T>(
     s: &Section<T>,
     before: Option<&Section<T>>,
     after: Option<&Section<T>>,
-) -> Result<(T, T), ArmsErrs>
+) -> Result<(T, T), ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -568,7 +591,7 @@ where
             (s.x_u(), s.y_u()),
             (s.x_u(), Float::infinity()),
         ),
-        _ => Err(ArmsErrs::InvalidNeighbor),
+        _ => Err(ArmsErrs::InvalidNeighbor(format!("Error@{}", line!()))),
     }
 }
 /*
@@ -599,7 +622,7 @@ where
     }
 }
 
-fn calc_scale<T>(section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErrs>
+fn calc_scale<T>(section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -623,7 +646,10 @@ where
     match scale {
         scale if scale.is_infinite() => {
             //panic!("#1");
-            Err(ArmsErrs::IllConditionedDistribution)
+            Err(ArmsErrs::IllConditionedDistribution(
+                format!("Error@{}", line!()),
+                section_list.clone(),
+            ))
         }
         _ => Ok(scale),
     }
@@ -632,7 +658,7 @@ where
 pub fn update_scale<T>(
     section_list: VecDeque<Section<T>>,
     scale: &mut T,
-) -> Result<VecDeque<Section<T>>, ArmsErrs>
+) -> Result<VecDeque<Section<T>>, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -646,7 +672,6 @@ where
 {
     let mut section_list = section_list;
     let new_scale = calc_scale(&section_list)?;
-
 
     for i in &mut section_list {
         i._y_l = i._y_l - new_scale;
@@ -681,7 +706,7 @@ pub fn insert_point<T, F>(
     section_list: VecDeque<Section<T>>,
     x: T,
     scale: T,
-) -> Result<VecDeque<Section<T>>, ArmsErrs>
+) -> Result<VecDeque<Section<T>>, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -761,13 +786,12 @@ where
     Ok(new_list)
 }
 
-
 pub fn init<T, F, V>(
     pd: &F,
     xrange: (T, T),
     init_x1: &V,
     scale: &mut T,
-) -> Result<VecDeque<Section<T>>, ArmsErrs>
+) -> Result<VecDeque<Section<T>>, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -782,11 +806,11 @@ where
     V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
 {
     if init_x1.length() < 3 {
-        return Err(ArmsErrs::TooFewInitPoints);
+        return Err(ArmsErrs::TooFewInitPoints(format!("Error@{}", line!())));
     }
     for i in 0..(init_x1.length() - 1) {
         if init_x1[i] >= init_x1[i + 1] {
-            return Err(ArmsErrs::DataNotInOrder);
+            return Err(ArmsErrs::DataNotInOrder(format!("Error@{}", line!())));
         }
     }
     let mut init_x = vec![xrange.0];
@@ -849,13 +873,12 @@ where
     Ok(section_list)
 }
 
-
 pub fn search_point<T>(
     section_list: &VecDeque<Section<T>>,
     p: T,
     //pd: &F,
     //scale: T,
-) -> Result<usize, ArmsErrs>
+) -> Result<usize, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -873,7 +896,10 @@ where
             Some(x) => p * x.cum_int_exp_y_u(),
             _ => {
                 //panic!("#2");
-                return Err(ArmsErrs::IllConditionedDistribution);
+                return Err(ArmsErrs::IllConditionedDistribution(
+                    format!("Error@{}", line!()),
+                    section_list.clone(),
+                ));
             }
         }
     };
@@ -885,14 +911,17 @@ where
         }
     }
     //panic!("#3");
-    Err(ArmsErrs::IllConditionedDistribution)
+    Err(ArmsErrs::IllConditionedDistribution(
+        format!("Error@{}", line!()),
+        section_list.clone(),
+    ))
 }
 
 pub fn check_range<T, F>(
     pd: &F,
     section_list: VecDeque<Section<T>>,
     scale: &mut T,
-) -> Result<VecDeque<Section<T>>, ArmsErrs>
+) -> Result<VecDeque<Section<T>>, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -940,7 +969,7 @@ pub fn fetch_one<T, R>(
     rng: &mut R,
     //pd: &F,
     //scale: T,
-) -> Result<T, ArmsErrs>
+) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -958,7 +987,12 @@ where
     let n = search_point(section_list, p /*, pd, scale*/)?;
     let y: T = match section_list.back() {
         Some(s) => p * s._cum_int_exp_y_u.unwrap(),
-        _ => return Err(ArmsErrs::IllConditionedDistribution),
+        _ => {
+            return Err(ArmsErrs::IllConditionedDistribution(
+                format!("Error@{}", line!()),
+                section_list.clone(),
+            ))
+        }
     };
     let (ybase, x1, y1, x2, y2) = if y >= section_list[n]._cum_int_exp_y_l.unwrap()
         && y <= section_list[n]._cum_int_exp_y_u.unwrap()
@@ -992,7 +1026,10 @@ where
             section_list[n].y_i(),
         )
     } else {
-        return Err(ArmsErrs::IllConditionedDistribution);
+        return Err(ArmsErrs::IllConditionedDistribution(
+            format!("Error@{}", line!()),
+            section_list.clone(),
+        ));
     };
 
     if y == ybase {
@@ -1013,7 +1050,6 @@ where
         //Ok(inv_int_exp_y(y - ybase, (x1, y1), (x2, y2))?)
     }
 }
-
 
 pub fn dump_section_list<T, F>(section_list: &VecDeque<Section<T>>, pd: Option<&F>, dx: T, scale: T)
 where
@@ -1055,7 +1091,6 @@ where
     //println!("{}", scale)
 }
 
-
 pub fn sample<T, F, R, V>(
     pd: &F,
     xrange: (T, T),
@@ -1064,7 +1099,7 @@ pub fn sample<T, F, R, V>(
     n: usize,
     mut rng: &mut R,
     xmchange_count: &mut usize,
-) -> Result<T, ArmsErrs>
+) -> Result<T, ArmsErrs<T>>
 where
     T: Float
         + NumCast
@@ -1112,7 +1147,6 @@ where
         } else {
             x
         };
-
 
         let u: T = rng.gen_range(zero(), one());
 

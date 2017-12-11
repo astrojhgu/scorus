@@ -33,7 +33,6 @@ where
     x
 }
 
-
 pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
 where
     T: Float + rand::Rand + std::cmp::PartialOrd + rand::distributions::range::SampleRange,

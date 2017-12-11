@@ -10,7 +10,6 @@ use std::ops::Index;
 //use num_traits::identities::one;
 //use num_traits::identities::zero;
 
-
 pub fn get_one_init_realization<U, T, R>(y1: &U, y2: &U, rng: &mut R) -> U
 where
     U: HasLength + Clone + IndexMut<usize, Output = T> + Index<usize, Output = T>,

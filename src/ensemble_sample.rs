@@ -16,9 +16,6 @@ use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 
-
-
-
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
     ensemble_logprob: &(W, X),
@@ -93,7 +90,6 @@ where
         jvec.push(rng.gen_range(0, half_nwalkers));
         zvec.push(draw_z(rng, a));
     }
-
 
     let atomic_k = Mutex::new(0);
     let lp_cached = result_logprob.length() == nwalkers;

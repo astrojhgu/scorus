@@ -18,7 +18,6 @@ use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 
-
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
     ensemble_logprob: &(W, X),
@@ -74,12 +73,9 @@ where
         return Err(McmcErrs::NWalkersIsNotEven);
     }
 
-
     if nbeta * nwalkers != ensemble.length() {
         return Err(McmcErrs::NWalkersMismatchesNBeta);
     }
-
-
 
     let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
 
@@ -92,7 +88,6 @@ where
     let mut rvec: Vec<Vec<T>> = Vec::new();
     let mut jvec: Vec<Vec<usize>> = Vec::new();
     let mut zvec: Vec<Vec<T>> = Vec::new();
-
 
     for i in 0..nbeta {
         walker_group.push(vec![Vec::new(), Vec::new()]);
@@ -122,7 +117,6 @@ where
             zvec[i].push(draw_z(rng, a));
         }
     }
-
 
     let atomic_k = Mutex::new(0);
     let lp_cached = result_logprob.length() == result_ensemble.length();
