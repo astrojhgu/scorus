@@ -44,7 +44,7 @@ fn test() {
     for i in 0..NITER {
         let aaa = sample(
             &target_dist,
-            &(ensemble, cached_logprob),
+            (ensemble, cached_logprob),
             &mut rng,
             &betalist,
             i % 10 == 0,

@@ -80,7 +80,7 @@ where
 }
 
 pub fn swap_walkers<T, U, V, W, X>(
-    ensemble_logprob: &(W, X),
+    ensemble_logprob: (W, X),
     rng: &mut U,
     beta_list: &X,
     perform_swap: bool,
@@ -112,8 +112,9 @@ where
         + Drop
         + ItemSwapable,
 {
-    let mut new_ensemble = ensemble_logprob.0.clone();
-    let mut new_logprob = ensemble_logprob.1.clone();
+    //let mut new_ensemble = ensemble_logprob.0.clone();
+    //let mut new_logprob = ensemble_logprob.1.clone();
+    let (mut new_ensemble, mut new_logprob) = ensemble_logprob;
     let nbeta = beta_list.length();
     let nwalker_per_beta = new_ensemble.length() / nbeta;
     if nwalker_per_beta * nbeta != new_ensemble.length() {

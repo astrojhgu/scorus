@@ -20,7 +20,7 @@ use num_traits::identities::zero;
 
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
-    ensemble_logprob: &(W, X),
+    ensemble_logprob: (W, X),
     mut rng: &mut U,
     beta_list: &X,
     perform_swap: bool,

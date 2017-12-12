@@ -18,7 +18,7 @@ use num_traits::identities::zero;
 
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
-    ensemble_logprob: &(W, X),
+    ensemble_logprob: (W, X),
     rng: &mut U,
     a: T,
     nthread: usize,
@@ -49,8 +49,8 @@ where
         + Drop,
     F: Fn(&V) -> T + std::marker::Send + std::marker::Sync,
 {
-    let ensemble = &ensemble_logprob.0;
-    let cached_logprob = &ensemble_logprob.1;
+    let (ensemble, cached_logprob) = ensemble_logprob;
+    //    let cached_logprob = &ensemble_logprob.1;
     let result_ensemble = ensemble.clone();
     let mut result_logprob = cached_logprob.clone();
     //let pflogprob=Arc::new(&flogprob);
