@@ -97,7 +97,8 @@ fn main() {
 
     /*
     let mut scale=0.0;
-    let xx=init(&bigauss, (-20.0, 20.0), &vec![-15.0, -10.0, -5.0, 5.0, 10.0, 15.0], &mut scale).unwrap();
+    let xx=init(&bigauss, (-20.0, 20.0), &vec![-15.0, -10.0, -5.0, 5.0, 10.0, 15.0],
+     s&mut scale).unwrap();
     let xx=insert_point(&bigauss, xx, 3.0, scale).unwrap();
     let xx=insert_point(&bigauss, xx, -1.0, scale).unwrap();
 

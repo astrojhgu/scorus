@@ -10,7 +10,6 @@ use rsmcmc::shuffle;
 use rand::Rng;
 use quickersort::sort_by;
 
-
 fn normal_dist(x: &Vec<f64>) -> f64 {
     let mut result = 0_f64;
     for i in x {
@@ -94,7 +93,6 @@ fn main() {
         results.push(Vec::new());
         results[i].reserve(niter);
     }
-
 
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);

@@ -24,7 +24,6 @@ fn target_dist(x: &Vec<f64>) -> f64 {
     }
 }
 
-
 #[test]
 fn test() {
     let mut ensemble = Vec::new();
@@ -68,9 +67,7 @@ fn test() {
     if (average - expected).abs() > 3.0 * stddev {
         panic!(format!(
             "Deviate too much: {} vs {} with stddev={}",
-            expected,
-            average,
-            stddev
+            expected, average, stddev
         ))
     }
 }
