@@ -12,6 +12,7 @@ pub mod init_ensemble;
 pub mod mcmc_errors;
 pub mod arms;
 pub mod functions;
+pub mod graph;
 
 pub use utils::HasLength;
 pub use utils::Resizeable;
