@@ -6,7 +6,7 @@ use super::super::utils::HasLength;
 
 pub struct GraphVar<T>
 where
-    T: Float + Sync + Send+std::fmt::Display,
+    T: Float + Sync + Send + std::fmt::Display,
 {
     fixed_values: Vec<T>,
     deterministic_values: Vec<T>,
@@ -36,7 +36,7 @@ where
 
 impl<T> HasLength for GraphVar<T>
 where
-    T: Float + Sync + Send+std::fmt::Display,
+    T: Float + Sync + Send + std::fmt::Display,
 {
     fn length(&self) -> usize {
         self.sampleable_values.len()
@@ -45,7 +45,7 @@ where
 
 impl<T> std::ops::Index<usize> for GraphVar<T>
 where
-    T: Float + Sync + Send+std::fmt::Display,
+    T: Float + Sync + Send + std::fmt::Display,
 {
     type Output = T;
 
@@ -56,7 +56,7 @@ where
 
 impl<T> std::ops::IndexMut<usize> for GraphVar<T>
 where
-    T: Float + Sync + Send+std::fmt::Display,
+    T: Float + Sync + Send + std::fmt::Display,
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.sampleable_values[index]
