@@ -52,5 +52,4 @@ fn main() {
     println!("{}", g.logprob(2, &gv));
     println!("{}", g.logpost(2, &gv));
     println!("{}", g.logpost_all(&mut gv));
-    
 }

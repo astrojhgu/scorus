@@ -1,6 +1,7 @@
 extern crate num_traits;
 extern crate special;
-extern crate std;
+
+use std;
 use num_traits::float::Float;
 use num_traits::identities::one;
 

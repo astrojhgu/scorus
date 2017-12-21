@@ -1,5 +1,5 @@
 extern crate num_traits;
-extern crate std;
+use std;
 use num_traits::float::Float;
 use std::fmt::{Display, Error, Formatter};
 use super::super::utils::HasLength;

@@ -453,12 +453,12 @@ where
         }
     }
 
-    pub fn logpost_all(&self, gv:&mut GraphVar<T>)->T {
-        let mut result=zero();
+    pub fn logpost_all(&self, gv: &mut GraphVar<T>) -> T {
+        let mut result = zero();
         self.update_all_deterministic_nodes(gv);
-        for n in 0..self.nodes.len(){
-            if let NodeContent::StochasticNode {..}=self.nodes[n].content{
-                result=result+self.logprob(n, gv);
+        for n in 0..self.nodes.len() {
+            if let NodeContent::StochasticNode { .. } = self.nodes[n].content {
+                result = result + self.logprob(n, gv);
             }
         }
         result

@@ -1,6 +1,7 @@
 extern crate rand;
 extern crate scoped_threadpool;
-extern crate std;
+
+use std;
 use scoped_threadpool::Pool;
 //use std::sync::Arc;
 use mcmc_errors::McmcErrs;

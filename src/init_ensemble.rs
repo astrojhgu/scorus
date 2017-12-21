@@ -1,6 +1,7 @@
 extern crate num_traits;
 extern crate rand;
-extern crate std;
+
+use std;
 use utils::HasLength;
 //use utils::Resizeable;
 use std::ops::IndexMut;

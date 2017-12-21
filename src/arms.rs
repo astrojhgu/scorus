@@ -1,6 +1,6 @@
 extern crate rand;
-extern crate std;
 
+use std;
 use std::ops::IndexMut;
 //use rand::Rand;
 use std::collections::VecDeque;
