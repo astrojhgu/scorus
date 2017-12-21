@@ -8,9 +8,9 @@ pub struct GraphVar<T>
 where
     T: Float + Sync + Send + std::fmt::Display,
 {
-    fixed_values: Vec<T>,
-    deterministic_values: Vec<T>,
-    sampleable_values: Vec<T>,
+    pub fixed_values: Vec<T>,
+    pub deterministic_values: Vec<T>,
+    pub sampleable_values: Vec<T>,
 }
 
 impl<T> Display for GraphVar<T>
