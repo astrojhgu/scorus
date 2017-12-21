@@ -377,13 +377,13 @@ where
                     ValueType::DETERMINISTIC => {
                         panic!("Impossible");
                     }
-                    ValueType::SAMPLEABLE => panic!("It is a sampleable value"),
+                    ValueType::SAMPLEABLE => {}
                 }
             },
         }
     }
 
-    pub fn calc_logprob(&self, i: usize, gv: &GraphVar<T>) -> T {
+    pub fn logprob(&self, i: usize, gv: &GraphVar<T>) -> T {
         if let NodeContent::StochasticNode { ref logprob, .. } = self.nodes[i].content {
             let x = self.cached_values_of(i, gv);
             let p = self.parent_values_of(i, gv);
@@ -401,8 +401,26 @@ where
         } = self.nodes[i].content
         {
             for n in all_stochastic_children {
-                result = result + self.calc_logprob(*n, gv);
+                result = result + self.logprob(*n, gv);
             }
+        }
+        result
+    }
+
+    pub fn logpost(&self, i: usize, gv: &GraphVar<T>) -> T {
+        let mut result = zero();
+        if let NodeContent::StochasticNode {
+            ref all_stochastic_children,
+            ref logprob,
+            ..
+        } = self.nodes[i].content
+        {
+            let x = self.cached_values_of(i, gv);
+            let p = self.parent_values_of(i, gv);
+            for n in all_stochastic_children {
+                result = result + self.logprob(*n, gv);
+            }
+            result = result + logprob(x.as_slice(), p.as_slice());
         }
         result
     }
@@ -429,7 +447,13 @@ where
         }
     }
 
-    pub fn set_value(&self, i: usize, j: usize, x: T, gv: &mut GraphVar<T>) {
+    pub fn update_all_deterministic_nodes(&self, gv: &mut GraphVar<T>) {
+        for i in 0..self.nodes.len() {
+            self.update_deterministic_value_of(i, gv);
+        }
+    }
+
+    pub fn set_value_then_update(&self, i: usize, j: usize, x: T, gv: &mut GraphVar<T>) {
         if let Node {
             info:
                 BasicNode {
@@ -447,6 +471,26 @@ where
                 ValueType::SAMPLEABLE => gv.sampleable_values[idx_in_var[j]] = x,
             }
             self.update_deterministic_children(i, gv);
+        }
+    }
+
+    pub fn set_value_no_update(&self, i: usize, j: usize, x: T, gv: &mut GraphVar<T>) {
+        if let Node {
+            info:
+                BasicNode {
+                    ref idx_in_var,
+                    ref value_type,
+                    ..
+                },
+            content: NodeContent::StochasticNode { .. },
+            ..
+        } = self.nodes[i]
+        {
+            match value_type[j] {
+                ValueType::DETERMINISTIC => gv.deterministic_values[idx_in_var[j]] = x,
+                ValueType::FIXED => gv.fixed_values[idx_in_var[j]] = x,
+                ValueType::SAMPLEABLE => gv.sampleable_values[idx_in_var[j]] = x,
+            }
         }
     }
 }

@@ -31,14 +31,24 @@ fn main() {
         .with_parent("a3".to_string(), 0)
         .done();
 
+    g.add_node("y".to_string(), normal_node())
+        .with_parent("a3".to_string(), 0)
+        .with_parent("a4".to_string(), 0)
+        .done();
+
     g.seal();
     //println!("{:?}", g.enumerate_stochastic_children(2));
 
     println!("{}", g);
     let mut gv = g.init_gv();
-    g.set_value(2, 0, 0.1, &mut gv);
+    g.set_value_then_update(2, 0, 0.1, &mut gv);
+    g.update_all_deterministic_nodes(&mut gv);
     //g.set_value(5,0, 0.3, &mut gv);
     //g.update_deterministic_children(5, &mut gv);
     //println!("{}",g.calc_logprob(8, & gv));
+
     println!("{}", &gv);
+    println!("{}", g.likelihood(2, &gv));
+    println!("{}", g.logprob(2, &gv));
+    println!("{}", g.logpost(2, &gv));6
 }
