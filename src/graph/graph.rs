@@ -453,6 +453,17 @@ where
         }
     }
 
+    pub fn logpost_all(&self, gv:&mut GraphVar<T>)->T {
+        let mut result=zero();
+        self.update_all_deterministic_nodes(gv);
+        for n in 0..self.nodes.len(){
+            if let NodeContent::StochasticNode {..}=self.nodes[n].content{
+                result=result+self.logprob(n, gv);
+            }
+        }
+        result
+    }
+
     pub fn set_value_then_update(&self, i: usize, j: usize, x: T, gv: &mut GraphVar<T>) {
         if let Node {
             info:

@@ -50,5 +50,7 @@ fn main() {
     println!("{}", &gv);
     println!("{}", g.likelihood(2, &gv));
     println!("{}", g.logprob(2, &gv));
-    println!("{}", g.logpost(2, &gv));6
+    println!("{}", g.logpost(2, &gv));
+    println!("{}", g.logpost_all(&mut gv));
+    
 }
