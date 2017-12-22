@@ -5,7 +5,7 @@ use rand::thread_rng;
 use rsmcmc::graph::graph::Graph;
 use rsmcmc::graph::graph_var::GraphVar;
 use rsmcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
-use rsmcmc::ensemble_sample::sample_st;
+use rsmcmc::ensemble_sample::sample;
 use rsmcmc::utils::HasLength;
 use rsmcmc::init_ensemble::get_one_init_realization;
 
@@ -35,9 +35,9 @@ fn main(){
     }
 
     let mut logprob=Vec::<f64>::new();
-    let f=|x:&GraphVar<f64>|{g.logpost_all(x)};
+    let f=move |x:&GraphVar<f64>|{g.logpost_all(x)};
     for i in 0..10000 {
-        let aaa=sample_st(&f, (ensemble, logprob), &mut rng, 2.0).unwrap();
+        let aaa=sample(&f, (ensemble, logprob), &mut rng, 2.0, 1).unwrap();
         ensemble=aaa.0;
         logprob=aaa.1;
         println!("{}", ensemble[0][0]);
