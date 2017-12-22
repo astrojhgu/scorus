@@ -27,6 +27,9 @@ path="examples/eff_and_completeness.rs"
 name="graph"
 path="examples/graph.rs"
 
+[[example]]
+name="bng"
+path="examples/bayes_network_gaussian.rs"
 
 [[test]]
 name="ptsample_test1"

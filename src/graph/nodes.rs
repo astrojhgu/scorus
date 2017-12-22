@@ -86,7 +86,7 @@ where
                 let x = x[0];
                 let m = p[0];
                 let s = p[1];
-                return ((x - m) * (x - m) / ((one::<T>() + one::<T>()) * s * s)) - s;
+                return -((x - m) * (x - m) / ((one::<T>() + one::<T>()) * s * s)) - s;
             }),
         },
     }

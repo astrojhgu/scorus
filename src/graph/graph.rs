@@ -3,6 +3,7 @@ use std;
 use super::node::Node;
 use super::node::NodeContent;
 use super::node::BasicNode;
+use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap};
 use super::node::ValueType;
 use std::rc::Rc;
@@ -11,6 +12,8 @@ use std::fmt::{Display, Error, Formatter};
 use std::iter::FromIterator;
 use super::graph_var::GraphVar;
 use num_traits::identities::zero;
+use std::boxed::Box;
+
 pub struct Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
@@ -93,14 +96,12 @@ where
     }
 
     pub fn with_value(mut self, idx: usize, x: T) -> Self {
-        println!("bb");
         if let NodeContent::StochasticNode {
             ref mut is_observed,
             ref mut values,
             ..
         } = self.n.content
         {
-            println!("aa");
             is_observed[idx] = false;
             values[idx] = x;
         } else {
@@ -291,13 +292,16 @@ where
 
     pub fn init_gv(&self) -> GraphVar<T> {
         let mut gv = GraphVar {
-            fixed_values: Vec::new(),
-            deterministic_values: Vec::new(),
+            fixed_values: RefCell::new(Vec::new()),
+            deterministic_values: RefCell::new(Vec::new()),
             sampleable_values: Vec::new(),
         };
 
-        gv.fixed_values.resize(self.num_of_fixed_vars, zero());
+        gv.fixed_values
+            .borrow_mut()
+            .resize(self.num_of_fixed_vars, zero());
         gv.deterministic_values
+            .borrow_mut()
             .resize(self.num_of_deterministic_vars, zero());
         gv.sampleable_values
             .resize(self.num_of_sampleable_vars, zero());
@@ -312,7 +316,11 @@ where
                     ref values,
                     ..
                 } => for (j, p) in n.info.idx_in_var.iter().enumerate() {
-                    gv[*p] = values[j];
+                    if is_observed[j] {
+                        gv.fixed_values.borrow_mut()[*p] = values[j];
+                    } else {
+                        gv[*p] = values[j];
+                    }
                 },
             }
         }
@@ -321,8 +329,10 @@ where
 
     pub fn cached_value_of(&self, i: usize, j: usize, gv: &GraphVar<T>) -> T {
         match self.nodes[i].info.value_type[j] {
-            ValueType::DETERMINISTIC => gv.deterministic_values[self.nodes[i].info.idx_in_var[j]],
-            ValueType::FIXED => gv.fixed_values[self.nodes[i].info.idx_in_var[j]],
+            ValueType::DETERMINISTIC => {
+                gv.deterministic_values.borrow_mut()[self.nodes[i].info.idx_in_var[j]]
+            }
+            ValueType::FIXED => gv.fixed_values.borrow_mut()[self.nodes[i].info.idx_in_var[j]],
             ValueType::SAMPLEABLE => gv.sampleable_values[self.nodes[i].info.idx_in_var[j]],
         }
     }
@@ -347,7 +357,7 @@ where
         result
     }
 
-    pub fn update_deterministic_value_of(&self, i: usize, gv: &mut GraphVar<T>) {
+    pub fn update_deterministic_value_of(&self, i: usize, gv: &GraphVar<T>) {
         let pv = self.parent_values_of(i, gv);
         let node = &self.nodes[i];
         match node.content {
@@ -356,10 +366,11 @@ where
                 for (m, k) in node.info.idx_in_var.iter().enumerate() {
                     match node.info.value_type[m] {
                         ValueType::FIXED => {
-                            gv.fixed_values[*k] = v[m];
+                            gv.fixed_values.borrow_mut()[*k] = v[m];
+                            //panic!("Impossible")
                         }
                         ValueType::DETERMINISTIC => {
-                            gv.deterministic_values[*k] = v[m];
+                            gv.deterministic_values.borrow_mut()[*k] = v[m];
                         }
                         ValueType::SAMPLEABLE => panic!("Impossible"),
                     }
@@ -372,7 +383,8 @@ where
             } => for (m, k) in node.info.idx_in_var.iter().enumerate() {
                 match node.info.value_type[m] {
                     ValueType::FIXED => {
-                        gv.fixed_values[*k] = values[m];
+                        //panic!("Impossible")
+                        gv.fixed_values.borrow_mut()[*k] = values[m];
                     }
                     ValueType::DETERMINISTIC => {
                         panic!("Impossible");
@@ -425,7 +437,7 @@ where
         result
     }
 
-    pub fn update_deterministic_children(&self, i: usize, gv: &mut GraphVar<T>) {
+    pub fn update_deterministic_children(&self, i: usize, gv: &GraphVar<T>) {
         if let Node {
             content:
                 NodeContent::StochasticNode {
@@ -447,13 +459,13 @@ where
         }
     }
 
-    pub fn update_all_deterministic_nodes(&self, gv: &mut GraphVar<T>) {
+    pub fn update_all_deterministic_nodes(&self, gv: &GraphVar<T>) {
         for i in 0..self.nodes.len() {
             self.update_deterministic_value_of(i, gv);
         }
     }
 
-    pub fn logpost_all(&self, gv: &mut GraphVar<T>) -> T {
+    pub fn logpost_all(&self, gv: &GraphVar<T>) -> T {
         let mut result = zero();
         self.update_all_deterministic_nodes(gv);
         for n in 0..self.nodes.len() {
@@ -477,8 +489,8 @@ where
         } = self.nodes[i]
         {
             match value_type[j] {
-                ValueType::DETERMINISTIC => gv.deterministic_values[idx_in_var[j]] = x,
-                ValueType::FIXED => gv.fixed_values[idx_in_var[j]] = x,
+                ValueType::DETERMINISTIC => gv.deterministic_values.borrow_mut()[idx_in_var[j]] = x,
+                ValueType::FIXED => gv.fixed_values.borrow_mut()[idx_in_var[j]] = x,
                 ValueType::SAMPLEABLE => gv.sampleable_values[idx_in_var[j]] = x,
             }
             self.update_deterministic_children(i, gv);
@@ -498,10 +510,14 @@ where
         } = self.nodes[i]
         {
             match value_type[j] {
-                ValueType::DETERMINISTIC => gv.deterministic_values[idx_in_var[j]] = x,
-                ValueType::FIXED => gv.fixed_values[idx_in_var[j]] = x,
+                ValueType::DETERMINISTIC => gv.deterministic_values.borrow_mut()[idx_in_var[j]] = x,
+                ValueType::FIXED => gv.fixed_values.borrow_mut()[idx_in_var[j]] = x,
                 ValueType::SAMPLEABLE => gv.sampleable_values[idx_in_var[j]] = x,
             }
         }
     }
+
+    //pub fn lambda_adapter<'a>(&'a self)-> Box<Fn(&GraphVar<T>)->T>{
+    //    Box::new(|x:&GraphVar<T>|->T{self.logpost_all(x)})
+    //}
 }

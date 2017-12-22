@@ -68,8 +68,6 @@ where
         + rand::Rand
         + std::cmp::PartialOrd
         + rand::distributions::range::SampleRange
-        + std::marker::Sync
-        + std::marker::Send
         + std::fmt::Display,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
@@ -92,26 +90,11 @@ where
         + rand::Rand
         + std::cmp::PartialOrd
         + rand::distributions::range::SampleRange
-        + std::marker::Sync
-        + std::marker::Send
         + std::fmt::Display,
     U: rand::Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
-    W: Clone
-        + IndexMut<usize, Output = V>
-        + HasLength
-        + std::marker::Sync
-        + std::marker::Send
-        + Drop
-        + ItemSwapable,
-    X: Clone
-        + IndexMut<usize, Output = T>
-        + HasLength
-        + std::marker::Sync
-        + Resizeable
-        + std::marker::Send
-        + Drop
-        + ItemSwapable,
+    V: Clone + IndexMut<usize, Output = T> + HasLength,
+    W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + ItemSwapable,
 {
     //let mut new_ensemble = ensemble_logprob.0.clone();
     //let mut new_logprob = ensemble_logprob.1.clone();

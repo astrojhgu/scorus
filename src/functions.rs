@@ -28,7 +28,7 @@ where
     (x + one()).ln_gamma().0
 }
 
-pub fn log_CN<T>(m: T, n: T) -> T
+pub fn log_cn<T>(m: T, n: T) -> T
 where
     T: special::Gamma + Float,
 {
@@ -39,5 +39,5 @@ pub fn logdbin<T>(x: T, p: T, n: T) -> T
 where
     T: special::Gamma + Float,
 {
-    log_CN(n, x) + x * p.ln() + (n - x) * (one::<T>() - p).ln()
+    log_cn(n, x) + x * p.ln() + (n - x) * (one::<T>() - p).ln()
 }

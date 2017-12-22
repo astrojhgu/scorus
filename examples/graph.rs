@@ -34,6 +34,7 @@ fn main() {
     g.add_node("y".to_string(), normal_node())
         .with_parent("a3".to_string(), 0)
         .with_parent("a4".to_string(), 0)
+        .with_observed_value(0, 0.1)
         .done();
 
     g.seal();
@@ -41,7 +42,7 @@ fn main() {
 
     println!("{}", g);
     let mut gv = g.init_gv();
-    g.set_value_then_update(2, 0, 0.1, &mut gv);
+    //g.set_value_then_update(2, 0, 0.1, &mut gv);
     g.update_all_deterministic_nodes(&mut gv);
     //g.set_value(5,0, 0.3, &mut gv);
     //g.update_deterministic_children(5, &mut gv);
