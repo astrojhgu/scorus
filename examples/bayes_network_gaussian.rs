@@ -23,14 +23,14 @@ fn main(){
     gv1[0]=-1.0;
     gv2[0]=1.0;
     //println!("{}" ,g.logpost_all(&gv));
-    println!("{}", gv.length());
+    //println!("{}", gv.length());
 
     //gv[0]=2;
     let mut rng=thread_rng();
 
     let mut ensemble=Vec::new();
 
-    for i in 0..10{
+    for i in 0..4{
         ensemble.push(get_one_init_realization(&gv1, &gv2, &mut rng));
     }
 
