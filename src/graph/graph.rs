@@ -522,12 +522,16 @@ where
     //}
 }
 
-unsafe impl<K,T> std::marker::Sync for Graph<K,T>
-where K: std::hash::Hash + Eq + Clone,T: Float + Sync + Send+std::fmt::Display
+unsafe impl<K, T> std::marker::Sync for Graph<K, T>
+where
+    K: std::hash::Hash + Eq + Clone,
+    T: Float + Sync + Send + std::fmt::Display,
 {
 }
 
-unsafe impl<K,T> std::marker::Send for Graph<K,T>
-    where K: std::hash::Hash + Eq + Clone,T: Float + Sync + Send+std::fmt::Display
+unsafe impl<K, T> std::marker::Send for Graph<K, T>
+where
+    K: std::hash::Hash + Eq + Clone,
+    T: Float + Sync + Send + std::fmt::Display,
 {
 }
