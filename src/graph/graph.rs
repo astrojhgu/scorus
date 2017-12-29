@@ -13,6 +13,7 @@ use std::iter::FromIterator;
 use super::graph_var::GraphVar;
 use num_traits::identities::zero;
 use std::boxed::Box;
+use std::option::Option;
 
 pub struct Graph<K, T>
 where
@@ -55,6 +56,27 @@ where
     }
 }
 
+
+pub enum ParamObservability<T>{
+    Observed(T),
+    UnObserved(T),
+}
+
+impl<T> std::clone::Clone for ParamObservability<T>
+where T:std::marker::Copy{
+    fn clone(&self) -> Self{
+        match self{
+            &ParamObservability::Observed(x)=>ParamObservability::Observed(x),
+            &ParamObservability::UnObserved(x)=>ParamObservability::UnObserved(x)
+        }
+    }
+}
+
+impl<T> std::marker::Copy for ParamObservability<T>
+where T:std::marker::Copy{
+}
+
+
 pub struct NodeAdder<'a, K, T>
 where
     K: std::hash::Hash + Eq + Clone + 'a,
@@ -82,29 +104,29 @@ where
         self
     }
 
-    pub fn with_observed_value(mut self, idx: usize, x: T) -> Self {
+    pub fn with_all_values(mut self, x:&[ParamObservability<T>]) -> Self {
         if let NodeContent::StochasticNode {
             ref mut is_observed,
             ref mut values,
             ..
         } = self.n.content
-        {
-            is_observed[idx] = true;
-            values[idx] = x;
-        }
-        self
-    }
-
-    pub fn with_value(mut self, idx: usize, x: T) -> Self {
-        if let NodeContent::StochasticNode {
-            ref mut is_observed,
-            ref mut values,
-            ..
-        } = self.n.content
-        {
-            is_observed[idx] = false;
-            values[idx] = x;
-        } else {
+            {
+                if x.len()!=self.n.info.ndim_output{
+                    panic!("Error, number of values not same as noutput");
+                }
+                for i in 0..x.len(){
+                    match x[i]{
+                        ParamObservability::Observed(ref x1)=>{
+                            values[i]=*x1;
+                            is_observed[i]=true;
+                        },
+                        ParamObservability::UnObserved(ref x1)=>{
+                            values[i]=*x1;
+                            is_observed[i]=false;
+                        }
+                    }
+                }
+            } else {
             panic!("It is not a stochastic node");
         }
         self
@@ -218,29 +240,18 @@ where
             content:
                 NodeContent::StochasticNode {
                     ref mut is_observed,
+                    ref values,
                     ..
                 },
         } = node
         {
             is_observed.resize(ndim_output, false);
+            if ndim_output!=values.len(){
+                panic!("noutput != value.len");
+            }
             idx_in_var.clear();
             value_type.clear();
         }
-        /*
-        if let Node{
-            info: BasicNode{
-                parents, ndim_output,
-                idx_in_var,..
-            },
-            ref content: NodeContent::StochasticNode {
-               is_observed,..
-            }
-        } = node
-        {
-            is_observed.resize(ndim_output, false);
-            idx_in_var.clear();
-        }
-        */
 
         NodeAdder {
             g: self,

@@ -3,6 +3,7 @@ extern crate rsmcmc;
 
 use rand::thread_rng;
 use rsmcmc::graph::graph::Graph;
+use rsmcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 use rsmcmc::graph::graph_var::GraphVar;
 use rsmcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
 use rsmcmc::ensemble_sample::sample;
@@ -16,7 +17,7 @@ fn main() {
     g.add_node("x", normal_node())
         .with_parent("mean", 0)
         .with_parent("sigma", 0)
-        .with_value(0, 1.0)
+        .with_all_values(&[UnObserved(1.0)])
         .done();
 
     g.seal();

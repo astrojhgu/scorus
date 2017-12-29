@@ -28,6 +28,10 @@ name="graph"
 path="examples/graph.rs"
 
 [[example]]
+name="gt1"
+path="examples/graph_test1.rs"
+
+[[example]]
 name="bng"
 path="examples/bayes_network_gaussian.rs"
 

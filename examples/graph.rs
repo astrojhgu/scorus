@@ -2,6 +2,7 @@ extern crate rsmcmc;
 
 use rsmcmc::graph::graph::Graph;
 use rsmcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
+use rsmcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 
 fn main() {
     let mut g = Graph::<String, f64>::new();
@@ -34,7 +35,7 @@ fn main() {
     g.add_node("y".to_string(), normal_node())
         .with_parent("a3".to_string(), 0)
         .with_parent("a4".to_string(), 0)
-        .with_observed_value(0, 0.1)
+        .with_all_values(&[Observed(0.1)])
         .done();
 
     g.seal();
