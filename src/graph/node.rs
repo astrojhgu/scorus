@@ -3,6 +3,7 @@ use num_traits::float::Float;
 use std;
 use std::rc::Rc;
 use super::graph_var::GraphVar;
+use super::graph::Graph;
 
 pub enum ValueType {
     FIXED,

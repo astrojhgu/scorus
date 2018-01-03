@@ -1,5 +1,5 @@
-extern crate rsmcmc;
 extern crate rand;
+extern crate rsmcmc;
 
 //use std;
 use rand::thread_rng;
@@ -9,27 +9,35 @@ use std::vec::Vec;
 use rsmcmc::graph::graph::Graph;
 use rsmcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
 use rsmcmc::ensemble_sample::sample_st;
+use rand::distributions::IndependentSample;
+use rand::distributions::normal::Normal;
 
-
-fn main(){
+fn main() {
     let mut g=Graph::new();
-    g.add_node("s1", const_node(0.1)).done();
-    g.add_node("s2", const_node(2.0)).done();
-    g.add_node("s", uniform_node()).with_parent("s1", 0).with_parent("s2", 0).with_all_values(&[UnObserved(1.0)]).done();
-    g.add_node("m", const_node(0.5)).done();
+
+    let m_lower=const_node(-1.0).add_to(&mut g, &"m_lower".to_string());
+    let m_upper=const_node(1.0).add_to(&mut g, &"m_upper".to_string());
+
+    let s_lower=const_node(0.001).add_to(&mut g, &"s_lower".to_string());
+    let s_upper=const_node(10.0).add_to(&mut g, &"s_upper".to_string());
+
+    let m=uniform_node((m_lower,0),(m_upper,0)).with_all_values(&[UnObserved(1.0)]).add_to(&mut g, &"m".to_string());
+    let s=uniform_node((s_lower,0),(s_upper,0)).with_all_values(&[UnObserved(2.0)]).add_to(&mut g, &"s".to_string());
 
 
-    g.add_node("y", normal_node()).with_parent("m",0).with_parent("s",0).with_all_values(&[UnObserved(1.0)]).done();
 
+    let mut rng=thread_rng();
+
+
+    let norm=Normal::new(1.0, 2.0);
+
+    for i in 0..1000 {
+        let k=format!("n{}",i);
+        normal_node((m,0),(s,0)).with_all_values(&[Observed(norm.ind_sample(&mut rng))]).add_to(&mut g, &k);
+    }
+
+    g.seal();
     let mut gv=g.init_gv();
-
-    println!("{}", &gv);
-
-    let mut ensemble=Vec::new();
-
-
-    ensemble.push(1);
-
-    //sample_st(|x|{g.logpost_all(x)}, )
-
+    println!("{}",&gv);
+    println!("{}", g.logpost_all(&gv));
 }

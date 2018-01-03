@@ -14,6 +14,19 @@ use super::graph_var::GraphVar;
 use num_traits::identities::zero;
 use std::boxed::Box;
 use std::option::Option;
+use std::ops::Index;
+use std::convert::From;
+
+#[derive(Debug)]
+pub struct NodeHandle(usize);
+
+impl Clone for NodeHandle {
+    fn clone(&self) -> NodeHandle {
+        NodeHandle(self.0)
+    }
+}
+
+impl Copy for NodeHandle {}
 
 pub struct Graph<K, T>
 where
@@ -56,88 +69,92 @@ where
     }
 }
 
-
-pub enum ParamObservability<T>{
+pub enum ParamObservability<T> {
     Observed(T),
     UnObserved(T),
 }
 
 impl<T> std::clone::Clone for ParamObservability<T>
-where T:std::marker::Copy{
-    fn clone(&self) -> Self{
-        match self{
-            &ParamObservability::Observed(x)=>ParamObservability::Observed(x),
-            &ParamObservability::UnObserved(x)=>ParamObservability::UnObserved(x)
+where
+    T: std::marker::Copy,
+{
+    fn clone(&self) -> Self {
+        match self {
+            &ParamObservability::Observed(x) => ParamObservability::Observed(x),
+            &ParamObservability::UnObserved(x) => ParamObservability::UnObserved(x),
         }
     }
 }
 
 impl<T> std::marker::Copy for ParamObservability<T>
-where T:std::marker::Copy{
+where
+    T: std::marker::Copy,
+{
 }
 
-
-pub struct NodeAdder<'a, K, T>
+pub struct NodeAdder<T>
 where
-    K: std::hash::Hash + Eq + Clone + 'a,
-    T: 'a + Float + Sync + Send + Display,
+    T: Float + Sync + Send + Display,
 {
-    g: &'a mut Graph<K, T>,
     n: Node<T>,
-    k: K,
-    //parents:Vec<K>
+    parents: Vec<(NodeHandle, usize)>,
 }
 
-impl<'a, K, T> NodeAdder<'a, K, T>
+impl<T> NodeAdder<T>
 where
-    K: std::hash::Hash + Eq + Clone,
-    T: 'a + Float + Sync + Send + Display,
+    T: Float + Sync + Send + Display,
 {
-    pub fn with_parent(mut self, key: K, parent_output_id: usize) -> Self {
-        if self.n.info.parents.len() > self.n.info.ndim_input {
-            panic!("parents mismatch");
+    pub fn new(n: Node<T>, p:&[(NodeHandle, usize)]) -> Self {
+        if p.len()!=n.info.ndim_input{
+            panic!("Number of parents mismatch");
         }
-        self.n
-            .info
-            .parents
-            .push((*self.g.key_node_map.get(&key).unwrap(), parent_output_id));
-        self
+
+        NodeAdder {
+            n: n,
+            parents: Vec::<(NodeHandle, usize)>::from(p)
+        }
     }
 
-    pub fn with_all_values(mut self, x:&[ParamObservability<T>]) -> Self {
+    pub fn with_all_values(mut self, x: &[ParamObservability<T>]) -> Self {
         if let NodeContent::StochasticNode {
             ref mut is_observed,
             ref mut values,
             ..
         } = self.n.content
-            {
-                if x.len()!=self.n.info.ndim_output{
-                    panic!("Error, number of values not same as noutput");
-                }
-                for i in 0..x.len(){
-                    match x[i]{
-                        ParamObservability::Observed(ref x1)=>{
-                            values[i]=*x1;
-                            is_observed[i]=true;
-                        },
-                        ParamObservability::UnObserved(ref x1)=>{
-                            values[i]=*x1;
-                            is_observed[i]=false;
-                        }
+        {
+            if x.len() != self.n.info.ndim_output {
+                panic!("Error, number of values not same as noutput");
+            }
+            is_observed.clear();
+            values.clear();
+            for i in 0..x.len() {
+                match x[i] {
+                    ParamObservability::Observed(ref x1) => {
+                        values.push(*x1);
+                        is_observed.push(true);
+                    }
+                    ParamObservability::UnObserved(ref x1) => {
+                        values.push(*x1);
+                        is_observed.push(false);
                     }
                 }
-            } else {
+            }
+        } else {
             panic!("It is not a stochastic node");
         }
         self
     }
 
-    pub fn done(mut self) {
-        let nid = self.g.nodes.len();
+    pub fn add_to<K>(mut self, g: &mut Graph<K, T>, k: &K) -> NodeHandle
+    where
+        K: std::hash::Hash + Eq + Clone,
+    {
+        let nid = g.nodes.len();
 
-        if self.n.info.parents.len() != self.n.info.ndim_input {
+        if self.parents.len() != self.n.info.ndim_input {
             panic!("parents mismatch");
         }
+
         match self.n {
             Node {
                 info:
@@ -156,13 +173,13 @@ where
                 value_type.clear();
                 for &ob in is_observed {
                     if ob {
-                        idx_in_var.push(self.g.num_of_fixed_vars);
+                        idx_in_var.push(g.num_of_fixed_vars);
                         value_type.push(ValueType::FIXED);
-                        self.g.num_of_fixed_vars += 1;
+                        g.num_of_fixed_vars += 1;
                     } else {
-                        idx_in_var.push(self.g.num_of_sampleable_vars);
+                        idx_in_var.push(g.num_of_sampleable_vars);
                         value_type.push(ValueType::SAMPLEABLE);
-                        self.g.num_of_sampleable_vars += 1;
+                        g.num_of_sampleable_vars += 1;
                     }
                 }
             }
@@ -182,31 +199,32 @@ where
                 value_type.clear();
                 if ndim_input == 0 {
                     for i in 0..ndim_output {
-                        idx_in_var.push(self.g.num_of_fixed_vars);
+                        idx_in_var.push(g.num_of_fixed_vars);
                         value_type.push(ValueType::FIXED);
-                        self.g.num_of_fixed_vars += 1;
+                        g.num_of_fixed_vars += 1;
                     }
                 } else {
                     for i in 0..ndim_output {
-                        idx_in_var.push(self.g.num_of_deterministic_vars);
+                        idx_in_var.push(g.num_of_deterministic_vars);
                         value_type.push(ValueType::DETERMINISTIC);
-                        self.g.num_of_deterministic_vars += 1;
+                        g.num_of_deterministic_vars += 1;
                     }
                 }
             }
         }
 
-        for &(p, _) in &self.n.info.parents {
-            self.g.nodes[p].info.children.push(nid);
+        for &(k, i) in &self.parents {
+            let pid = k.0;
+            self.n.info.parents.push((pid, i));
+            g.nodes[pid].info.children.push(nid);
         }
 
-        self.g
-            .key_node_map
-            .insert(self.k.clone(), self.g.nodes.len());
-        self.g
-            .node_key_map
-            .insert(self.g.nodes.len(), self.k.clone());
-        self.g.nodes.push(self.n);
+        g.key_node_map.insert(k.clone(), nid);
+        g.node_key_map.insert(nid, k.clone());
+
+        g.nodes.push(self.n);
+
+        NodeHandle(nid)
     }
 }
 
@@ -223,40 +241,6 @@ where
             num_of_fixed_vars: 0,
             num_of_deterministic_vars: 0,
             num_of_sampleable_vars: 0,
-        }
-    }
-
-    pub fn add_node(&mut self, key: K, node: Node<T>) -> NodeAdder<K, T> {
-        let mut node = node;
-
-        if let Node {
-            info:
-                BasicNode {
-                    ref mut idx_in_var,
-                    ref mut value_type,
-                    ndim_output,
-                    ..
-                },
-            content:
-                NodeContent::StochasticNode {
-                    ref mut is_observed,
-                    ref values,
-                    ..
-                },
-        } = node
-        {
-            is_observed.resize(ndim_output, false);
-            if ndim_output!=values.len(){
-                panic!("noutput != value.len");
-            }
-            idx_in_var.clear();
-            value_type.clear();
-        }
-
-        NodeAdder {
-            g: self,
-            n: node,
-            k: key,
         }
     }
 
