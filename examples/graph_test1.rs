@@ -11,6 +11,7 @@ use rsmcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_
 use rsmcmc::ensemble_sample::sample_st;
 use rand::distributions::IndependentSample;
 use rand::distributions::normal::Normal;
+use rsmcmc::HasLength;
 
 fn main() {
     let mut g=Graph::new();
@@ -36,8 +37,33 @@ fn main() {
         normal_node((m,0),(s,0)).with_all_values(&[Observed(norm.ind_sample(&mut rng))]).add_to(&mut g, &k);
     }
 
+
+    //normal_node((m,0),(s,0)).with_all_values(&[UnObserved(1.0)]).add_to(&mut g, &"x1".to_string());
+    //normal_node((m,0),(s,0)).with_all_values(&[UnObserved(1.0)]).add_to(&mut g, &"x2".to_string());
+
     g.seal();
     let mut gv=g.init_gv();
-    println!("{}",&gv);
-    println!("{}", g.logpost_all(&gv));
+
+    //println!("{}", g.logpost_all(&gv));
+
+
+
+    let mut ensemble=Vec::new();
+    ensemble.push(gv.clone());
+    gv[0]*=1.01;
+    ensemble.push(gv.clone());
+    gv[1]*=1.01;
+    ensemble.push(gv.clone());
+    gv[0]*=1.01;
+    ensemble.push(gv.clone());
+    //println!("{}", gv.length());
+
+    let mut lp =Vec::new();
+    for i in 0..10000 {
+        let aa=sample_st(&|x| { g.logpost_all(x) }, (ensemble, lp), &mut rng, 2.0).unwrap();
+        ensemble=aa.0;
+        lp=aa.1;
+        println!("{} {}", ensemble[0][0], ensemble[0][1]);
+    }
+
 }

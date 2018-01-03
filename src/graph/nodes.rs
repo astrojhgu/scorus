@@ -73,6 +73,9 @@ pub fn normal_node<T>(m: (NodeHandle, usize), s: (NodeHandle, usize)) -> NodeAdd
 where
     T: 'static + Float + Sync + Send + std::fmt::Display,
 {
+    let two=one::<T>()+one::<T>();
+    let four=two+two;
+    let pi=one::<T>().atan()*four;
     let n = Node {
         info: BasicNode {
             parents: Vec::new(),
@@ -91,7 +94,9 @@ where
                 let x = x[0];
                 let m = p[0];
                 let s = p[1];
-                return -((x - m) * (x - m) / ((one::<T>() + one::<T>()) * s * s)) - s;
+                let y=-((x - m) * (x - m) / ((one::<T>() + one::<T>()) * s * s)) - ((two*pi).sqrt()*s).ln();
+                //println!("{} {} {} {}", x, m, s, y);
+                return y;
             }),
         },
     };
@@ -116,7 +121,7 @@ where
             all_deterministic_children: Vec::new(),
             is_observed: vec![false],
             values: vec![zero()],
-            logprob: Box::new(move |x, p| one()),
+            logprob: Box::new(move |x, p| zero()),
         },
     };
 

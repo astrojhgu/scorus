@@ -151,6 +151,10 @@ where
     {
         let nid = g.nodes.len();
 
+        if g.key_node_map.contains_key(k){
+            panic!("Error, key has already existed");
+        }
+
         if self.parents.len() != self.n.info.ndim_input {
             panic!("parents mismatch");
         }
