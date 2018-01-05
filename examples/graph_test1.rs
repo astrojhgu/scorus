@@ -65,5 +65,4 @@ fn main() {
         lp=aa.1;
         println!("{} {}", ensemble[0][0], ensemble[0][1]);
     }
-
 }

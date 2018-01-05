@@ -1,3 +1,6 @@
+extern crate special;
+
+
 use std;
 use super::node::Node;
 use super::node::NodeContent;
@@ -8,6 +11,8 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 use super::graph::NodeAdder;
 use super::graph::NodeHandle;
+use super::super::functions::phi;
+
 
 pub fn const_node<T>(v: T) -> NodeAdder<T>
 where
@@ -48,6 +53,68 @@ where
     };
     NodeAdder::new(n,&[a, b])
 }
+
+pub fn mul_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
+    where
+        T: 'static + Float + Sync + Send + std::fmt::Display,
+{
+    let n = Node {
+        info: BasicNode {
+            parents: Vec::new(),
+            children: Vec::new(),
+            idx_in_var: Vec::new(),
+            value_type: Vec::new(),
+            ndim_input: 2,
+            ndim_output: 1,
+        },
+        content: NodeContent::DeterministicNode {
+            calc: Box::new(move |x| vec![x[0] * x[1]]),
+        },
+    };
+    NodeAdder::new(n,&[a, b])
+}
+
+
+pub fn sub_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
+    where
+        T: 'static + Float + Sync + Send + std::fmt::Display,
+{
+    let n = Node {
+        info: BasicNode {
+            parents: Vec::new(),
+            children: Vec::new(),
+            idx_in_var: Vec::new(),
+            value_type: Vec::new(),
+            ndim_input: 2,
+            ndim_output: 1,
+        },
+        content: NodeContent::DeterministicNode {
+            calc: Box::new(move |x| vec![x[0] / x[1]]),
+        },
+    };
+    NodeAdder::new(n,&[a, b])
+}
+
+pub fn div_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
+    where
+        T: 'static + Float + Sync + Send + std::fmt::Display,
+{
+    let n = Node {
+        info: BasicNode {
+            parents: Vec::new(),
+            children: Vec::new(),
+            idx_in_var: Vec::new(),
+            value_type: Vec::new(),
+            ndim_input: 2,
+            ndim_output: 1,
+        },
+        content: NodeContent::DeterministicNode {
+            calc: Box::new(move |x| vec![x[0] / x[1]]),
+        },
+    };
+    NodeAdder::new(n,&[a, b])
+}
+
 
 pub fn cos_node<T>(a: (NodeHandle, usize)) -> NodeAdder<T>
 where
@@ -126,4 +193,25 @@ where
     };
 
     NodeAdder::new(n,&[a, b])
+}
+
+pub fn phi_node<T>(x:(NodeHandle, usize))->NodeAdder<T>
+where
+    T: 'static + Float + special::Error+ Sync + Send + std::fmt::Display,
+{
+    let n = Node {
+        info: BasicNode {
+            parents: Vec::new(),
+            children: Vec::new(),
+            idx_in_var: Vec::new(),
+            value_type: Vec::new(),
+            ndim_input: 1,
+            ndim_output: 1,
+        },
+        content: NodeContent::DeterministicNode {
+
+            calc: Box::new(move |x: &[T]| vec![phi(x[0])]),
+        },
+    };
+    NodeAdder::new(n,&[x])
 }
