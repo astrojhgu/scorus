@@ -12,7 +12,7 @@ use num_traits::identities::zero;
 use super::graph::NodeAdder;
 use super::graph::NodeHandle;
 use super::super::functions::phi;
-
+use num_traits::cast::NumCast;
 
 pub fn const_node<T>(v: T) -> NodeAdder<T>
 where
@@ -165,6 +165,13 @@ where
                 //println!("{} {} {} {}", x, m, s, y);
                 return y;
             }),
+            range: Box::new(move |p|{
+                let m=p[0];
+                let s=p[1];
+                let x1=m-T::from(5).unwrap()*s;
+                let x2=m+T::from(5).unwrap()*s;
+                vec![(x1,x2)]
+            })
         },
     };
     NodeAdder::new(n,&[m, s])
@@ -188,7 +195,23 @@ where
             all_deterministic_children: Vec::new(),
             is_observed: vec![false],
             values: vec![zero()],
-            logprob: Box::new(move |x, p| zero()),
+            logprob: Box::new(move |x, p| {
+                let x1=p[0];
+                let x2=p[1];
+                let x=x[0];
+                if x<=x2 && x>=x1{
+                    zero()
+                }
+                else{
+                    <T as Float>::infinity()
+                }
+            }
+                ),
+            range: Box::new(move |p| {
+                let x1=p[0];
+                let x2=p[1];
+                vec![(x1,x2)]
+            })
         },
     };
 
@@ -209,7 +232,6 @@ where
             ndim_output: 1,
         },
         content: NodeContent::DeterministicNode {
-
             calc: Box::new(move |x: &[T]| vec![phi(x[0])]),
         },
     };

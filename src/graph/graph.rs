@@ -404,6 +404,16 @@ where
         }
     }
 
+    pub fn range(&self, i:usize, gv:&GraphVar<T>) -> Vec<(T, T)>{
+        if let NodeContent::StochasticNode { ref range, .. } = self.nodes[i].content {
+            let x = self.cached_values_of(i, gv);
+            let p = self.parent_values_of(i, gv);
+            range(p.as_slice())
+        } else {
+            panic!("not a stochastic node");
+        }
+    }
+
     pub fn likelihood(&self, i: usize, gv: &GraphVar<T>) -> T {
         let mut result = zero();
         if let NodeContent::StochasticNode {

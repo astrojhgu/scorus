@@ -30,6 +30,7 @@ where
         is_observed: Vec<bool>,
         values: Vec<T>,
         logprob: Box<Fn(&[T], &[T]) -> T>,
+        range: Box<Fn(&[T]) -> Vec<(T,T)>>
     },
 
     DeterministicNode {
