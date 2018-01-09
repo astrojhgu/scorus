@@ -10,5 +10,4 @@ use rsmcmc::ensemble_sample::sample;
 use rsmcmc::utils::HasLength;
 use rsmcmc::init_ensemble::get_one_init_realization;
 
-fn main() {
-}
+fn main() {}

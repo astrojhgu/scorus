@@ -16,7 +16,11 @@ use std::boxed::Box;
 use std::option::Option;
 use std::ops::Index;
 use std::convert::From;
-
+use super::super::arms::sample as arms;
+use rand::Rng;
+use rand::Rand;
+use rand::distributions::range::SampleRange;
+use std::fmt::Debug;
 #[derive(Debug)]
 pub struct NodeHandle(usize);
 
@@ -104,14 +108,14 @@ impl<T> NodeAdder<T>
 where
     T: Float + Sync + Send + Display,
 {
-    pub fn new(n: Node<T>, p:&[(NodeHandle, usize)]) -> Self {
-        if p.len()!=n.info.ndim_input{
+    pub fn new(n: Node<T>, p: &[(NodeHandle, usize)]) -> Self {
+        if p.len() != n.info.ndim_input {
             panic!("Number of parents mismatch");
         }
 
         NodeAdder {
             n: n,
-            parents: Vec::<(NodeHandle, usize)>::from(p)
+            parents: Vec::<(NodeHandle, usize)>::from(p),
         }
     }
 
@@ -151,7 +155,7 @@ where
     {
         let nid = g.nodes.len();
 
-        if g.key_node_map.contains_key(k){
+        if g.key_node_map.contains_key(k) {
             panic!("Error, key has already existed");
         }
 
@@ -235,7 +239,7 @@ where
 impl<K, T> Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
-    T: Float + Sync + Send + Display,
+    T: Float + Sync + Rand + SampleRange + Send + Display + Debug,
 {
     pub fn new() -> Graph<K, T> {
         Graph {
@@ -404,13 +408,60 @@ where
         }
     }
 
-    pub fn range(&self, i:usize, gv:&GraphVar<T>) -> Vec<(T, T)>{
+    pub fn range(&self, i: usize, gv: &GraphVar<T>) -> Option<Vec<(T, T)>> {
         if let NodeContent::StochasticNode { ref range, .. } = self.nodes[i].content {
             let x = self.cached_values_of(i, gv);
             let p = self.parent_values_of(i, gv);
-            range(p.as_slice())
+            Some(range(p.as_slice()))
         } else {
-            panic!("not a stochastic node");
+            None
+        }
+    }
+
+    pub fn sample<R>(&self, i: usize, j: usize, mut gv: &mut GraphVar<T>, rng: &mut R, n: usize, nchanged:&mut usize)
+    where
+        R: Rng,
+    {
+        let range = self.range(i, gv).unwrap();
+        let x0 = self.cached_value_of(i, j, &gv);
+        let (x1, x2) = range[j];
+        //let initx=vec![x1+(x2-x1)*(T::from(0.3).unwrap()), (x1+x2)*(T::from(0.5).unwrap()), x1+(x2-x1)*T::from(0.6).unwrap()];
+        let mut initx = Vec::new();
+        for k in 0..n {
+            initx.push(x1 + (x2 - x1) / (T::from(n + 2).unwrap()) * T::from(k).unwrap())
+        }
+
+        let x = arms(
+            &|x| {
+                let mut gv = gv.clone();
+                self.set_value_then_update(i, j, x, &mut gv);
+                self.logpost(i, &gv)
+            },
+            range[j],
+            &initx,
+            x0,
+            10,
+            rng,
+            nchanged,
+        ).unwrap();
+        self.set_value_then_update(i, j, x, &mut gv);
+    }
+
+    pub fn sample_all<R>(&self, mut gv:&mut GraphVar<T>, mut rng: &mut R, n:usize, nchanged:&mut usize)
+    where R:Rng
+    {
+        for i in 0..self.nodes.len(){
+            if let Node{content:NodeContent::StochasticNode{ref is_observed,..},info:BasicNode{ndim_output, ..}}=self.nodes[i]{
+                for j in 0..ndim_output {
+                    if !is_observed[j] {
+                        let mut change_count=0;
+                        self.sample(i, j, gv, rng, n, &mut change_count);
+                        if change_count>0{
+                            *nchanged+=1;
+                        }
+                    }
+                }
+            }
         }
     }
 

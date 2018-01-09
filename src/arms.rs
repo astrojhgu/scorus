@@ -1097,7 +1097,7 @@ pub fn sample<T, F, R, V>(
     init_x: &V,
     xcur: T,
     n: usize,
-    mut rng: &mut R,
+    rng: &mut R,
     xmchange_count: &mut usize,
 ) -> Result<T, ArmsErrs<T>>
 where
@@ -1122,7 +1122,7 @@ where
     let mut xm = xcur;
     let mut i = 0;
     while i < n {
-        x = fetch_one(&section_list, &mut rng /*, pd, scale*/)?;
+        x = fetch_one(&section_list, rng /*, pd, scale*/)?;
 
         let xa = if rng.gen_range(zero::<T>(), one::<T>()).ln() + eval(x, &section_list)?
             > eval_log(&pd, x, scale)?

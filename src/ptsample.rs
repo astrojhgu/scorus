@@ -22,7 +22,7 @@ use num_traits::identities::zero;
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
     ensemble_logprob: (W, X),
-    mut rng: &mut U,
+    rng: &mut U,
     beta_list: &X,
     perform_swap: bool,
     a: T,
@@ -57,7 +57,7 @@ where
     F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
     let (result_ensemble, mut result_logprob) =
-        swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap)?;
+        swap_walkers(ensemble_logprob, rng, &beta_list, perform_swap)?;
 
     //let pflogprob=Arc::new(flogprob);
 
@@ -216,7 +216,7 @@ where
 pub fn sample_st<T, U, V, W, X, F>(
     flogprob: &F,
     ensemble_logprob: (W, X),
-    mut rng: &mut U,
+    rng: &mut U,
     beta_list: &X,
     perform_swap: bool,
     a: T,
@@ -235,7 +235,7 @@ where
     F: Fn(&V) -> T,
 {
     let (result_ensemble, mut result_logprob) =
-        swap_walkers(ensemble_logprob, &mut rng, &beta_list, perform_swap)?;
+        swap_walkers(ensemble_logprob, rng, &beta_list, perform_swap)?;
 
     //let pflogprob=Arc::new(flogprob);
 

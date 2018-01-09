@@ -23,7 +23,7 @@ fn main() {
     let s_upper = const_node(10.0).add_to(&mut g, &"s_upper".to_string());
 
     let m = uniform_node((m_lower, 0), (m_upper, 0))
-        .with_all_values(&[UnObserved(0.0)])
+        .with_all_values(&[UnObserved(1.0)])
         .add_to(&mut g, &"m".to_string());
     let s = uniform_node((s_lower, 0), (s_upper, 0))
         .with_all_values(&[UnObserved(2.0)])
@@ -33,7 +33,7 @@ fn main() {
 
     let norm = Normal::new(0.0, 2.0);
 
-    for i in 0..10000 {
+    for i in 0..1000 {
         let k = format!("n{}", i);
         normal_node((m, 0), (s, 0))
             .with_all_values(&[Observed(norm.ind_sample(&mut rng))])
@@ -46,24 +46,15 @@ fn main() {
     g.seal();
     let mut gv = g.init_gv();
 
-    //println!("{}", g.logpost_all(&gv));
 
-    let mut ensemble = Vec::new();
+    //g.sample(4, 0, &mut gv, &mut rng, 10);
+    //g.sample(5, 0, &mut gv, &mut rng, 10);
     let mut nchanged=0;
-    g.sample_all(&mut gv, &mut rng, 100, &mut nchanged);
-    ensemble.push(gv.clone());
-    g.sample_all(&mut gv, &mut rng, 100, &mut nchanged);
-    ensemble.push(gv.clone());
-    g.sample_all(&mut gv, &mut rng, 100, &mut nchanged);
-    ensemble.push(gv.clone());
-    g.sample_all(&mut gv, &mut rng, 100, &mut nchanged);
-    ensemble.push(gv.clone());
-
-    let mut lp = Vec::new();
-    for i in 0..10000 {
-        let aa = sample_st(&|x| g.logpost_all(x), (ensemble, lp), &mut rng, 2.0).unwrap();
-        ensemble = aa.0;
-        lp = aa.1;
-        println!("{} {}", ensemble[0][0], ensemble[0][1]);
-    }
+    g.sample_all(&mut gv, &mut rng, 10, &mut nchanged);
+    println!(
+        "{} {}",
+        g.cached_value_of(4, 0, &gv),
+        g.cached_value_of(5, 0, &gv)
+    );
+    println!("{}", nchanged);
 }

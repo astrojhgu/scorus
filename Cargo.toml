@@ -32,6 +32,14 @@ name="gt1"
 path="examples/graph_test1.rs"
 
 [[example]]
+name="gt2"
+path="examples/graph_test2.rs"
+
+[[example]]
+name="as1"
+path="examples/arms_test.rs"
+
+[[example]]
 name="bng"
 path="examples/bayes_network_gaussian.rs"
 
