@@ -49,7 +49,7 @@ fn main() {
     //println!("{}", g.logpost_all(&gv));
 
     let mut ensemble = Vec::new();
-    let mut nchanged=0;
+    let mut nchanged = 0;
     g.sample_all(&mut gv, &mut rng, 100, &mut nchanged);
     ensemble.push(gv.clone());
     g.sample_all(&mut gv, &mut rng, 100, &mut nchanged);

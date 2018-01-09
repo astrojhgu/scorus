@@ -418,8 +418,15 @@ where
         }
     }
 
-    pub fn sample<R>(&self, i: usize, j: usize, mut gv: &mut GraphVar<T>, rng: &mut R, n: usize, nchanged:&mut usize)
-    where
+    pub fn sample<R>(
+        &self,
+        i: usize,
+        j: usize,
+        mut gv: &mut GraphVar<T>,
+        rng: &mut R,
+        n: usize,
+        nchanged: &mut usize,
+    ) where
         R: Rng,
     {
         let range = self.range(i, gv).unwrap();
@@ -447,17 +454,30 @@ where
         self.set_value_then_update(i, j, x, &mut gv);
     }
 
-    pub fn sample_all<R>(&self, mut gv:&mut GraphVar<T>, mut rng: &mut R, n:usize, nchanged:&mut usize)
-    where R:Rng
+    pub fn sample_all<R>(
+        &self,
+        mut gv: &mut GraphVar<T>,
+        mut rng: &mut R,
+        n: usize,
+        nchanged: &mut usize,
+    ) where
+        R: Rng,
     {
-        for i in 0..self.nodes.len(){
-            if let Node{content:NodeContent::StochasticNode{ref is_observed,..},info:BasicNode{ndim_output, ..}}=self.nodes[i]{
+        for i in 0..self.nodes.len() {
+            if let Node {
+                content:
+                    NodeContent::StochasticNode {
+                        ref is_observed, ..
+                    },
+                info: BasicNode { ndim_output, .. },
+            } = self.nodes[i]
+            {
                 for j in 0..ndim_output {
                     if !is_observed[j] {
-                        let mut change_count=0;
+                        let mut change_count = 0;
                         self.sample(i, j, gv, rng, n, &mut change_count);
-                        if change_count>0{
-                            *nchanged+=1;
+                        if change_count > 0 {
+                            *nchanged += 1;
                         }
                     }
                 }

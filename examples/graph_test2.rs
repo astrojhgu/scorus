@@ -46,10 +46,9 @@ fn main() {
     g.seal();
     let mut gv = g.init_gv();
 
-
     //g.sample(4, 0, &mut gv, &mut rng, 10);
     //g.sample(5, 0, &mut gv, &mut rng, 10);
-    let mut nchanged=0;
+    let mut nchanged = 0;
     g.sample_all(&mut gv, &mut rng, 10, &mut nchanged);
     println!(
         "{} {}",
