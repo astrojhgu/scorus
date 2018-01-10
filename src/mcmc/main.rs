@@ -10,13 +10,13 @@ use rsmcmc::ptsample::sample as ff1;
 use rsmcmc::shuffle;
 use rand::Rng;
 use quickersort::sort_by;
-use rsmcmc::arms::sample;
-use rsmcmc::arms::inv_int_exp_y;
-use rsmcmc::arms::int_exp_y;
-use rsmcmc::arms::init;
-use rsmcmc::arms::dump_section_list;
-use rsmcmc::arms::insert_point;
-use rsmcmc::arms::update_scale;
+use rsmcmc::mcmc::arms::sample;
+use rsmcmc::mcmc::arms::inv_int_exp_y;
+use rsmcmc::mcmc::arms::int_exp_y;
+use rsmcmc::mcmc::arms::init;
+use rsmcmc::mcmc::arms::dump_section_list;
+use rsmcmc::mcmc::arms::insert_point;
+use rsmcmc::mcmc::arms::update_scale;
 
 fn normal_dist(x: &Vec<f64>) -> f64 {
     let mut result = 0_f64;

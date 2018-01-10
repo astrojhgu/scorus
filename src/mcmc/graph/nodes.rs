@@ -11,7 +11,6 @@ use num_traits::identities::zero;
 use super::graph::NodeAdder;
 use super::graph::NodeHandle;
 use super::super::functions::phi;
-use num_traits::cast::NumCast;
 
 pub fn const_node<T>(v: T) -> NodeAdder<T>
 where
@@ -27,7 +26,7 @@ where
             ndim_output: 1,
         },
         content: NodeContent::DeterministicNode {
-            calc: Box::new(move |x| vec![v]),
+            calc: Box::new(move |_x| vec![v]),
         },
     };
     NodeAdder::new(n, &[])

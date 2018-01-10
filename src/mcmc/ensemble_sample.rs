@@ -3,19 +3,21 @@ extern crate scoped_threadpool;
 
 use std;
 use scoped_threadpool::Pool;
-//use std::sync::Arc;
-use mcmc_errors::McmcErrs;
-use utils::draw_z;
-use utils::HasLength;
-use utils::Resizeable;
 use std::sync::Mutex;
-use utils::scale_vec;
-
 use std::ops::IndexMut;
 use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
+
+//use std::sync::Arc;
+
+use super::mcmc_errors::McmcErrs;
+use super::utils::draw_z;
+use super::super::utils::HasLength;
+use super::super::utils::Resizeable;
+
+use super::utils::scale_vec;
 
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,

@@ -1,10 +1,10 @@
+extern crate kxjs;
 extern crate rand;
-extern crate rsmcmc;
-use rsmcmc::graph::graph::Graph;
-use rsmcmc::graph::nodes::{add_node, const_node, cos_node, mul_node, normal_node, uniform_node};
-use rsmcmc::graph::graph::ParamObservability::{Observed, UnObserved};
-use rsmcmc::ensemble_sample::sample_st;
-use rsmcmc::HasLength;
+use kxjs::mcmc::graph::graph::Graph;
+use kxjs::mcmc::graph::nodes::{add_node, const_node, cos_node, mul_node, normal_node, uniform_node};
+use kxjs::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
+use kxjs::mcmc::ensemble_sample::sample_st;
+use kxjs::mcmc::HasLength;
 use rand::thread_rng;
 
 fn main() {

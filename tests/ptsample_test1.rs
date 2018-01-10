@@ -1,10 +1,10 @@
+extern crate kxjs;
 extern crate num_traits;
 extern crate rand;
-extern crate rsmcmc;
 
 use num_traits::float::Float;
-use rsmcmc::get_one_init_realization;
-use rsmcmc::ptsample::sample;
+use kxjs::mcmc::get_one_init_realization;
+use kxjs::mcmc::ptsample::sample;
 
 const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;

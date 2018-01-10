@@ -1,7 +1,7 @@
+extern crate kxjs;
 extern crate num_traits;
 extern crate rand;
-extern crate rsmcmc;
-use rsmcmc::arms::sample as arms;
+use kxjs::mcmc::arms::sample as arms;
 use rand::thread_rng;
 use num_traits::float::Float;
 

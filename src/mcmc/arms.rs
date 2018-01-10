@@ -8,7 +8,7 @@ use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
-use utils::HasLength;
+use super::super::utils::HasLength;
 //use utils::Resizeable;
 //use utils::ItemSwapable;
 

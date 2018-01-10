@@ -1,9 +1,6 @@
 //extern crate std;
 use num_traits::float::Float;
 use std;
-use std::rc::Rc;
-use super::graph_var::GraphVar;
-use super::graph::Graph;
 
 pub enum ValueType {
     FIXED,
@@ -60,7 +57,7 @@ where
     T: Float + Sync + Send + std::fmt::Display,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
-        write!(f, "Parents:\n");
+        write!(f, "Parents:\n")?;
 
         for &(i, j) in &self.info.parents {
             write!(f, "{} - {} ", i, j)?;
@@ -71,7 +68,7 @@ where
         }
         write!(f, "\nidx_in_var:\n")?;
         for &i in &self.info.idx_in_var {
-            write!(f, "{} ", i);
+            write!(f, "{} ", i)?;
         }
         write!(f, "\nninput:{}\n", self.info.ndim_input)?;
         write!(f, "\nnoutput:{}\n", self.info.ndim_output)?;
@@ -88,7 +85,7 @@ where
                 for i in all_stochastic_children {
                     write!(f, "{} ", i)?
                 }
-                write!(f, "\nalldeterministic_children\n");
+                write!(f, "\nalldeterministic_children\n")?;
                 for i in all_deterministic_children {
                     write!(f, "{} ", i)?
                 }

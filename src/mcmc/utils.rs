@@ -6,19 +6,10 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 use num_traits::NumCast;
 use std::ops::IndexMut;
-use mcmc_errors::McmcErrs;
-
-pub trait HasLength {
-    fn length(&self) -> usize;
-}
-
-pub trait Resizeable {
-    fn resize(&mut self, usize);
-}
-
-pub trait ItemSwapable {
-    fn swap_items(&mut self, i: usize, j: usize);
-}
+use super::mcmc_errors::McmcErrs;
+use super::super::utils::HasLength;
+use super::super::utils::ItemSwapable;
+use super::super::utils::Resizeable;
 
 pub fn shuffle<T, U>(arr: &T, rng: &mut U) -> T
 where

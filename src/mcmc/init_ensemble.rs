@@ -2,7 +2,6 @@ extern crate num_traits;
 extern crate rand;
 
 use std;
-use utils::HasLength;
 //use utils::Resizeable;
 use std::ops::IndexMut;
 use std::ops::Index;
@@ -10,6 +9,7 @@ use std::ops::Index;
 //use num_traits::NumCast;
 //use num_traits::identities::one;
 //use num_traits::identities::zero;
+use super::super::utils::HasLength;
 
 pub fn get_one_init_realization<U, T, R>(y1: &U, y2: &U, rng: &mut R) -> U
 where

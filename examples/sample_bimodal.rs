@@ -1,12 +1,12 @@
 //sextern crate std;
+extern crate kxjs;
 extern crate num_traits;
 extern crate quickersort;
 extern crate rand;
-extern crate rsmcmc;
 use num_traits::float::Float;
-use rsmcmc::ensemble_sample::sample as ff;
-use rsmcmc::ptsample::sample as ff1;
-use rsmcmc::shuffle;
+use kxjs::mcmc::ensemble_sample::sample as ff;
+use kxjs::mcmc::ptsample::sample as ff1;
+use kxjs::mcmc::shuffle;
 use rand::Rng;
 use quickersort::sort_by;
 

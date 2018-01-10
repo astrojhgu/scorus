@@ -1,26 +1,25 @@
 use std;
+use std::cell::RefCell;
+use std::collections::{BTreeSet, HashMap};
+use std::option::Option;
+use std::convert::From;
+use std::fmt::{Display, Error, Formatter};
+use std::iter::FromIterator;
+use std::fmt::Debug;
+
+use num_traits::float::Float;
+use num_traits::identities::zero;
+
+use rand::Rng;
+use rand::Rand;
+use rand::distributions::range::SampleRange;
 
 use super::node::Node;
 use super::node::NodeContent;
 use super::node::BasicNode;
-use std::cell::RefCell;
-use std::collections::{BTreeSet, HashMap};
 use super::node::ValueType;
-use std::rc::Rc;
-use num_traits::float::Float;
-use std::fmt::{Display, Error, Formatter};
-use std::iter::FromIterator;
 use super::graph_var::GraphVar;
-use num_traits::identities::zero;
-use std::boxed::Box;
-use std::option::Option;
-use std::ops::Index;
-use std::convert::From;
 use super::super::arms::sample as arms;
-use rand::Rng;
-use rand::Rand;
-use rand::distributions::range::SampleRange;
-use std::fmt::Debug;
 #[derive(Debug)]
 pub struct NodeHandle(usize);
 
@@ -53,7 +52,7 @@ where
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "nodes:\n")?;
         for (i, n) in self.nodes.iter().enumerate() {
-            write!(f, "Node: {}, {}\n", i, self.node_key_map.get(&i).unwrap());
+            write!(f, "Node: {}, {}\n", i, self.node_key_map.get(&i).unwrap())?;
             write!(f, "{} \n", &n)?;
             write!(f, "========\n")?;
         }
@@ -167,7 +166,6 @@ where
             Node {
                 info:
                     BasicNode {
-                        ref parents,
                         ref mut idx_in_var,
                         ref mut value_type,
                         ..
@@ -194,7 +192,6 @@ where
             Node {
                 info:
                     BasicNode {
-                        ref parents,
                         ref mut idx_in_var,
                         ndim_input,
                         ndim_output,
@@ -206,13 +203,13 @@ where
                 idx_in_var.clear();
                 value_type.clear();
                 if ndim_input == 0 {
-                    for i in 0..ndim_output {
+                    for _i in 0..ndim_output {
                         idx_in_var.push(g.num_of_fixed_vars);
                         value_type.push(ValueType::FIXED);
                         g.num_of_fixed_vars += 1;
                     }
                 } else {
-                    for i in 0..ndim_output {
+                    for _i in 0..ndim_output {
                         idx_in_var.push(g.num_of_deterministic_vars);
                         value_type.push(ValueType::DETERMINISTIC);
                         g.num_of_deterministic_vars += 1;
@@ -379,22 +376,20 @@ where
                     }
                 }
             }
-            NodeContent::StochasticNode {
-                ref logprob,
-                ref values,
-                ..
-            } => for (m, k) in node.info.idx_in_var.iter().enumerate() {
-                match node.info.value_type[m] {
-                    ValueType::FIXED => {
-                        //panic!("Impossible")
-                        gv.fixed_values.borrow_mut()[*k] = values[m];
+            NodeContent::StochasticNode { ref values, .. } => {
+                for (m, k) in node.info.idx_in_var.iter().enumerate() {
+                    match node.info.value_type[m] {
+                        ValueType::FIXED => {
+                            //panic!("Impossible")
+                            gv.fixed_values.borrow_mut()[*k] = values[m];
+                        }
+                        ValueType::DETERMINISTIC => {
+                            panic!("Impossible");
+                        }
+                        ValueType::SAMPLEABLE => {}
                     }
-                    ValueType::DETERMINISTIC => {
-                        panic!("Impossible");
-                    }
-                    ValueType::SAMPLEABLE => {}
                 }
-            },
+            }
         }
     }
 
@@ -410,7 +405,6 @@ where
 
     pub fn range(&self, i: usize, gv: &GraphVar<T>) -> Option<Vec<(T, T)>> {
         if let NodeContent::StochasticNode { ref range, .. } = self.nodes[i].content {
-            let x = self.cached_values_of(i, gv);
             let p = self.parent_values_of(i, gv);
             Some(range(p.as_slice()))
         } else {
@@ -454,13 +448,8 @@ where
         self.set_value_then_update(i, j, x, &mut gv);
     }
 
-    pub fn sample_all<R>(
-        &self,
-        mut gv: &mut GraphVar<T>,
-        mut rng: &mut R,
-        n: usize,
-        nchanged: &mut usize,
-    ) where
+    pub fn sample_all<R>(&self, gv: &mut GraphVar<T>, rng: &mut R, n: usize, nchanged: &mut usize)
+    where
         R: Rng,
     {
         for i in 0..self.nodes.len() {

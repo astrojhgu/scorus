@@ -3,7 +3,7 @@ use std;
 use num_traits::float::Float;
 use std::fmt::{Display, Error, Formatter};
 use std::cell::RefCell;
-use super::super::utils::HasLength;
+use super::super::super::utils::HasLength;
 
 pub struct GraphVar<T>
 where
