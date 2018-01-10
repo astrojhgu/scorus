@@ -12,8 +12,8 @@ pub mod graph;
 pub use super::utils::HasLength;
 pub use super::utils::Resizeable;
 pub use super::utils::ItemSwapable;
-pub use mcmc::utils::shuffle;
-pub use mcmc::init_ensemble::get_one_init_realization;
+pub use self::utils::shuffle;
+pub use self::init_ensemble::get_one_init_realization;
 
 impl<T> HasLength for Vec<T> {
     fn length(&self) -> usize {
