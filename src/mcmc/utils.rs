@@ -6,7 +6,7 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 use num_traits::NumCast;
 use std::ops::IndexMut;
-use super::mcmc_errors::McmcErrs;
+use super::mcmc_errors::McmcErr;
 use super::super::utils::HasLength;
 use super::super::utils::ItemSwapable;
 use super::super::utils::Resizeable;
@@ -74,7 +74,7 @@ pub fn swap_walkers<T, U, V, W, X>(
     rng: &mut U,
     beta_list: &X,
     perform_swap: bool,
-) -> Result<(W, X), McmcErrs>
+) -> Result<(W, X), McmcErr>
 where
     T: Float
         + NumCast
@@ -94,7 +94,7 @@ where
     let nwalker_per_beta = new_ensemble.length() / nbeta;
     if nwalker_per_beta * nbeta != new_ensemble.length() {
         //panic!("Error nensemble/nbeta%0!=0");
-        return Err(McmcErrs::NWalkersMismatchesNBeta);
+        return Err(McmcErr::NWalkersMismatchesNBeta);
     }
     let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
 
@@ -105,7 +105,7 @@ where
             let beta2 = beta_list[i - 1];
             if beta1 >= beta2 {
                 //panic!("beta list must be in decreasing order, with no duplicatation");
-                return Err(McmcErrs::BetaNotInDecrOrd);
+                return Err(McmcErr::BetaNotInDecrOrd);
             }
             rng.shuffle(&mut jvec);
             //let jvec=shuffle(&jvec, &mut rng);

@@ -5,7 +5,7 @@ use std;
 use scoped_threadpool::Pool;
 
 //use std::sync::Arc;
-use super::mcmc_errors::McmcErrs;
+use super::mcmc_errors::McmcErr;
 use super::utils::draw_z;
 use super::super::utils::HasLength;
 use super::super::utils::Resizeable;
@@ -27,7 +27,7 @@ pub fn sample<T, U, V, W, X, F>(
     perform_swap: bool,
     a: T,
     nthread: usize,
-) -> Result<(W, X), McmcErrs>
+) -> Result<(W, X), McmcErr>
 where
     T: Float
         + NumCast
@@ -68,14 +68,14 @@ where
     let nwalkers = ensemble.length() / nbeta;
 
     if nwalkers == 0 {
-        return Err(McmcErrs::NWalkersIsZero);
+        return Err(McmcErr::NWalkersIsZero);
     }
     if nwalkers % 2 != 0 {
-        return Err(McmcErrs::NWalkersIsNotEven);
+        return Err(McmcErr::NWalkersIsNotEven);
     }
 
     if nbeta * nwalkers != ensemble.length() {
-        return Err(McmcErrs::NWalkersMismatchesNBeta);
+        return Err(McmcErr::NWalkersMismatchesNBeta);
     }
 
     let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
@@ -220,7 +220,7 @@ pub fn sample_st<T, U, V, W, X, F>(
     beta_list: &X,
     perform_swap: bool,
     a: T,
-) -> Result<(W, X), McmcErrs>
+) -> Result<(W, X), McmcErr>
 where
     T: Float
         + NumCast
@@ -246,14 +246,14 @@ where
     let nwalkers = ensemble.length() / nbeta;
 
     if nwalkers == 0 {
-        return Err(McmcErrs::NWalkersIsZero);
+        return Err(McmcErr::NWalkersIsZero);
     }
     if nwalkers % 2 != 0 {
-        return Err(McmcErrs::NWalkersIsNotEven);
+        return Err(McmcErr::NWalkersIsNotEven);
     }
 
     if nbeta * nwalkers != ensemble.length() {
-        return Err(McmcErrs::NWalkersMismatchesNBeta);
+        return Err(McmcErr::NWalkersMismatchesNBeta);
     }
 
     let ndims: T = NumCast::from(ensemble[0].length()).unwrap();

@@ -54,7 +54,9 @@ where
     }
 }
 
-pub fn sqr<T>(a:T) ->T
-    where T:Float+Copy,{
-    a*a
+pub fn sqr<T>(a: T) -> T
+where
+    T: Float + Copy,
+{
+    a * a
 }

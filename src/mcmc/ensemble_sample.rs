@@ -12,7 +12,7 @@ use num_traits::identities::zero;
 
 //use std::sync::Arc;
 
-use super::mcmc_errors::McmcErrs;
+use super::mcmc_errors::McmcErr;
 use super::utils::draw_z;
 use super::super::utils::HasLength;
 use super::super::utils::Resizeable;
@@ -25,7 +25,7 @@ pub fn sample<T, U, V, W, X, F>(
     rng: &mut U,
     a: T,
     nthread: usize,
-) -> Result<(W, X), McmcErrs>
+) -> Result<(W, X), McmcErr>
 where
     T: Float
         + NumCast
@@ -60,11 +60,11 @@ where
     let nwalkers = ensemble.length();
 
     if nwalkers == 0 {
-        return Err(McmcErrs::NWalkersIsZero);
+        return Err(McmcErr::NWalkersIsZero);
     }
 
     if nwalkers % 2 != 0 {
-        return Err(McmcErrs::NWalkersIsNotEven);
+        return Err(McmcErr::NWalkersIsNotEven);
     }
 
     let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
@@ -185,7 +185,7 @@ pub fn sample_st<T, U, V, W, X, F>(
     ensemble_logprob: (W, X),
     rng: &mut U,
     a: T,
-) -> Result<(W, X), McmcErrs>
+) -> Result<(W, X), McmcErr>
 where
     T: Float
         + NumCast
@@ -209,11 +209,11 @@ where
     let nwalkers = ensemble.length();
 
     if nwalkers == 0 {
-        return Err(McmcErrs::NWalkersIsZero);
+        return Err(McmcErr::NWalkersIsZero);
     }
 
     if nwalkers % 2 != 0 {
-        return Err(McmcErrs::NWalkersIsNotEven);
+        return Err(McmcErr::NWalkersIsNotEven);
     }
 
     let ndims: T = NumCast::from(ensemble[0].length()).unwrap();

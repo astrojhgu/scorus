@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum McmcErrs {
+pub enum McmcErr {
     NWalkersIsZero,
     NWalkersIsNotEven,
     NWalkersMismatchesNBeta,

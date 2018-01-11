@@ -22,6 +22,10 @@ use scorus::opt::linmin::linmin;
 use scorus::opt::powell::fmin;
 
 fn main() {
-    let p=fmin(&|x:&Vec<f64>|{(x[0]-1.0)*x[0]+x[1]*x[1]}, &vec![1.0,1.0], 1e-6);
+    let p = fmin(
+        &|x: &Vec<f64>| (x[0] - 1.0) * x[0] + x[1] * x[1],
+        &vec![1.0, 1.0],
+        1e-6,
+    ).0;
     println!("{:?}", &p);
 }
