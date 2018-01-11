@@ -1,6 +1,6 @@
-extern crate scorus;
 extern crate num_traits;
 extern crate rand;
+extern crate scorus;
 
 use num_traits::float::Float;
 use scorus::mcmc::get_one_init_realization;

@@ -1,6 +1,6 @@
-extern crate scorus;
 extern crate num_traits;
 extern crate rand;
+extern crate scorus;
 use scorus::mcmc::arms::sample as arms;
 use rand::thread_rng;
 use num_traits::float::Float;

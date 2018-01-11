@@ -1,5 +1,5 @@
-extern crate scorus;
 extern crate rand;
+extern crate scorus;
 
 //use std;
 use rand::thread_rng;

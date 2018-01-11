@@ -8,3 +8,4 @@ extern crate scoped_threadpool;
 pub mod mcmc;
 pub mod utils;
 pub mod integration;
+pub mod opt;

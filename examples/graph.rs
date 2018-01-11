@@ -1,7 +1,8 @@
-extern crate scorus;
 extern crate rand;
+extern crate scorus;
 use scorus::mcmc::graph::graph::Graph;
-use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, mul_node, normal_node, uniform_node};
+use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, mul_node, normal_node,
+                                 uniform_node};
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 use scorus::mcmc::ensemble_sample::sample_st;
 use scorus::mcmc::HasLength;

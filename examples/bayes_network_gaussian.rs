@@ -1,5 +1,5 @@
-extern crate scorus;
 extern crate rand;
+extern crate scorus;
 
 use rand::thread_rng;
 use scorus::mcmc::graph::graph::Graph;

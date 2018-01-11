@@ -1,8 +1,8 @@
 //sextern crate std;
-extern crate scorus;
 extern crate num_traits;
 extern crate quickersort;
 extern crate rand;
+extern crate scorus;
 use num_traits::float::Float;
 use scorus::mcmc::ensemble_sample::sample as ff;
 use scorus::mcmc::ptsample::sample as ff1;

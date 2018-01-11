@@ -1,6 +1,6 @@
-extern crate scorus;
 extern crate num_traits;
 extern crate rand;
+extern crate scorus;
 
 use rand::Rng;
 use rand::thread_rng;
