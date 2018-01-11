@@ -1,5 +1,5 @@
 [package]
-name = "kxjs"
+name = "scrs"
 version = "0.1.0"
 authors = ["Gu Junhua <jhgu@nao.cas.cn>"]
 
@@ -8,7 +8,7 @@ opt-level = 2
 debug =true
 
 [dependencies]
-num = ">0.1.*"
+#num = ">0.1.*"
 num-traits = ">0.1.*"
 rand = ">0.4.*"
 scoped_threadpool = ">0.1.*"
