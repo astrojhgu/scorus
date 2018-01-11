@@ -1,10 +1,10 @@
-extern crate kxjs;
+extern crate scorus;
 extern crate rand;
-use kxjs::mcmc::graph::graph::Graph;
-use kxjs::mcmc::graph::nodes::{add_node, const_node, cos_node, mul_node, normal_node, uniform_node};
-use kxjs::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
-use kxjs::mcmc::ensemble_sample::sample_st;
-use kxjs::mcmc::HasLength;
+use scorus::mcmc::graph::graph::Graph;
+use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, mul_node, normal_node, uniform_node};
+use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
+use scorus::mcmc::ensemble_sample::sample_st;
+use scorus::mcmc::HasLength;
 use rand::thread_rng;
 
 fn main() {

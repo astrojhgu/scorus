@@ -1,10 +1,10 @@
-extern crate kxjs;
+extern crate scorus;
 extern crate num_traits;
 extern crate rand;
 
 use num_traits::float::Float;
-use kxjs::mcmc::get_one_init_realization;
-use kxjs::mcmc::ensemble_sample::sample;
+use scorus::mcmc::get_one_init_realization;
+use scorus::mcmc::ensemble_sample::sample;
 
 const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;

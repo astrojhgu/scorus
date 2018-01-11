@@ -1,12 +1,12 @@
 //sextern crate std;
-extern crate kxjs;
+extern crate scorus;
 extern crate num_traits;
 extern crate quickersort;
 extern crate rand;
 use num_traits::float::Float;
-use kxjs::mcmc::ensemble_sample::sample as ff;
-use kxjs::mcmc::ptsample::sample as ff1;
-use kxjs::mcmc::shuffle;
+use scorus::mcmc::ensemble_sample::sample as ff;
+use scorus::mcmc::ptsample::sample as ff1;
+use scorus::mcmc::shuffle;
 use rand::Rng;
 use quickersort::sort_by;
 

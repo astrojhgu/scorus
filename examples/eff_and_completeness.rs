@@ -1,15 +1,15 @@
-extern crate kxjs;
+extern crate scorus;
 extern crate num_traits;
 extern crate rand;
 
 use rand::Rng;
 use rand::thread_rng;
-use kxjs::mcmc::ensemble_sample::sample;
+use scorus::mcmc::ensemble_sample::sample;
 use num_traits::float::Float;
 use num_traits::identities::zero;
 use num_traits::identities::one;
 
-use kxjs::mcmc::functions::{logdbin, phi};
+use scorus::mcmc::functions::{logdbin, phi};
 
 fn main() {
     let E: Vec<f64> = vec![
@@ -58,7 +58,7 @@ fn main() {
     let mut ensemble = Vec::new();
 
     for _ in 0..16 {
-        ensemble.push(kxjs::mcmc::init_ensemble::get_one_init_realization(
+        ensemble.push(scorus::mcmc::init_ensemble::get_one_init_realization(
             &vec![0.0, 0.9, 15.0, 10.0],
             &vec![0.1, 1.0, 17.0, 13.0],
             &mut rng,
