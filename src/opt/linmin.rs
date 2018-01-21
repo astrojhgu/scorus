@@ -6,8 +6,6 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 
 use utils::HasLength;
-//use num_traits::NumCast;
-//use std::convert::From;
 
 use super::bas_utils::{max, sign, swap, shft3};
 
@@ -190,7 +188,7 @@ where
 pub fn linmin<F, V, T>(f: &F, p: &mut V, xi: &mut V, fret: &mut T)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
+    V: Clone + IndexMut<usize, Output = T> + HasLength ,
     F: Fn(&V) -> T,
 {
     let tol = T::epsilon().sqrt();

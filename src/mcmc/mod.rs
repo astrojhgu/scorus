@@ -9,9 +9,7 @@ pub mod arms;
 pub mod functions;
 pub mod graph;
 
-pub use super::utils::HasLength;
-pub use super::utils::Resizeable;
-pub use super::utils::ItemSwapable;
+pub use super::utils::{HasLength, ItemSwapable, Resizeable};
 pub use self::utils::shuffle;
 pub use self::init_ensemble::get_one_init_realization;
 

@@ -7,9 +7,9 @@ use std::sync::Mutex;
 use std::ops::IndexMut;
 use num_traits::float::Float;
 use num_traits::NumCast;
-use num_traits::identities::one;
-use num_traits::identities::zero;
-
+use num_traits::identities::{one, zero};
+use std::marker::{Send, Sync};
+use rand::distributions::range::SampleRange;
 //use std::sync::Arc;
 
 use super::mcmc_errors::McmcErr;
@@ -31,26 +31,15 @@ where
         + NumCast
         + rand::Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
-        + std::marker::Sync
-        + std::marker::Send
+        + SampleRange
+        + Sync
+        + Send
         + std::fmt::Display,
     U: rand::Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
-    W: Clone
-        + IndexMut<usize, Output = V>
-        + HasLength
-        + std::marker::Sync
-        + std::marker::Send
-        + Drop,
-    X: Clone
-        + IndexMut<usize, Output = T>
-        + HasLength
-        + std::marker::Sync
-        + Resizeable
-        + std::marker::Send
-        + Drop,
-    F: Fn(&V) -> T + std::marker::Send + std::marker::Sync,
+    V: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Send,
+    W: Clone + IndexMut<usize, Output = V> + HasLength + Sync + Send + Drop,
+    X: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Resizeable + Send + Drop,
+    F: Fn(&V) -> T + Send + Sync,
 {
     let (ensemble, cached_logprob) = ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
@@ -191,9 +180,9 @@ where
         + NumCast
         + rand::Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
-        + std::marker::Sync
-        + std::marker::Send
+        + SampleRange
+        + Sync
+        + Send
         + std::fmt::Display,
     U: rand::Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength,

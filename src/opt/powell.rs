@@ -1,8 +1,8 @@
-use std;
+use ::std;
 use std::ops::IndexMut;
+
 use num_traits::float::Float;
 use num_traits::cast::NumCast;
-
 use num_traits::identities::{one, zero};
 
 use super::linmin::linmin;
@@ -13,7 +13,7 @@ use super::opt_errors::OptErr;
 pub fn fmin<F, V, T>(f: &F, p: &V, ftol: T) -> (V, OptErr)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
+    V: Clone + IndexMut<usize, Output = T> + HasLength ,
     F: Fn(&V) -> T,
 {
     let two = one::<T>() + one::<T>();
