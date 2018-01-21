@@ -17,15 +17,18 @@ use scorus::mcmc::arms::init;
 use scorus::mcmc::arms::dump_section_list;
 use scorus::mcmc::arms::insert_point;
 use scorus::mcmc::arms::update_scale;
-
+use scorus::polynomial::legendre::eval as legendre;
 use scorus::opt::linmin::linmin;
 use scorus::opt::powell::fmin;
 
 fn main() {
-    let p = fmin(
-        &|x: &Vec<f64>| (x[0] - 1.0) * x[0] + x[1] * x[1],
-        &vec![1.0, 1.0],
-        1e-6,
-    ).0;
-    println!("{:?}", &p);
+    let mut x=-1.0;
+    while x<1.0{
+        print!("{}",x);
+        for i in 0..6 {
+            print!(" {}", legendre(i, x));
+        }
+        println!();
+        x+=0.01;
+    }
 }
