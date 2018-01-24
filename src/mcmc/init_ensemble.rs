@@ -18,8 +18,6 @@ where
         + rand::Rand
         + std::cmp::PartialOrd
         + rand::distributions::range::SampleRange
-        + std::marker::Sync
-        + std::marker::Send
         + std::fmt::Display
         + std::marker::Copy,
     R: rand::Rng,

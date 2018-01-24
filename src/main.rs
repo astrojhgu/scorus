@@ -31,4 +31,10 @@ fn main() {
         println!();
         x+=0.01;
     }
+    x=1.0;
+    print!("{}",x);
+    for i in 0..6 {
+        print!(" {}", legendre(i, x));
+    }
+    println!();
 }

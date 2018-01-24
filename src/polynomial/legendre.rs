@@ -14,7 +14,6 @@ pub fn eval<T>(n:usize, x:T) -> T
 where T:Float+Copy
 {
     let one=one::<T>();
-    let two=one+one;
 
     if n==0{
         return one;
