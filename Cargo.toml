@@ -15,6 +15,7 @@ scoped_threadpool = ">0.1.*"
 quickersort = ">=3.0.0"
 special = "0.7.7"
 
+
 [[example]]
 name="sample_bimodal"
 path="examples/sample_bimodal.rs"

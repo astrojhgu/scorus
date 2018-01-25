@@ -2,7 +2,7 @@
 extern crate num_traits;
 extern crate rand;
 extern crate scoped_threadpool;
-
+extern crate special;
 //use num_traits::float::Float;
 
 pub mod mcmc;

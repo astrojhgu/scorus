@@ -20,21 +20,8 @@ use scorus::mcmc::arms::update_scale;
 use scorus::polynomial::legendre::eval as legendre;
 use scorus::opt::linmin::linmin;
 use scorus::opt::powell::fmin;
-
+use scorus::polynomial::legendre::ln_factorial;
+use scorus::polynomial::legendre::legendre2poly;
 fn main() {
-    let mut x = -1.0;
-    while x < 1.0 {
-        print!("{}", x);
-        for i in 0..6 {
-            print!(" {}", legendre(i, x));
-        }
-        println!();
-        x += 0.01;
-    }
-    x = 1.0;
-    print!("{}", x);
-    for i in 0..6 {
-        print!(" {}", legendre(i, x));
-    }
-    println!();
+    println!("{:?}", legendre2poly(&vec![0.0, 0.0, 0.0, 1.0]));
 }
