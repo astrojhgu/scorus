@@ -22,17 +22,17 @@ use scorus::opt::linmin::linmin;
 use scorus::opt::powell::fmin;
 
 fn main() {
-    let mut x=-1.0;
-    while x<1.0{
-        print!("{}",x);
+    let mut x = -1.0;
+    while x < 1.0 {
+        print!("{}", x);
         for i in 0..6 {
             print!(" {}", legendre(i, x));
         }
         println!();
-        x+=0.01;
+        x += 0.01;
     }
-    x=1.0;
-    print!("{}",x);
+    x = 1.0;
+    print!("{}", x);
     for i in 0..6 {
         print!(" {}", legendre(i, x));
     }

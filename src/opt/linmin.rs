@@ -188,7 +188,7 @@ where
 pub fn linmin<F, V, T>(f: &F, p: &mut V, xi: &mut V, fret: &mut T)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy,
-    V: Clone + IndexMut<usize, Output = T> + HasLength ,
+    V: Clone + IndexMut<usize, Output = T> + HasLength,
     F: Fn(&V) -> T,
 {
     let tol = T::epsilon().sqrt();
