@@ -1,4 +1,3 @@
-extern crate rand;
 use std;
 use rayon::{scope};
 
@@ -8,6 +7,7 @@ use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::{one, zero};
 use std::marker::{Send, Sync};
+use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 //use std::sync::Arc;
 
@@ -28,13 +28,13 @@ pub fn sample<T, U, V, W, X, F>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + Sync
         + Send
         + std::fmt::Display,
-    U: rand::Rng,
+    U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Send,
     W: Clone + IndexMut<usize, Output = V> + HasLength + Sync + Send + Drop,
     X: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Resizeable + Send + Drop,
@@ -183,13 +183,13 @@ pub fn sample_st<T, U, V, W, X, F>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + Sync
         + Send
         + std::fmt::Display,
-    U: rand::Rng,
+    U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength,
     W: Clone + IndexMut<usize, Output = V> + HasLength + Drop,
     X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop,

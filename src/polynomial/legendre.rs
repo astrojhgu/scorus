@@ -26,7 +26,7 @@ where
     if m * 2 != (n - k) {
         return zero();
     }
-    let x = zero::<T>();
+
     (if m % 2 == 0 { one::<T>() } else { -one::<T>() })
         * (ln_factorial(T::from(2 * n - 2 * m).unwrap()) - ln_factorial(T::from(m).unwrap())
             - ln_factorial(T::from(n - m).unwrap())

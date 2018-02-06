@@ -1,4 +1,3 @@
-extern crate num_traits;
 use std;
 use num_traits::float::Float;
 use std::fmt::{Display, Error, Formatter};

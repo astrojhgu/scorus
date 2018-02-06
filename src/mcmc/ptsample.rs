@@ -1,4 +1,3 @@
-extern crate rand;
 use std;
 use std::sync::Mutex;
 use std::ops::IndexMut;
@@ -9,6 +8,8 @@ use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::{one, zero};
 
+use rand::{Rand,Rng};
+use rand::distributions::range::SampleRange;
 //use std::sync::Arc;
 use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec, swap_walkers};
@@ -26,13 +27,13 @@ pub fn sample<T, U, V, W, X, F>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
-    U: rand::Rng,
+    U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
     W: Clone
         + IndexMut<usize, Output = V>
@@ -226,11 +227,11 @@ pub fn sample_st<T, U, V, W, X, F>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::fmt::Display,
-    U: rand::Rng,
+    U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength,
     W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,
     X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + ItemSwapable,

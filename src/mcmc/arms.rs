@@ -1,5 +1,3 @@
-extern crate rand;
-
 use std;
 use std::ops::IndexMut;
 //use rand::Rand;
@@ -8,6 +6,11 @@ use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
+
+use rand::{Rng,Rand};
+use rand::distributions::range::SampleRange;
+
+
 use super::super::utils::HasLength;
 //use utils::Resizeable;
 //use utils::ItemSwapable;
@@ -17,9 +20,9 @@ pub struct Section<T>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -46,9 +49,9 @@ pub enum ArmsErr<T>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -71,9 +74,9 @@ fn fmin<T>(x: T, y: T) -> T
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -90,9 +93,9 @@ fn fmax<T>(x: T, y: T) -> T
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -109,9 +112,9 @@ fn eval_log<T, F>(pd: &F, x: T, scale: T) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -132,9 +135,9 @@ pub fn int_exp_y<T>(x: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -185,9 +188,9 @@ pub fn inv_int_exp_y<T>(z: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -233,9 +236,9 @@ impl<T> std::clone::Clone for Section<T>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -251,9 +254,9 @@ impl<T> std::marker::Copy for Section<T>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
@@ -264,9 +267,9 @@ impl<T> Section<T>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -434,9 +437,9 @@ pub fn eval<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErr<T
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -454,9 +457,9 @@ pub fn eval_ey<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsEr
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -476,9 +479,9 @@ pub fn solve_intersection<T>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -561,9 +564,9 @@ pub fn calc_intersection<T>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -605,9 +608,9 @@ fn calc_cum_int_exp_y<T>(section_list: &mut VecDeque<Section<T>>)
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -626,9 +629,9 @@ fn calc_scale<T>(section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -662,9 +665,9 @@ pub fn update_scale<T>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -710,9 +713,9 @@ pub fn insert_point<T, F>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -795,9 +798,9 @@ pub fn init<T, F, V>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -882,9 +885,9 @@ pub fn search_point<T>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -925,9 +928,9 @@ pub fn check_range<T, F>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -973,15 +976,15 @@ pub fn fetch_one<T, R>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
-    R: rand::Rng,
+    R: Rng,
 {
     let p = rng.gen_range(zero(), one());
     let n = search_point(section_list, p /*, pd, scale*/)?;
@@ -1055,9 +1058,9 @@ pub fn dump_section_list<T, F>(section_list: &VecDeque<Section<T>>, pd: Option<&
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -1103,14 +1106,14 @@ pub fn sample<T, F, R, V>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    R: rand::Rng,
+    R: Rng,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
 {

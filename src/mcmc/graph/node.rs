@@ -1,6 +1,6 @@
-//extern crate std;
+use std::fmt::{Display, Formatter, Error};
+
 use num_traits::float::Float;
-use std;
 
 pub enum ValueType {
     FIXED,
@@ -19,7 +19,7 @@ pub struct BasicNode {
 
 pub enum NodeContent<T>
 where
-    T: Float + Sync + Send + std::fmt::Display,
+    T: Float + Sync + Send + Display,
 {
     StochasticNode {
         all_stochastic_children: Vec<usize>,
@@ -37,7 +37,7 @@ where
 
 pub struct Node<T>
 where
-    T: Float + Sync + Send + std::fmt::Display,
+    T: Float + Sync + Send + Display,
 {
     pub info: BasicNode,
     pub content: NodeContent<T>,
@@ -45,18 +45,18 @@ where
 
 impl<T> Node<T>
 where
-    T: Float + Sync + Send + std::fmt::Display,
+    T: Float + Sync + Send + Display,
 {
     pub fn get_children(&self) -> &Vec<usize> {
         &self.info.children
     }
 }
 
-impl<T> std::fmt::Display for Node<T>
+impl<T> Display for Node<T>
 where
-    T: Float + Sync + Send + std::fmt::Display,
+    T: Float + Sync + Send + Display,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "Parents:\n")?;
 
         for &(i, j) in &self.info.parents {

@@ -1,6 +1,8 @@
-extern crate rand;
-
 use std;
+
+use rand::{Rng,Rand};
+use rand::distributions::range::SampleRange;
+
 use num_traits::float::Float;
 use num_traits::identities::one;
 use num_traits::identities::zero;
@@ -14,7 +16,7 @@ use super::super::utils::Resizeable;
 pub fn shuffle<T, U>(arr: &T, rng: &mut U) -> T
 where
     T: HasLength + Clone + ItemSwapable,
-    U: rand::Rng,
+    U: Rng,
 {
     let mut x = arr.clone();
     let l = arr.length();
@@ -27,8 +29,8 @@ where
 
 pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
 where
-    T: Float + rand::Rand + std::cmp::PartialOrd + rand::distributions::range::SampleRange,
-    U: rand::Rng,
+    T: Float + Rand + std::cmp::PartialOrd + SampleRange,
+    U: Rng,
 {
     let sqrt_a: T = a.sqrt();
     let unit: T = one();
@@ -56,9 +58,9 @@ pub fn exchange_prob<T>(lp1: T, lp2: T, beta1: T, beta2: T) -> T
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::fmt::Display,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
@@ -78,11 +80,11 @@ pub fn swap_walkers<T, U, V, W, X>(
 where
     T: Float
         + NumCast
-        + rand::Rand
+        + Rand
         + std::cmp::PartialOrd
-        + rand::distributions::range::SampleRange
+        + SampleRange
         + std::fmt::Display,
-    U: rand::Rng,
+    U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength,
     W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,
     X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + ItemSwapable,

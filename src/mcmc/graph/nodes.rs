@@ -1,6 +1,7 @@
-extern crate special;
+use std::fmt::{Display};
 
-use std;
+use special::Error;
+
 use super::node::Node;
 use super::node::NodeContent;
 use super::node::BasicNode;
@@ -14,7 +15,7 @@ use super::super::functions::phi;
 
 pub fn const_node<T>(v: T) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -34,7 +35,7 @@ where
 
 pub fn add_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -54,7 +55,7 @@ where
 
 pub fn mul_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -74,7 +75,7 @@ where
 
 pub fn sub_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -94,7 +95,7 @@ where
 
 pub fn div_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -114,7 +115,7 @@ where
 
 pub fn cos_node<T>(a: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -134,7 +135,7 @@ where
 
 pub fn normal_node<T>(m: (NodeHandle, usize), s: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let two = one::<T>() + one::<T>();
     let four = two + two;
@@ -176,7 +177,7 @@ where
 
 pub fn uniform_node<T>(a: (NodeHandle, usize), b: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -215,7 +216,7 @@ where
 
 pub fn phi_node<T>(x: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + special::Error + Sync + Send + std::fmt::Display,
+    T: 'static + Float + Error + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
