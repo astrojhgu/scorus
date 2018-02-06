@@ -3,6 +3,8 @@ extern crate scoped_threadpool;
 
 use std;
 use scoped_threadpool::Pool;
+use rayon::{scope};
+
 use std::sync::Mutex;
 use std::ops::IndexMut;
 use num_traits::float::Float;
@@ -151,12 +153,18 @@ where
         };
 
         if nthread > 1 {
-            let mut pool = Pool::new(nthread as u32);
+            /*let mut pool = Pool::new(nthread as u32);
             pool.scoped(|scope| {
                 for _ in 0..nthread {
                     scope.execute(create_task());
                 }
-            });
+            });*/
+            scope(|s|{
+                for _ in 0..nthread{
+                    s.spawn(|_|{create_task()()});
+                }
+            })
+
         } else {
             let task = create_task();
             task();

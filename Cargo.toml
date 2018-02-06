@@ -12,6 +12,7 @@ debug =true
 num-traits = ">0.1.*"
 rand = ">0.4.*"
 scoped_threadpool = ">0.1.*"
+rayon = "0.9.0"
 quickersort = ">=3.0.0"
 special = "0.7.7"
 
