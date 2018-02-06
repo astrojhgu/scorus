@@ -1,8 +1,5 @@
 extern crate rand;
-extern crate scoped_threadpool;
-
 use std;
-use scoped_threadpool::Pool;
 use rayon::{scope};
 
 use std::sync::Mutex;
@@ -163,7 +160,7 @@ where
                 for _ in 0..nthread{
                     s.spawn(|_|{create_task()()});
                 }
-            })
+            });
 
         } else {
             let task = create_task();
