@@ -1,5 +1,5 @@
 use std;
-use rayon::{scope};
+use rayon::scope;
 
 use std::sync::Mutex;
 use std::ops::IndexMut;
@@ -156,12 +156,11 @@ where
                     scope.execute(create_task());
                 }
             });*/
-            scope(|s|{
-                for _ in 0..nthread{
-                    s.spawn(|_|{create_task()()});
+            scope(|s| {
+                for _ in 0..nthread {
+                    s.spawn(|_| create_task()());
                 }
             });
-
         } else {
             let task = create_task();
             task();

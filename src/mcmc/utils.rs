@@ -1,6 +1,6 @@
 use std;
 
-use rand::{Rng,Rand};
+use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 
 use num_traits::float::Float;
@@ -56,12 +56,7 @@ where
 
 pub fn exchange_prob<T>(lp1: T, lp2: T, beta1: T, beta2: T) -> T
 where
-    T: Float
-        + NumCast
-        + Rand
-        + std::cmp::PartialOrd
-        + SampleRange
-        + std::fmt::Display,
+    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
 
@@ -78,12 +73,7 @@ pub fn swap_walkers<T, U, V, W, X>(
     perform_swap: bool,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float
-        + NumCast
-        + Rand
-        + std::cmp::PartialOrd
-        + SampleRange
-        + std::fmt::Display,
+    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength,
     W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,

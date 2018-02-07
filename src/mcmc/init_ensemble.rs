@@ -1,4 +1,4 @@
-use rand::{Rand,Rng};
+use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 use num_traits::NumCast;
 use std::cmp::PartialOrd;
@@ -16,12 +16,7 @@ use super::super::utils::HasLength;
 pub fn get_one_init_realization<U, T, R>(y1: &U, y2: &U, rng: &mut R) -> U
 where
     U: HasLength + Clone + IndexMut<usize, Output = T> + Index<usize, Output = T>,
-    T: NumCast
-        + Rand
-        + PartialOrd
-        + SampleRange
-        + Display
-        + Copy,
+    T: NumCast + Rand + PartialOrd + SampleRange + Display + Copy,
     R: Rng,
 {
     let mut result = y1.clone();

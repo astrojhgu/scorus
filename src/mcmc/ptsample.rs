@@ -2,13 +2,13 @@ use std;
 use std::sync::Mutex;
 use std::ops::IndexMut;
 
-use rayon::{scope};
+use rayon::scope;
 
 use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::{one, zero};
 
-use rand::{Rand,Rng};
+use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 //use std::sync::Arc;
 use super::mcmc_errors::McmcErr;
@@ -198,12 +198,11 @@ where
                 }
             });*/
 
-            scope(|s|{
-                for _ in 0..nthread{
-                    s.spawn(|_|{create_task()()});
+            scope(|s| {
+                for _ in 0..nthread {
+                    s.spawn(|_| create_task()());
                 }
             });
-
         } else {
             let task = create_task();
             task();
@@ -225,12 +224,7 @@ pub fn sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float
-        + NumCast
-        + Rand
-        + std::cmp::PartialOrd
-        + SampleRange
-        + std::fmt::Display,
+    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength,
     W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,

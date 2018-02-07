@@ -1,8 +1,8 @@
 #![feature(vec_resize_default)]
 extern crate num_traits;
 extern crate rand;
-extern crate special;
 extern crate rayon;
+extern crate special;
 //use num_traits::float::Float;
 
 pub mod mcmc;

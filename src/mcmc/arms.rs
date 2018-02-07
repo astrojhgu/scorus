@@ -7,9 +7,8 @@ use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 
-use rand::{Rng,Rand};
+use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
-
 
 use super::super::utils::HasLength;
 //use utils::Resizeable;

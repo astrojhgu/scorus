@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter, Error};
+use std::fmt::{Display, Error, Formatter};
 
 use num_traits::float::Float;
 
