@@ -12,12 +12,12 @@ use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 //use std::sync::Arc;
 use super::mcmc_errors::McmcErr;
-use super::utils::{draw_z, scale_vec, swap_walkers};
+use super::utils::{draw_z, scale_vec};
 use super::super::utils::{HasLength, ItemSwapable, Resizeable};
 
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
-    ensemble_logprob: (W, X),
+    ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
     perform_swap: bool,
@@ -52,8 +52,168 @@ where
         + ItemSwapable,
     F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
-    let (result_ensemble, mut result_logprob) =
-        swap_walkers(ensemble_logprob, rng, &beta_list, perform_swap)?;
+    if perform_swap {
+        let mut ensemble_logprob1 = (ensemble_logprob.0.clone(), ensemble_logprob.1.clone());
+        swap_walkers(&mut ensemble_logprob1, rng, beta_list)?;
+        only_sample(flogprob, &ensemble_logprob1, rng, beta_list, a, nthread)
+    } else {
+        only_sample(flogprob, ensemble_logprob, rng, beta_list, a, nthread)
+    }
+}
+
+pub fn sample_st<T, U, V, W, X, F>(
+    flogprob: &F,
+    ensemble_logprob: &(W, X),
+    rng: &mut U,
+    beta_list: &X,
+    perform_swap: bool,
+    a: T,
+) -> Result<(W, X), McmcErr>
+where
+    T: Float
+        + NumCast
+        + Rand
+        + std::cmp::PartialOrd
+        + SampleRange
+        + std::marker::Sync
+        + std::marker::Send
+        + std::fmt::Display,
+    U: Rng,
+    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
+    W: Clone
+        + IndexMut<usize, Output = V>
+        + HasLength
+        + std::marker::Sync
+        + std::marker::Send
+        + Drop
+        + ItemSwapable,
+    X: Clone
+        + IndexMut<usize, Output = T>
+        + HasLength
+        + std::marker::Sync
+        + Resizeable
+        + std::marker::Send
+        + Drop
+        + ItemSwapable,
+    F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
+{
+    if perform_swap {
+        let mut ensemble_logprob1 = (ensemble_logprob.0.clone(), ensemble_logprob.1.clone());
+        swap_walkers(&mut ensemble_logprob1, rng, beta_list)?;
+        only_sample_st(flogprob, &ensemble_logprob1, rng, beta_list, a)
+    } else {
+        only_sample_st(flogprob, ensemble_logprob, rng, beta_list, a)
+    }
+}
+
+fn exchange_prob<T>(lp1: T, lp2: T, beta1: T, beta2: T) -> T
+where
+    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+{
+    let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
+
+    match x > one::<T>() {
+        true => one::<T>(),
+        false => x,
+    }
+}
+
+fn swap_walkers<T, U, V, W, X>(
+    ensemble_logprob: &mut (W, X),
+    rng: &mut U,
+    beta_list: &X,
+) -> Result<(), McmcErr>
+where
+    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    U: Rng,
+    V: Clone + IndexMut<usize, Output = T> + HasLength,
+    W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + ItemSwapable,
+{
+    //let mut new_ensemble = ensemble_logprob.0.clone();
+    //let mut new_logprob = ensemble_logprob.1.clone();
+    let (ref mut new_ensemble, ref mut new_logprob) = *ensemble_logprob;
+    let nbeta = beta_list.length();
+    let nwalker_per_beta = new_ensemble.length() / nbeta;
+    if nwalker_per_beta * nbeta != new_ensemble.length() {
+        //panic!("Error nensemble/nbeta%0!=0");
+        return Err(McmcErr::NWalkersMismatchesNBeta);
+    }
+    let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
+
+    if new_ensemble.length() == new_logprob.length() {
+        for i in (1..nbeta).rev() {
+            //println!("ibeta={}", i);
+            let beta1 = beta_list[i];
+            let beta2 = beta_list[i - 1];
+            if beta1 >= beta2 {
+                //panic!("beta list must be in decreasing order, with no duplicatation");
+                return Err(McmcErr::BetaNotInDecrOrd);
+            }
+            rng.shuffle(&mut jvec);
+            //let jvec=shuffle(&jvec, &mut rng);
+            for j in 0..nwalker_per_beta {
+                let j1 = jvec[j];
+                let j2 = j;
+
+                let lp1 = new_logprob[i * nwalker_per_beta + j1];
+                let lp2 = new_logprob[(i - 1) * nwalker_per_beta + j2];
+                let ep = exchange_prob(lp1, lp2, beta1, beta2);
+                //println!("{}",ep);
+                let r: T = rng.gen_range(zero(), one());
+                if r < ep {
+                    new_ensemble
+                        .swap_items(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
+                    new_logprob
+                        .swap_items(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn only_sample<T, U, V, W, X, F>(
+    flogprob: &F,
+    ensemble_logprob: &(W, X),
+    rng: &mut U,
+    beta_list: &X,
+    a: T,
+    nthread: usize,
+) -> Result<(W, X), McmcErr>
+where
+    T: Float
+        + NumCast
+        + Rand
+        + std::cmp::PartialOrd
+        + SampleRange
+        + std::marker::Sync
+        + std::marker::Send
+        + std::fmt::Display,
+    U: Rng,
+    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
+    W: Clone
+        + IndexMut<usize, Output = V>
+        + HasLength
+        + std::marker::Sync
+        + std::marker::Send
+        + Drop
+        + ItemSwapable,
+    X: Clone
+        + IndexMut<usize, Output = T>
+        + HasLength
+        + std::marker::Sync
+        + Resizeable
+        + std::marker::Send
+        + Drop
+        + ItemSwapable,
+    F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
+{
+    let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
+
+    let result_ensemble = ensemble.clone();
+    let mut result_logprob = cached_logprob.clone();
 
     //let pflogprob=Arc::new(flogprob);
 
@@ -215,12 +375,11 @@ where
     Ok((result_ensemble, result_logprob))
 }
 
-pub fn sample_st<T, U, V, W, X, F>(
+fn only_sample_st<T, U, V, W, X, F>(
     flogprob: &F,
-    ensemble_logprob: (W, X),
+    ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
-    perform_swap: bool,
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
@@ -231,13 +390,10 @@ where
     X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + ItemSwapable,
     F: Fn(&V) -> T,
 {
-    let (result_ensemble, mut result_logprob) =
-        swap_walkers(ensemble_logprob, rng, &beta_list, perform_swap)?;
+    let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
 
-    //let pflogprob=Arc::new(flogprob);
-
-    let ensemble = result_ensemble.clone();
-    let cached_logprob = result_logprob.clone();
+    let result_ensemble = ensemble.clone();
+    let mut result_logprob = cached_logprob.clone();
 
     let nbeta = beta_list.length();
     let nwalkers = ensemble.length() / nbeta;

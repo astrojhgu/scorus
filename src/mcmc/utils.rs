@@ -6,13 +6,14 @@ use rand::distributions::range::SampleRange;
 use num_traits::float::Float;
 use num_traits::identities::one;
 use num_traits::identities::zero;
-use num_traits::NumCast;
+//use num_traits::NumCast;
 use std::ops::IndexMut;
-use super::mcmc_errors::McmcErr;
+//use super::mcmc_errors::McmcErr;
 use super::super::utils::HasLength;
-use super::super::utils::ItemSwapable;
-use super::super::utils::Resizeable;
+//use super::super::utils::ItemSwapable;
+//use super::super::utils::Resizeable;
 
+/*
 pub fn shuffle<T, U>(arr: &T, rng: &mut U) -> T
 where
     T: HasLength + Clone + ItemSwapable,
@@ -26,6 +27,7 @@ where
     }
     x
 }
+*/
 
 pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
 where
@@ -52,73 +54,4 @@ where
     }
 
     result
-}
-
-pub fn exchange_prob<T>(lp1: T, lp2: T, beta1: T, beta2: T) -> T
-where
-    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-{
-    let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
-
-    match x > one::<T>() {
-        true => one::<T>(),
-        false => x,
-    }
-}
-
-pub fn swap_walkers<T, U, V, W, X>(
-    ensemble_logprob: (W, X),
-    rng: &mut U,
-    beta_list: &X,
-    perform_swap: bool,
-) -> Result<(W, X), McmcErr>
-where
-    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLength,
-    W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + ItemSwapable,
-{
-    //let mut new_ensemble = ensemble_logprob.0.clone();
-    //let mut new_logprob = ensemble_logprob.1.clone();
-    let (mut new_ensemble, mut new_logprob) = ensemble_logprob;
-    let nbeta = beta_list.length();
-    let nwalker_per_beta = new_ensemble.length() / nbeta;
-    if nwalker_per_beta * nbeta != new_ensemble.length() {
-        //panic!("Error nensemble/nbeta%0!=0");
-        return Err(McmcErr::NWalkersMismatchesNBeta);
-    }
-    let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
-
-    if perform_swap && new_ensemble.length() == new_logprob.length() {
-        for i in (1..nbeta).rev() {
-            //println!("ibeta={}", i);
-            let beta1 = beta_list[i];
-            let beta2 = beta_list[i - 1];
-            if beta1 >= beta2 {
-                //panic!("beta list must be in decreasing order, with no duplicatation");
-                return Err(McmcErr::BetaNotInDecrOrd);
-            }
-            rng.shuffle(&mut jvec);
-            //let jvec=shuffle(&jvec, &mut rng);
-            for j in 0..nwalker_per_beta {
-                let j1 = jvec[j];
-                let j2 = j;
-
-                let lp1 = new_logprob[i * nwalker_per_beta + j1];
-                let lp2 = new_logprob[(i - 1) * nwalker_per_beta + j2];
-                let ep = exchange_prob(lp1, lp2, beta1, beta2);
-                //println!("{}",ep);
-                let r: T = rng.gen_range(zero(), one());
-                if r < ep {
-                    new_ensemble
-                        .swap_items(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
-                    new_logprob
-                        .swap_items(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
-                }
-            }
-        }
-    }
-
-    Ok((new_ensemble, new_logprob))
 }

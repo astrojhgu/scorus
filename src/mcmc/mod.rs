@@ -3,6 +3,7 @@ use std::default::Default;
 pub mod utils;
 pub mod ensemble_sample;
 pub mod ptsample;
+pub mod sampler_closure;
 pub mod init_ensemble;
 pub mod mcmc_errors;
 pub mod arms;
@@ -10,7 +11,7 @@ pub mod functions;
 pub mod graph;
 
 pub use super::utils::{HasLength, ItemSwapable, Resizeable};
-pub use self::utils::shuffle;
+//pub use self::utils::shuffle;
 pub use self::init_ensemble::get_one_init_realization;
 
 impl<T> HasLength for Vec<T> {

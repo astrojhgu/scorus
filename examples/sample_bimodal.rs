@@ -6,7 +6,8 @@ extern crate scorus;
 use num_traits::float::Float;
 use scorus::mcmc::ensemble_sample::sample as ff;
 use scorus::mcmc::ptsample::sample as ff1;
-use scorus::mcmc::shuffle;
+use scorus::mcmc::sampler_closure::ptsample_closure;
+
 use rand::Rng;
 use quickersort::sort_by;
 
@@ -43,7 +44,7 @@ fn foo(x: &Vec<f64>) -> f64 {
 }
 
 fn main() {
-    let mut x = vec![
+    let x = vec![
         vec![0.10, 0.20],
         vec![0.20, 0.10],
         vec![0.23, 0.21],
@@ -77,7 +78,7 @@ fn main() {
         vec![0.20, 0.12],
         vec![0.23, 0.12],
     ];
-    let mut y = vec![0.0];
+    let y = vec![0.0];
     //let mut rng = rand::thread_rng();
     let mut rng = rand::StdRng::new().unwrap();
 
@@ -94,16 +95,21 @@ fn main() {
         results[i].reserve(niter);
     }
 
+    let mut xy = (x, y);
+
+    let mut sampler=ptsample_closure(bimodal, xy, rng, blist, 2.0, 4);
+
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        let aaa = ff1(&bimodal, (x, y), &mut rng, &blist, k % 10 == 0, 2.0, 4).unwrap();
-        //let aaa = ff1(foo, &(x, y), &mut rng, &blist,k%10==0, 2.0, 1);
-        //let aaa=ff1(|x|{-x[0]*x[0]-x[1]*x[1]}, &(x,y), &mut rng, &blist, k%10==0, 2.0, 2);
-        x = aaa.0;
-        y = aaa.1;
 
-        for i in 0..nbeta {
-            results[i].push(x[i * nwalkers + 0][0]);
+
+        if let Some(xy)=sampler(k%7==0, k%10==0).unwrap() {
+            //let aaa = ff1(foo, &(x, y), &mut rng, &blist,k%10==0, 2.0, 1);
+            //let aaa=ff1(|x|{-x[0]*x[0]-x[1]*x[1]}, &(x,y), &mut rng, &blist, k%10==0, 2.0, 2);
+
+            for i in 0..nbeta {
+                results[i].push(xy.0[i * nwalkers + 0][0]);
+            }
         }
     }
 
@@ -117,7 +123,7 @@ fn main() {
                 std::cmp::Ordering::Equal
             }
         });
-        for j in 0..niter {
+        for j in 0..results[i].len() {
             println!("{} {}", results[i][j], j);
         }
         println!("no no no");

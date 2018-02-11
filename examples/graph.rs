@@ -32,7 +32,7 @@ fn main() {
 
     let mut rng = thread_rng();
     for i in 0..10000 {
-        let aa = sample_st(&|x| g.logpost_all(x), (ensemble, lp), &mut rng, 2.0).unwrap();
+        let aa = sample_st(&|x| g.logpost_all(x), &(ensemble, lp), &mut rng, 2.0).unwrap();
         ensemble = aa.0;
         lp = aa.1;
         //println!("{}", ensemble[0].deterministic_values.borrow()[0]);

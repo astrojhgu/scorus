@@ -20,7 +20,7 @@ use super::utils::scale_vec;
 
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
-    ensemble_logprob: (W, X),
+    ensemble_logprob: &(W, X),
     rng: &mut U,
     a: T,
     nthread: usize,
@@ -40,7 +40,7 @@ where
     X: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Resizeable + Send + Drop,
     F: Fn(&V) -> T + Send + Sync,
 {
-    let (ensemble, cached_logprob) = ensemble_logprob;
+    let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
     let result_ensemble = ensemble.clone();
     let mut result_logprob = cached_logprob.clone();
@@ -175,7 +175,7 @@ where
 
 pub fn sample_st<T, U, V, W, X, F>(
     flogprob: &F,
-    ensemble_logprob: (W, X),
+    ensemble_logprob: &(W, X),
     rng: &mut U,
     a: T,
 ) -> Result<(W, X), McmcErr>
@@ -194,7 +194,7 @@ where
     X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop,
     F: Fn(&V) -> T,
 {
-    let (ensemble, cached_logprob) = ensemble_logprob;
+    let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
     let result_ensemble = ensemble.clone();
     let mut result_logprob = cached_logprob.clone();
