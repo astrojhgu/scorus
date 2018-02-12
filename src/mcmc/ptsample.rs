@@ -22,9 +22,9 @@ pub fn create_sampler<T, U, V, W, X, F>(
     beta_list: X,
     a: T,
     nthread: usize,
-) -> Box<FnMut(&mut FnMut(&Result<(W,X), McmcErr>), bool)->()>
-    where
-        T: 'static
+) -> Box<FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
+where
+    T: 'static
         + Float
         + NumCast
         + Rand
@@ -33,9 +33,9 @@ pub fn create_sampler<T, U, V, W, X, F>(
         + Sync
         + Send
         + std::fmt::Display,
-        U: 'static + Rng,
-        V: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Send + Sized,
-        W: 'static
+    U: 'static + Rng,
+    V: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Send + Sized,
+    W: 'static
         + Clone
         + IndexMut<usize, Output = V>
         + HasLength
@@ -44,7 +44,7 @@ pub fn create_sampler<T, U, V, W, X, F>(
         + Drop
         + Sized
         + ItemSwapable,
-        X: 'static
+    X: 'static
         + Clone
         + IndexMut<usize, Output = T>
         + HasLength
@@ -54,24 +54,26 @@ pub fn create_sampler<T, U, V, W, X, F>(
         + Drop
         + Sized
         + ItemSwapable,
-        F: 'static + Fn(&V) -> T + Send + Sync,
+    F: 'static + Fn(&V) -> T + Send + Sync,
 {
-    Box::new(move |handler:&mut FnMut(&Result<(W,X), McmcErr>), sw:bool| {
-        let result= sample(
-            &flogprob,
-            &ensemble_logprob,
-            &mut rng,
-            &beta_list,
-            sw,
-            a,
-            nthread,
-        );
-        handler(&result);
-        match result{
-            Ok(x) => ensemble_logprob=x,
-            _ => ()
-        }
-    })
+    Box::new(
+        move |handler: &mut FnMut(&Result<(W, X), McmcErr>), sw: bool| {
+            let result = sample(
+                &flogprob,
+                &ensemble_logprob,
+                &mut rng,
+                &beta_list,
+                sw,
+                a,
+                nthread,
+            );
+            handler(&result);
+            match result {
+                Ok(x) => ensemble_logprob = x,
+                _ => (),
+            }
+        },
+    )
 }
 
 pub fn create_sampler_st<T, U, V, W, X, F>(
@@ -79,26 +81,14 @@ pub fn create_sampler_st<T, U, V, W, X, F>(
     mut ensemble_logprob: (W, X),
     mut rng: U,
     beta_list: X,
-    a: T
-) -> Box<FnMut(&mut FnMut(&Result<(W,X), McmcErr>), bool)->()>
-    where
-        T: 'static
-        + Float
-        + NumCast
-        + Rand
-        + std::cmp::PartialOrd
-        + SampleRange
-        + std::fmt::Display,
-        U: 'static + Rng,
-        V: Clone + IndexMut<usize, Output = T> + HasLength + Sized,
-        W: 'static
-        + Clone
-        + IndexMut<usize, Output = V>
-        + HasLength
-        + Drop
-        + Sized
-        + ItemSwapable,
-        X: 'static
+    a: T,
+) -> Box<FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
+where
+    T: 'static + Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    U: 'static + Rng,
+    V: Clone + IndexMut<usize, Output = T> + HasLength + Sized,
+    W: 'static + Clone + IndexMut<usize, Output = V> + HasLength + Drop + Sized + ItemSwapable,
+    X: 'static
         + Clone
         + IndexMut<usize, Output = T>
         + HasLength
@@ -106,25 +96,19 @@ pub fn create_sampler_st<T, U, V, W, X, F>(
         + Drop
         + Sized
         + ItemSwapable,
-        F: 'static + Fn(&V) -> T ,
+    F: 'static + Fn(&V) -> T,
 {
-    Box::new(move |handler:&mut FnMut(&Result<(W,X), McmcErr>), sw:bool| {
-        let result= sample_st(
-            &flogprob,
-            &ensemble_logprob,
-            &mut rng,
-            &beta_list,
-            sw,
-            a
-        );
-        handler(&result);
-        match result{
-            Ok(x) => ensemble_logprob=x,
-            _ => ()
-        }
-    })
+    Box::new(
+        move |handler: &mut FnMut(&Result<(W, X), McmcErr>), sw: bool| {
+            let result = sample_st(&flogprob, &ensemble_logprob, &mut rng, &beta_list, sw, a);
+            handler(&result);
+            match result {
+                Ok(x) => ensemble_logprob = x,
+                _ => (),
+            }
+        },
+    )
 }
-
 
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
@@ -181,25 +165,11 @@ pub fn sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float
-        + NumCast
-        + Rand
-        + std::cmp::PartialOrd
-        + SampleRange
-        + std::fmt::Display,
+    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLength,
-    W: Clone
-        + IndexMut<usize, Output = V>
-        + HasLength
-        + Drop
-        + ItemSwapable,
-    X: Clone
-        + IndexMut<usize, Output = T>
-        + HasLength
-        + Resizeable
-        + Drop
-        + ItemSwapable,
+    W: Clone + IndexMut<usize, Output = V> + HasLength + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + ItemSwapable,
     F: Fn(&V) -> T,
 {
     if perform_swap {

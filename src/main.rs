@@ -73,22 +73,19 @@ fn main() {
         )
     };
 
-    let mut ensemble_db=Vec::with_capacity(10000);
-    let mut cb= |en_lp: &Result<(Vec<Vec<f64>>, Vec<f64>), McmcErr>|{
-        match en_lp{
-            &Ok(ref x)=> {
-                ensemble_db.push(x.0[0].clone());
-                println!("{} {}", x.0[0][0], x.0[0][1]);
-            },
-            _ => ()
+    let mut ensemble_db = Vec::with_capacity(10000);
+    let mut cb = |en_lp: &Result<(Vec<Vec<f64>>, Vec<f64>), McmcErr>| match en_lp {
+        &Ok(ref x) => {
+            ensemble_db.push(x.0[0].clone());
+            println!("{} {}", x.0[0][0], x.0[0][1]);
         }
+        _ => (),
     };
     for i in 0..100000 {
-        if i%10==0 {
+        if i % 10 == 0 {
             xx(&mut cb);
-        }
-        else{
-            xx(&mut |_|{});
+        } else {
+            xx(&mut |_| {});
         }
     }
 }

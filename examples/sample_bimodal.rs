@@ -97,23 +97,21 @@ fn main() {
 
     let mut xy = (x, y);
 
-    let mut sampler=create_sampler(bimodal, xy, rng, blist, 2.0, 4);
+    let mut sampler = create_sampler(bimodal, xy, rng, blist, 2.0, 4);
     //let mut sampler=ptsample_closure_st(bimodal, xy, rng, blist, 2.0);
 
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
 
-        sampler(&mut |xy:&Result<(Vec<Vec<f64>>, Vec<f64>), McmcErr>|{
-            match xy{
-                &Ok(ref xy)=>{
-                    for i in 0..nbeta {
-                        results[i].push(xy.0[i * nwalkers + 0][0]);
-                    }
+        sampler(
+            &mut |xy: &Result<(Vec<Vec<f64>>, Vec<f64>), McmcErr>| match xy {
+                &Ok(ref xy) => for i in 0..nbeta {
+                    results[i].push(xy.0[i * nwalkers + 0][0]);
                 },
-                _ => ()
-            }
-
-        }, k%10==0);
+                _ => (),
+            },
+            k % 10 == 0,
+        );
     }
 
     for i in 0..nbeta {
