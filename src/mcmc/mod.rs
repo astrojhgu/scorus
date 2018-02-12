@@ -3,7 +3,6 @@ use std::default::Default;
 pub mod utils;
 pub mod ensemble_sample;
 pub mod ptsample;
-pub mod sampler_closure;
 pub mod init_ensemble;
 pub mod mcmc_errors;
 pub mod arms;
