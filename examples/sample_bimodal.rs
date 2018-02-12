@@ -6,8 +6,8 @@ extern crate scorus;
 use num_traits::float::Float;
 use scorus::mcmc::ensemble_sample::sample as ff;
 use scorus::mcmc::ptsample::sample as ff1;
-use scorus::mcmc::sampler_closure::ptsample_closure;
-
+use scorus::mcmc::ptsample::{create_sampler, create_sampler_st};
+use scorus::mcmc::mcmc_errors::McmcErr;
 use rand::Rng;
 use quickersort::sort_by;
 
@@ -97,20 +97,23 @@ fn main() {
 
     let mut xy = (x, y);
 
-    let mut sampler=ptsample_closure(bimodal, xy, rng, blist, 2.0, 4);
+    let mut sampler=create_sampler(bimodal, xy, rng, blist, 2.0, 4);
+    //let mut sampler=ptsample_closure_st(bimodal, xy, rng, blist, 2.0);
 
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
 
-
-        if let Some(xy)=sampler(k%7==0, k%10==0).unwrap() {
-            //let aaa = ff1(foo, &(x, y), &mut rng, &blist,k%10==0, 2.0, 1);
-            //let aaa=ff1(|x|{-x[0]*x[0]-x[1]*x[1]}, &(x,y), &mut rng, &blist, k%10==0, 2.0, 2);
-
-            for i in 0..nbeta {
-                results[i].push(xy.0[i * nwalkers + 0][0]);
+        sampler(&mut |xy:&Result<(Vec<Vec<f64>>, Vec<f64>), McmcErr>|{
+            match xy{
+                &Ok(ref xy)=>{
+                    for i in 0..nbeta {
+                        results[i].push(xy.0[i * nwalkers + 0][0]);
+                    }
+                },
+                _ => ()
             }
-        }
+
+        }, k%10==0);
     }
 
     for i in 0..nbeta {

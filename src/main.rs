@@ -7,7 +7,7 @@ extern crate scorus;
 use num_traits::float::Float;
 use scorus::mcmc::ensemble_sample::sample as ff;
 use scorus::mcmc::ptsample::sample as ff1;
-use scorus::mcmc::sampler_closure::esample_closure;
+use scorus::mcmc::ensemble_sample::create_sampler;
 
 use scorus::mcmc::mcmc_errors::McmcErr;
 //use scorus::mcmc::shuffle;
@@ -64,7 +64,7 @@ fn main() {
         ];
         let y = vec![0.0];
 
-        esample_closure(
+        create_sampler(
             |x: &Vec<f64>| -x[0] * x[0] - x[1] * x[1],
             (x, y),
             rand::thread_rng(),
