@@ -8,6 +8,8 @@ use num_traits::float::Float;
 use scorus::mcmc::ensemble_sample::sample as ff;
 use scorus::mcmc::ptsample::sample as ff1;
 use scorus::mcmc::sampler_closure::esample_closure;
+
+use scorus::mcmc::mcmc_errors::McmcErr;
 //use scorus::mcmc::shuffle;
 use rand::Rng;
 use quickersort::sort_by;
@@ -71,8 +73,22 @@ fn main() {
         )
     };
 
-    for i in 0..10000 {
-        let a = xx(true).unwrap().unwrap();
-        println!("{} {}", a.0[0][0], a.0[0][1]);
+    let mut ensemble_db=Vec::with_capacity(10000);
+    let mut cb= |en_lp: &Result<(Vec<Vec<f64>>, Vec<f64>), McmcErr>|{
+        match en_lp{
+            &Ok(ref x)=> {
+                ensemble_db.push(x.0[0].clone());
+                println!("{} {}", x.0[0][0], x.0[0][1]);
+            },
+            _ => ()
+        }
+    };
+    for i in 0..100000 {
+        if i%10==0 {
+            xx(&mut cb);
+        }
+        else{
+            xx(&mut |_|{});
+        }
     }
 }

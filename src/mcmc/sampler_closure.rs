@@ -18,7 +18,7 @@ pub fn esample_closure<T, U, V, W, X, F>(
     mut rng: U,
     a: T,
     nthread: usize,
-) -> Box<FnMut(bool) -> Result<Option<(W, X)>, McmcErr>>
+) -> Box<FnMut(&mut FnMut(&Result<(W,X), McmcErr>))->()>
 where
     T: 'static
         + Float
@@ -43,15 +43,12 @@ where
         + Sized,
     F: 'static + Fn(&V) -> T + Send + Sync,
 {
-    Box::new(move |draw_value: bool| {
-        ensemble_logprob = esample(&flogprob, &ensemble_logprob, &mut rng, a, nthread)?;
-        if draw_value {
-            Ok(Some((
-                ensemble_logprob.0.clone(),
-                ensemble_logprob.1.clone(),
-            )))
-        } else {
-            Ok(None)
+    Box::new(move |handler:&mut FnMut(&Result<(W,X), McmcErr>)| {
+        let result = esample(&flogprob, &ensemble_logprob, &mut rng, a, nthread);
+        handler(&result);
+        match result{
+            Ok(x) => ensemble_logprob=x,
+            _ => ()
         }
     })
 }
@@ -63,7 +60,7 @@ pub fn ptsample_closure<T, U, V, W, X, F>(
     beta_list: X,
     a: T,
     nthread: usize,
-) -> Box<FnMut(bool, bool) -> Result<Option<(W, X)>, McmcErr>>
+) -> Box<FnMut(&mut FnMut(&Result<(W,X), McmcErr>), bool)->()>
 where
     T: 'static
         + Float
@@ -97,8 +94,8 @@ where
         + ItemSwapable,
     F: 'static + Fn(&V) -> T + Send + Sync,
 {
-    Box::new(move |draw_value: bool, sw: bool| {
-        ensemble_logprob = ptsample(
+    Box::new(move |handler:&mut FnMut(&Result<(W,X), McmcErr>), sw:bool| {
+        let result= ptsample(
             &flogprob,
             &ensemble_logprob,
             &mut rng,
@@ -106,14 +103,11 @@ where
             sw,
             a,
             nthread,
-        )?;
-        if draw_value {
-            Ok(Some((
-                ensemble_logprob.0.clone(),
-                ensemble_logprob.1.clone(),
-            )))
-        } else {
-            Ok(None)
+        );
+        handler(&result);
+        match result{
+            Ok(x) => ensemble_logprob=x,
+            _ => ()
         }
     })
 }
