@@ -1,7 +1,7 @@
 use num_traits::float::Float;
 use std::clone::Clone;
 use std::marker::Copy;
-use std::convert::{From, Into};
+use std::convert::From;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 use super::sphcoord::SphCoord;
 

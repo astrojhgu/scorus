@@ -1,8 +1,7 @@
 use num_traits::float::Float;
 use std::clone::Clone;
 use std::marker::Copy;
-use std::convert::{From, Into};
-use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
+use std::convert::From;
 use super::vec3d::Vec3d;
 
 pub struct SphCoord<T>
