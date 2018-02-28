@@ -10,5 +10,6 @@ pub mod utils;
 pub mod integration;
 pub mod opt;
 pub mod polynomial;
-pub mod sphcoord;
+pub mod coordinates;
 pub mod healpix;
+pub mod map_proj;

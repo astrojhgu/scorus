@@ -5,6 +5,7 @@ use std::convert::From;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 use super::sphcoord::SphCoord;
 
+#[derive(Debug)]
 pub struct Vec3d<T>
 where
     T: Float + Copy,
@@ -68,35 +69,47 @@ where
         self.dot(*self)
     }
 
-    pub fn vdrdpol(&self)->Vec3d<T>{
+    pub fn vdrdpol(&self) -> Vec3d<T> {
         SphCoord::from(*self).vdrdpol()
     }
 
-    pub fn vdrdaz(&self) -> Vec3d<T>{
+    pub fn vdrdaz(&self) -> Vec3d<T> {
         SphCoord::from(*self).vdrdaz()
     }
 
-    pub fn rotate_about(&self, axis:Vec3d<T>, angle:T)->Vec3d<T>{
-        let axis=axis/axis.length();
-        let ux:T=axis.x;
-        let uy:T=axis.y;
-        let uz:T=axis.z;
+    pub fn rotate_about(&self, axis: Vec3d<T>, angle: T) -> Vec3d<T> {
+        let axis = axis / axis.length();
+        let ux: T = axis.x;
+        let uy: T = axis.y;
+        let uz: T = axis.z;
 
-        let ca=angle.cos();
-        let sa=angle.sin();
+        let ca = angle.cos();
+        let sa = angle.sin();
 
-        let one=T::one();
+        let one = T::one();
 
-        let rm=vec!(
-            vec!(ca+ux*ux*(one-ca), ux*uy*(one-ca)-uz*sa, ux*uz*(one-ca)+uy*sa),
-            vec!(uy*ux*(one-ca)+uz*sa, ca+uy*uy*(one-ca), uy*uz*(one-ca)-ux*sa),
-            vec!(uz*ux*(one-ca)-uy*sa, uz*uy*(one-ca)+ux*sa, ca+uz*uz*(one-ca))
-        );
+        let rm = vec![
+            vec![
+                ca + ux * ux * (one - ca),
+                ux * uy * (one - ca) - uz * sa,
+                ux * uz * (one - ca) + uy * sa,
+            ],
+            vec![
+                uy * ux * (one - ca) + uz * sa,
+                ca + uy * uy * (one - ca),
+                uy * uz * (one - ca) - ux * sa,
+            ],
+            vec![
+                uz * ux * (one - ca) - uy * sa,
+                uz * uy * (one - ca) + ux * sa,
+                ca + uz * uz * (one - ca),
+            ],
+        ];
 
-        let mut result=Vec3d::<T>::new(T::zero(),T::zero(),T::zero());
-        for i in 0..3{
-            for j in 0..3{
-                result[i]=result[i]+rm[i][j]*self[j];
+        let mut result = Vec3d::<T>::new(T::zero(), T::zero(), T::zero());
+        for i in 0..3 {
+            for j in 0..3 {
+                result[i] = result[i] + rm[i][j] * self[j];
             }
         }
         result

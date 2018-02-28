@@ -4,14 +4,12 @@ extern crate quickersort;
 extern crate rand;
 extern crate scorus;
 
-use scorus::healpix::{pix2ang_ring, pix2vec_ring, nside2npix, get_interpol_ring};
-use scorus::sphcoord::SphCoord;
+use scorus::map_proj::hammer::{iproj, proj};
+use scorus::coordinates::SphCoord;
 fn main() {
-    let nside=64_usize;
-    let npix=nside2npix(nside);
-    let (a,b)=get_interpol_ring(nside, SphCoord::new(1.0, 0.5));
-    for i in &a{
-        let x=pix2ang_ring::<f64>(nside, *i);
-        println!("{} {}", x.pol, x.az);
-    }
+    let aa = proj(SphCoord::new(86_f64.to_radians(), 85_f64.to_radians()));
+    println!("{:?}", aa);
+
+    let bb = iproj(aa).unwrap();
+    println!("{} {}", bb.pol.to_degrees(), bb.az.to_degrees());
 }
