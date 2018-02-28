@@ -48,6 +48,20 @@ where
         let pol = (z / r).acos();
         SphCoord::new(pol, az)
     }
+
+    pub fn vdrdpol(&self)->Vec3d<T>{
+        let theta=self.pol;
+        let phi=self.az;
+        let stheta=theta.sin();
+        let ctheta=theta.cos();
+        let sphi=phi.sin();
+        let cphi=phi.cos();
+        Vec3d::new(ctheta*cphi, ctheta*sphi, -stheta)
+    }
+
+    pub fn vdrdaz(&self)->Vec3d<T>{
+        Vec3d::new(-self.az.sin(), self.az.cos(), T::zero())
+    }
 }
 
 impl<T> From<Vec3d<T>> for SphCoord<T>

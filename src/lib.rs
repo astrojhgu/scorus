@@ -11,3 +11,4 @@ pub mod integration;
 pub mod opt;
 pub mod polynomial;
 pub mod sphcoord;
+pub mod healpix;
