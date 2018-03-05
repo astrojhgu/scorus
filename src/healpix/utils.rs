@@ -30,7 +30,7 @@ pub fn ctab(i: usize) -> i32 {
     _ctab[i]
 }
 
-fn nest2xyf(nside: i32, mut pix: i32) -> (i32, i32, i32) {
+pub fn nest2xyf(nside: i32, mut pix: i32) -> (i32, i32, i32) {
     let npface = nside * nside;
     let face_num = pix / npface;
     pix &= npface - 1;

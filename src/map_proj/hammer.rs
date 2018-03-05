@@ -8,7 +8,7 @@ where
 {
     let pi = T::PI();
     let two_pi = T::from(2).unwrap() * pi;
-    let two_sqrt_2 = T::from(2).unwrap() * T::SQRT_2();
+    //let two_sqrt_2 = T::from(2).unwrap() * T::SQRT_2();
     let two = T::from(2).unwrap();
     let mut ra = p.az;
     let dec = T::FRAC_PI_2() - p.pol;
