@@ -42,6 +42,10 @@ where
         Vec3d::<T> { x: x, y: y, z: z }
     }
 
+    pub fn normalized(&self) -> Vec3d<T> {
+        (*self) / self.length()
+    }
+
     pub fn from_sph_coord(sc: SphCoord<T>) -> Vec3d<T> {
         Vec3d::<T>::from_angle(sc.pol, sc.az)
     }

@@ -38,6 +38,10 @@ where
         Vec2d::<T> { x: x, y: y }
     }
 
+    pub fn normalized(&self) -> Vec2d<T> {
+        *self / (self.length())
+    }
+
     pub fn dot(&self, rhs: Vec2d<T>) -> T {
         self.x * rhs.x + self.y * rhs.y
     }
