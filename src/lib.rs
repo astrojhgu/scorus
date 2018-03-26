@@ -3,6 +3,7 @@ extern crate num_traits;
 extern crate rand;
 extern crate rayon;
 extern crate special;
+extern crate spade;
 //use num_traits::float::Float;
 
 pub mod mcmc;
@@ -13,3 +14,4 @@ pub mod polynomial;
 pub mod coordinates;
 pub mod healpix;
 pub mod map_proj;
+pub mod interpolation;

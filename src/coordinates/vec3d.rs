@@ -1,14 +1,15 @@
 use num_traits::float::Float;
 use std::clone::Clone;
-use std::marker::Copy;
+//use std::cmp::{Eq, PartialEq};
 use std::convert::From;
+use std::marker::Copy;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 use super::sphcoord::SphCoord;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     pub x: T,
     pub y: T,
@@ -16,8 +17,8 @@ where
 }
 
 impl<T> Clone for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     fn clone(&self) -> Self {
         Vec3d::<T> {
@@ -29,14 +30,13 @@ where
 }
 
 impl<T> Copy for Vec3d<T>
-where
-    T: Float + Copy,
-{
-}
+    where
+        T: Float + Copy,
+{}
 
 impl<T> Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     pub fn new(x: T, y: T, z: T) -> Vec3d<T> {
         Vec3d::<T> { x: x, y: y, z: z }
@@ -121,8 +121,8 @@ where
 }
 
 impl<T> From<SphCoord<T>> for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     fn from(sc: SphCoord<T>) -> Vec3d<T> {
         Vec3d::from_angle(sc.pol, sc.az)
@@ -130,8 +130,8 @@ where
 }
 
 impl<T> Index<usize> for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     type Output = T;
 
@@ -146,8 +146,8 @@ where
 }
 
 impl<T> IndexMut<usize> for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     fn index_mut(&mut self, index: usize) -> &mut T {
         match index {
@@ -160,8 +160,8 @@ where
 }
 
 impl<T> Add for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     type Output = Vec3d<T>;
 
@@ -175,8 +175,8 @@ where
 }
 
 impl<T> Sub for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     type Output = Vec3d<T>;
 
@@ -190,8 +190,8 @@ where
 }
 
 impl<T> Mul<T> for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     type Output = Vec3d<T>;
 
@@ -205,8 +205,8 @@ where
 }
 
 impl<T> Div<T> for Vec3d<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     type Output = Vec3d<T>;
 

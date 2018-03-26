@@ -1,21 +1,22 @@
 use num_traits::float::Float;
 use std::clone::Clone;
-use std::marker::Copy;
+//use std::cmp::Eq;
 use std::convert::From;
+use std::marker::Copy;
 use super::vec3d::Vec3d;
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct SphCoord<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     pub pol: T,
     pub az: T,
 }
 
 impl<T> Clone for SphCoord<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     fn clone(&self) -> Self {
         SphCoord::<T> {
@@ -26,14 +27,14 @@ where
 }
 
 impl<T> Copy for SphCoord<T>
-where
-    T: Float + Copy,
-{
-}
+    where
+        T: Float + Copy,
+{}
+
 
 impl<T> SphCoord<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     pub fn new(pol: T, az: T) -> SphCoord<T> {
         SphCoord::<T> { pol: pol, az: az }
@@ -63,11 +64,17 @@ where
     pub fn vdrdaz(&self) -> Vec3d<T> {
         Vec3d::new(-self.az.sin(), self.az.cos(), T::zero())
     }
+
+    pub fn angle_between(&self, another: SphCoord<T>) -> T {
+        let vec1 = Vec3d::from_sph_coord(*self);
+        let vec2 = Vec3d::from_sph_coord(another);
+        vec1.dot(vec2)
+    }
 }
 
 impl<T> From<Vec3d<T>> for SphCoord<T>
-where
-    T: Float + Copy,
+    where
+        T: Float + Copy,
 {
     fn from(p: Vec3d<T>) -> SphCoord<T> {
         SphCoord::from_xyz(p.x, p.y, p.z)
