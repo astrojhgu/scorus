@@ -48,6 +48,9 @@ impl<P> IndexedRTree<P>
 
     pub fn nearest_n_neighbors(&self, query_point: P, n: usize) -> Vec<usize> {
         let points = self.rtree.nearest_n_neighbors(&IndexedPoint { position: query_point, idx: 0 }, n);
+        if points.is_empty(){
+            panic!("no point added");
+        }
         let mut result = Vec::new();
         for p in points {
             result.push(p.idx);
