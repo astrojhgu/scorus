@@ -2,3 +2,5 @@ target
 *.qdp
 .idea
 Cargo.lock
+*.txt
+*.asy
