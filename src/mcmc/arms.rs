@@ -540,7 +540,7 @@ where
             (x_i, y_i) => (x_i, y_i),
         }
     } {
-        (x_i, y_i) if x_i.is_nan() || y_i.is_nan() => {
+        | (x_i, y_i) if x_i.is_nan() || y_i.is_nan() => {
             //panic!("d");
             Err(ArmsErr::SolveInterSectionErr(
                 format!("Error@{}", line!()),

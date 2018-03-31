@@ -7,16 +7,16 @@ use super::vec3d::Vec3d;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct SphCoord<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     pub pol: T,
     pub az: T,
 }
 
 impl<T> Clone for SphCoord<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     fn clone(&self) -> Self {
         SphCoord::<T> {
@@ -27,14 +27,14 @@ impl<T> Clone for SphCoord<T>
 }
 
 impl<T> Copy for SphCoord<T>
-    where
-        T: Float + Copy,
-{}
-
+where
+    T: Float + Copy,
+{
+}
 
 impl<T> SphCoord<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     pub fn new(pol: T, az: T) -> SphCoord<T> {
         SphCoord::<T> { pol: pol, az: az }
@@ -68,13 +68,13 @@ impl<T> SphCoord<T>
     pub fn angle_between(&self, another: SphCoord<T>) -> T {
         let vec1 = Vec3d::from_sph_coord(*self);
         let vec2 = Vec3d::from_sph_coord(another);
-        vec1.dot(vec2)
+        vec1.dot(vec2).acos()
     }
 }
 
 impl<T> From<Vec3d<T>> for SphCoord<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     fn from(p: Vec3d<T>) -> SphCoord<T> {
         SphCoord::from_xyz(p.x, p.y, p.z)

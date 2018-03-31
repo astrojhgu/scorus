@@ -144,8 +144,8 @@ where
     while *fb > *fc {
         r = (*bx - *ax) * (*fb - *fc);
         q = (*bx - *cx) * (*fb - *fa);
-        u = *bx
-            - ((*bx - *cx) * q - (*bx - *ax) * r) / (two * sign(max((q - r).abs(), tiny), q - r));
+        u = *bx - ((*bx - *cx) * q - (*bx - *ax) * r)
+            / (two * sign(max((q - r).abs(), tiny), q - r));
 
         ulim = *bx + T::from(glimit).unwrap() * (*cx - *bx);
 

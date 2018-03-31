@@ -1,74 +1,95 @@
 use num_traits::float::Float;
-use spade::{SpadeNum};
+use num_traits::Bounded;
 use std::marker::Copy;
-use super::indexed_rtree::IndexedRTree;
-use super::super::coordinates::{sphcoord::SphCoord, vec3d::Vec3d};
-use std::ops::{Add, Mul, Div};
+use std::fmt::Debug;
+use rand::Rng;
 
-pub struct SphNN<T>
-    where T: SpadeNum + Copy+Float
+use super::super::space_search::{MetricPoint, VpTree};
+use super::super::coordinates::sphcoord::SphCoord;
+use std::ops::{Add, Div, Mul};
+
+impl<T> MetricPoint for SphCoord<T>
+where
+    T: Float + Copy + Bounded + Debug,
 {
-    tree: IndexedRTree<[T; 3]>,
-    points: Vec<Vec3d<T>>
-}
-
-impl<T> SphNN<T>
-    where T: SpadeNum + Copy + Float
-{
-    pub fn new()->SphNN<T>{
-        SphNN{tree:IndexedRTree::new(), points:Vec::new()}
-    }
-
-    pub fn insert(&mut self, sphp: SphCoord<T>) {
-        let v = Vec3d::from_sph_coord(sphp);
-        self.tree.insert([v.x, v.y, v.z]);
-        self.points.push(v);
-    }
-
-    pub fn nearest_n_neighbors(&self, query_point: SphCoord<T>, n: usize) -> Vec<(usize, T)> {
-        let v = Vec3d::from_sph_coord(query_point);
-        let mut result=Vec::new();
-        for idx in self.tree.nearest_n_neighbors([v.x, v.y, v.z], n){
-            result.push((idx, v.dot(self.points[idx]).acos()));
-        }
-        result
+    type Distance = T;
+    fn distance_to(&self, other: &Self) -> T {
+        let d = self.angle_between(*other);
+        //println!("d={:?}", d);
+        d
     }
 }
 
-pub struct NaturalSphNNInterpolator<T, V>
-where T:SpadeNum+Copy+Float,
-V:Float+Copy
+pub struct NNInterpBuilder<T, V>
+where
+    T: Float + Copy + Bounded + Debug,
+    V: Copy + Default + Debug,
 {
-    sphnn:SphNN<T>,
-    values:Vec<V>
+    points: Vec<(SphCoord<T>, V)>,
 }
 
-impl<T, V> NaturalSphNNInterpolator<T, V>
-where T:SpadeNum+Copy+Float,
-V:Float+Copy+Add<T, Output=V>+Mul<T, Output=V>+Div<T, Output=V>{
-    pub fn new()->NaturalSphNNInterpolator<T, V>{
-        NaturalSphNNInterpolator{sphnn:SphNN::new(), values:Vec::new()}
-    }
+pub struct Interpolator<T, V>
+where
+    T: Float + Copy + Bounded + Debug,
+    V: Copy + Default + Debug,
+{
+    tree: VpTree<SphCoord<T>, V>,
+}
 
-    pub fn add_point(&mut self, p:SphCoord<T>, v:V)->&mut Self {
-        self.sphnn.insert(p);
-        self.values.push(v);
+impl<
+        T: 'static + Float + Copy + Bounded + Debug,
+        V: 'static
+            + Copy
+            + Default
+            + Add<V, Output = V>
+            + Mul<T, Output = V>
+            + Div<T, Output = V>
+            + Debug,
+    > NNInterpBuilder<T, V>
+{
+    pub fn add_point(mut self, p: SphCoord<T>, v: V) -> NNInterpBuilder<T, V> {
+        self.points.push((p, v));
         self
     }
 
-    pub fn value_at(&self, p:SphCoord<T>, n:usize)->V{
-        let np=self.sphnn.nearest_n_neighbors(p, n);
+    pub fn shuffle<U: Rng>(mut self, rng: &mut U) -> NNInterpBuilder<T, V> {
+        rng.shuffle(&mut (self.points));
+        self
+    }
 
-        let mut result=V::zero();
-        let mut wgt=T::zero();
-        for idx_dist in np{
-            if idx_dist.1==T::zero(){
-                return self.values[idx_dist.0];
+    pub fn done(self) -> Box<Fn(&SphCoord<T>, usize) -> V> {
+        let ipt = Interpolator {
+            tree: VpTree::new(self.points),
+        };
+        Box::new(move |x: &SphCoord<T>, n: usize| ipt.interp(x, n))
+    }
+}
+
+#[allow(non_snake_case)]
+impl<
+        T: Float + Copy + Bounded + Debug,
+        V: Copy + Default + Add<V, Output = V> + Mul<T, Output = V> + Div<T, Output = V> + Debug,
+    > Interpolator<T, V>
+{
+    pub fn new() -> NNInterpBuilder<T, V> {
+        NNInterpBuilder { points: Vec::new() }
+    }
+
+    pub fn interp(&self, p: &SphCoord<T>, n: usize) -> V {
+        let mut points = self.tree.search(p, n);
+        let mut result = V::default();
+        let mut wgt = T::zero();
+        let ONE = T::one();
+        //println!("{:?} {:?}", p.pol, p.az);
+        //println!("{}", points.len());
+        while let Some(x) = points.pop() {
+            //  println!("{:?} {:?}", x.dist, self.values[x.idx]);
+            if x.dist == T::zero() {
+                return self.tree.items[x.index].1;
             }
-            let wgt1=T::one()/idx_dist.1;
-            wgt=wgt+wgt1;
-            result=result+self.values[idx_dist.0]*wgt1;
+            result = result + self.tree.items[x.index].1 * (ONE / x.dist);
+            wgt = wgt + ONE / x.dist;
         }
-        result/wgt
+        result / wgt
     }
 }

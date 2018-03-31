@@ -14,7 +14,6 @@ rand = ">0.4.*"
 rayon = ">=1.0.0"
 quickersort = ">=3.0.0"
 special = "0.7.7"
-spade = "1.4.0"
 
 
 [[example]]
