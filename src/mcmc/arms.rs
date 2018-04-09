@@ -10,7 +10,7 @@ use num_traits::identities::zero;
 use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 
-use super::super::utils::HasLength;
+use super::super::utils::HasLen;
 //use utils::Resizeable;
 //use utils::ItemSwapable;
 
@@ -805,24 +805,24 @@ where
         + std::fmt::Display
         + std::fmt::Debug,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
 {
-    if init_x1.length() < 3 {
+    if init_x1.len() < 3 {
         return Err(ArmsErr::TooFewInitPoints(format!("Error@{}", line!())));
     }
-    for i in 0..(init_x1.length() - 1) {
+    for i in 0..(init_x1.len() - 1) {
         if init_x1[i] >= init_x1[i + 1] {
             return Err(ArmsErr::DataNotInOrder(format!("Error@{}", line!())));
         }
     }
     let mut init_x = vec![xrange.0];
-    for i in 0..init_x1.length() {
+    for i in 0..init_x1.len() {
         init_x.push(init_x1[i]);
     }
     init_x.push(xrange.1);
 
     let mut section_list = VecDeque::<Section<T>>::new();
-    for i in 0..(init_x.length() - 1) {
+    for i in 0..(init_x.len() - 1) {
         let mut s = Section::new(
             init_x[i],
             eval_log(pd, init_x[i], zero())?,
@@ -1114,7 +1114,7 @@ where
         + std::fmt::Debug,
     R: Rng,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + std::marker::Sync + std::marker::Send,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
 {
     //let two = one::<T>() + one::<T>();
     let mut xcur = xcur;

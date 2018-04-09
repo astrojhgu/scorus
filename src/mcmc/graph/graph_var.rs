@@ -2,7 +2,7 @@ use std;
 use num_traits::float::Float;
 use std::fmt::{Display, Error, Formatter};
 use std::cell::RefCell;
-use super::super::super::utils::HasLength;
+use super::super::super::utils::HasLen;
 
 pub struct GraphVar<T>
 where
@@ -53,12 +53,12 @@ where
     }
 }
 
-impl<T> HasLength for GraphVar<T>
+impl<T> HasLen for GraphVar<T>
 where
     T: Float + Sync + Send + std::fmt::Display,
 {
-    fn length(&self) -> usize {
-        self.sampleable_values.len()
+    fn len(&self) -> usize {
+        Vec::len(&self.sampleable_values)
     }
 }
 

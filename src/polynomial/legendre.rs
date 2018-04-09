@@ -6,7 +6,7 @@ use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use special::Gamma;
 
-use super::super::utils::HasLength;
+use super::super::utils::HasLen;
 
 pub fn ln_factorial<T>(x: T) -> T
 where
@@ -38,13 +38,13 @@ where
 pub fn legendre2poly<T, V>(p: &V) -> V
 where
     T: Float + Copy + Gamma + Display,
-    V: Clone + IndexMut<usize, Output = T> + HasLength,
+    V: Clone + IndexMut<usize, Output = T> + HasLen,
 {
     let mut result = p.clone();
-    for i in 0..result.length() {
+    for i in 0..result.len() {
         result[i] = zero();
     }
-    let n = p.length();
+    let n = p.len();
     for i in 0..n {
         //println!("{}", p[i]);
         for j in 0..(i + 1) {

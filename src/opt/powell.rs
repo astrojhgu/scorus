@@ -6,18 +6,18 @@ use num_traits::cast::NumCast;
 use num_traits::identities::{one, zero};
 
 use super::linmin::linmin;
-use super::super::utils::HasLength;
+use super::super::utils::HasLen;
 use super::bas_utils::sqr;
 use super::opt_errors::OptErr;
 
 pub fn fmin<F, V, T>(f: &F, p: &V, ftol: T) -> (V, OptErr)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy,
-    V: Clone + IndexMut<usize, Output = T> + HasLength,
+    V: Clone + IndexMut<usize, Output = T> + HasLen,
     F: Fn(&V) -> T,
 {
     let two = one::<T>() + one::<T>();
-    let n = p.length();
+    let n = p.len();
     let mut xi = Vec::new();
     xi.reserve(n);
     for i in 0..n {

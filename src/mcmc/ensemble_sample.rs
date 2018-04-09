@@ -13,7 +13,7 @@ use rand::distributions::range::SampleRange;
 
 use super::mcmc_errors::McmcErr;
 use super::utils::draw_z;
-use super::super::utils::HasLength;
+use super::super::utils::HasLen;
 use super::super::utils::Resizeable;
 
 use super::utils::scale_vec;
@@ -36,14 +36,14 @@ where
         + Send
         + std::fmt::Display,
     U: 'static + Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Send + Sized,
-    W: 'static + Clone + IndexMut<usize, Output = V> + HasLength + Sync + Send + Drop + Sized,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send + Sized,
+    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop + Sized,
     X: 'static
         + Clone
         + IndexMut<usize, Output = T>
-        + HasLength
+        + HasLen
         + Sync
-        + Resizeable
+        + Resizeable<ElmType=T>
         + Send
         + Drop
         + Sized,
@@ -68,9 +68,9 @@ pub fn create_sampler_st<T, U, V, W, X, F>(
 where
     T: 'static + Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
     U: 'static + Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + Sized,
-    W: 'static + Clone + IndexMut<usize, Output = V> + HasLength + Drop + Sized,
-    X: 'static + Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop + Sized,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
+    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized,
+    X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType=T> + Drop + Sized,
     F: 'static + Fn(&V) -> T,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
@@ -100,9 +100,9 @@ where
         + Send
         + std::fmt::Display,
     U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Send,
-    W: Clone + IndexMut<usize, Output = V> + HasLength + Sync + Send + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLength + Sync + Resizeable + Send + Drop,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Resizeable<ElmType=T> + Send + Drop,
     F: Fn(&V) -> T + Send + Sync,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
@@ -110,7 +110,7 @@ where
     let result_ensemble = ensemble.clone();
     let mut result_logprob = cached_logprob.clone();
     //let pflogprob=Arc::new(&flogprob);
-    let nwalkers = ensemble.length();
+    let nwalkers = ensemble.len();
 
     if nwalkers == 0 {
         return Err(McmcErr::NWalkersIsZero);
@@ -120,7 +120,7 @@ where
         return Err(McmcErr::NWalkersIsNotEven);
     }
 
-    let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
+    let ndims: T = NumCast::from(ensemble[0].len()).unwrap();
 
     let half_nwalkers = nwalkers / 2;
     let mut walker_group: Vec<Vec<usize>> = vec![Vec::new(), Vec::new()];
@@ -148,12 +148,12 @@ where
     }
 
     let atomic_k = Mutex::new(0);
-    let lp_cached = result_logprob.length() == nwalkers;
+    let lp_cached = result_logprob.len() == nwalkers;
 
     if !lp_cached {
-        result_logprob.resize(nwalkers);
+        result_logprob.resize(nwalkers, T::zero());
     }
-    //let lp_cached=cached_logprob.length()!=0;
+    //let lp_cached=cached_logprob.len()!=0;
     let result_ensemble = Mutex::new(result_ensemble);
     let result_logprob = Mutex::new(result_logprob);
 
@@ -247,9 +247,9 @@ pub fn sample_st<T, U, V, W, X, F>(
 where
     T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
     U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLength,
-    W: Clone + IndexMut<usize, Output = V> + HasLength + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLength + Resizeable + Drop,
+    V: Clone + IndexMut<usize, Output = T> + HasLen,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType=T> + Drop,
     F: Fn(&V) -> T,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
@@ -257,7 +257,7 @@ where
     let result_ensemble = ensemble.clone();
     let mut result_logprob = cached_logprob.clone();
     //let pflogprob=Arc::new(&flogprob);
-    let nwalkers = ensemble.length();
+    let nwalkers = ensemble.len();
 
     if nwalkers == 0 {
         return Err(McmcErr::NWalkersIsZero);
@@ -267,7 +267,7 @@ where
         return Err(McmcErr::NWalkersIsNotEven);
     }
 
-    let ndims: T = NumCast::from(ensemble[0].length()).unwrap();
+    let ndims: T = NumCast::from(ensemble[0].len()).unwrap();
 
     let half_nwalkers = nwalkers / 2;
     let mut walker_group: Vec<Vec<usize>> = vec![Vec::new(), Vec::new()];
@@ -295,12 +295,12 @@ where
     }
 
     let atomic_k = Mutex::new(0);
-    let lp_cached = result_logprob.length() == nwalkers;
+    let lp_cached = result_logprob.len() == nwalkers;
 
     if !lp_cached {
-        result_logprob.resize(nwalkers);
+        result_logprob.resize(nwalkers, T::zero());
     }
-    //let lp_cached=cached_logprob.length()!=0;
+    //let lp_cached=cached_logprob.len()!=0;
     let result_ensemble = Mutex::new(result_ensemble);
     let result_logprob = Mutex::new(result_logprob);
 

@@ -1,9 +1,13 @@
-pub trait HasLength {
-    fn length(&self) -> usize;
+pub trait HasLen {
+    fn len(&self) -> usize;
 }
 
-pub trait Resizeable {
-    fn resize(&mut self, usize);
+pub trait HasElement{
+    type ElmType;
+}
+
+pub trait Resizeable:HasElement {
+    fn resize(&mut self, usize, x:Self::ElmType);
 }
 
 pub trait ItemSwapable {

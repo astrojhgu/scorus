@@ -9,18 +9,18 @@ use num_traits::identities::zero;
 //use num_traits::NumCast;
 use std::ops::IndexMut;
 //use super::mcmc_errors::McmcErr;
-use super::super::utils::HasLength;
+use super::super::utils::HasLen;
 //use super::super::utils::ItemSwapable;
 //use super::super::utils::Resizeable;
 
 /*
 pub fn shuffle<T, U>(arr: &T, rng: &mut U) -> T
 where
-    T: HasLength + Clone + ItemSwapable,
+    T: HasLen + Clone + ItemSwapable,
     U: Rng,
 {
     let mut x = arr.clone();
-    let l = arr.length();
+    let l = arr.len();
     for i in (1..l).rev() {
         let i1 = rng.gen_range(0, i + 1);
         x.swap_items(i, i1);
@@ -45,11 +45,11 @@ where
 pub fn scale_vec<T, U>(x1: &U, x2: &U, z: T) -> U
 where
     T: Float,
-    U: Clone + IndexMut<usize, Output = T> + HasLength,
+    U: Clone + IndexMut<usize, Output = T> + HasLen,
 {
     let mut result = (*x1).clone();
     let unit: T = one();
-    for l in 0..x1.length() {
+    for l in 0..x1.len() {
         result[l] = z * x1[l] + (unit - z) * x2[l];
     }
 

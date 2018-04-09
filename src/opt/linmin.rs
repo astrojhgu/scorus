@@ -5,7 +5,7 @@ use num_traits::cast::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 
-use utils::HasLength;
+use utils::HasLen;
 
 use super::bas_utils::{max, sign, swap, shft3};
 
@@ -188,7 +188,7 @@ where
 pub fn linmin<F, V, T>(f: &F, p: &mut V, xi: &mut V, fret: &mut T)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy,
-    V: Clone + IndexMut<usize, Output = T> + HasLength,
+    V: Clone + IndexMut<usize, Output = T> + HasLen,
     F: Fn(&V) -> T,
 {
     let tol = T::epsilon().sqrt();
@@ -204,7 +204,7 @@ where
     {
         let func_adapter = |x: T| {
             let mut x1 = p.clone();
-            for i in 0..x1.length() {
+            for i in 0..x1.len() {
                 x1[i] = x1[i] + x * xi[i];
             }
             f(&x1)
@@ -223,7 +223,7 @@ where
         xmin = xf.0;
         *fret = xf.1;
     }
-    for j in 0..p.length() {
+    for j in 0..p.len() {
         xi[j] = xi[j] * xmin;
         p[j] = p[j] + xi[j];
     }
