@@ -43,7 +43,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + Sync
-        + Resizeable<ElmType=T>
+        + Resizeable<ElmType = T>
         + Send
         + Drop
         + Sized,
@@ -70,7 +70,13 @@ where
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized,
-    X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType=T> + Drop + Sized,
+    X: 'static
+        + Clone
+        + IndexMut<usize, Output = T>
+        + HasLen
+        + Resizeable<ElmType = T>
+        + Drop
+        + Sized,
     F: 'static + Fn(&V) -> T,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
@@ -102,7 +108,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Resizeable<ElmType=T> + Send + Drop,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Resizeable<ElmType = T> + Send + Drop,
     F: Fn(&V) -> T + Send + Sync,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
@@ -249,7 +255,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType=T> + Drop,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop,
     F: Fn(&V) -> T,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;

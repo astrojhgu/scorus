@@ -49,7 +49,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + Sync
-        + Resizeable<ElmType=T>
+        + Resizeable<ElmType = T>
         + Send
         + Drop
         + Sized
@@ -92,7 +92,7 @@ where
         + Clone
         + IndexMut<usize, Output = T>
         + HasLen
-        + Resizeable<ElmType=T>
+        + Resizeable<ElmType = T>
         + Drop
         + Sized
         + ItemSwapable,
@@ -141,7 +141,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + std::marker::Sync
-        + Resizeable<ElmType=T>
+        + Resizeable<ElmType = T>
         + std::marker::Send
         + Drop
         + ItemSwapable,
@@ -169,7 +169,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType=T> + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
     F: Fn(&V) -> T,
 {
     if perform_swap {
@@ -203,7 +203,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType=T> + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
 {
     //let mut new_ensemble = ensemble_logprob.0.clone();
     //let mut new_logprob = ensemble_logprob.1.clone();
@@ -279,7 +279,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + std::marker::Sync
-        + Resizeable<ElmType=T>
+        + Resizeable<ElmType = T>
         + std::marker::Send
         + Drop
         + ItemSwapable,
@@ -462,7 +462,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType=T> + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
     F: Fn(&V) -> T,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;

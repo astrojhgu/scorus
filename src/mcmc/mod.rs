@@ -7,7 +7,7 @@ pub mod arms;
 pub mod functions;
 pub mod graph;
 
-pub use super::utils::{HasLen, ItemSwapable, Resizeable, HasElement};
+pub use super::utils::{HasElement, HasLen, ItemSwapable, Resizeable};
 //pub use self::utils::shuffle;
 pub use self::init_ensemble::get_one_init_realization;
 
@@ -17,12 +17,12 @@ impl<T> HasLen for Vec<T> {
     }
 }
 
-impl<T:Clone> HasElement for Vec<T>{
-    type ElmType=T;
+impl<T: Clone> HasElement for Vec<T> {
+    type ElmType = T;
 }
 
-impl<T:Clone> Resizeable for Vec<T> {
-    fn resize(&mut self, s: usize, x:T) {
+impl<T: Clone> Resizeable for Vec<T> {
+    fn resize(&mut self, s: usize, x: T) {
         //(*self).resize_default(x)
         //Vec::resize_default(self, x);
         //(*self).resize(s, x);
