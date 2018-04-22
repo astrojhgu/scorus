@@ -18,13 +18,13 @@ use super::super::utils::Resizeable;
 
 use super::utils::scale_vec;
 
-pub fn create_sampler<T, U, V, W, X, F>(
+pub fn create_sampler<'a, T, U, V, W, X, F>(
     flogprob: F,
     mut ensemble_logprob: (W, X),
     mut rng: U,
     a: T,
     nthread: usize,
-) -> Box<FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
+) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
 where
     T: 'static
         + Float
@@ -47,7 +47,7 @@ where
         + Send
         + Drop
         + Sized,
-    F: 'static + Fn(&V) -> T + Send + Sync,
+    F: 'a + Fn(&V) -> T + Send + Sync + Clone,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
         let result = sample(&flogprob, &ensemble_logprob, &mut rng, a, nthread);
@@ -59,12 +59,12 @@ where
     })
 }
 
-pub fn create_sampler_st<T, U, V, W, X, F>(
-    flogprob: F,
+pub fn create_sampler_st<'a, T, U, V, W, X, F>(
+    mut flogprob: F,
     mut ensemble_logprob: (W, X),
     mut rng: U,
     a: T,
-) -> Box<FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
+) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
 where
     T: 'static + Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
     U: 'static + Rng,
@@ -77,10 +77,10 @@ where
         + Resizeable<ElmType = T>
         + Drop
         + Sized,
-    F: 'static + Fn(&V) -> T,
+    F: 'a + FnMut(&V) -> T,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
-        let result = sample_st(&flogprob, &ensemble_logprob, &mut rng, a);
+        let result = sample_st(&mut flogprob, &ensemble_logprob, &mut rng, a);
         handler(&result);
         match result {
             Ok(x) => ensemble_logprob = x,
@@ -109,7 +109,7 @@ where
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
     X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Resizeable<ElmType = T> + Send + Drop,
-    F: Fn(&V) -> T + Send + Sync,
+    F: FnMut(&V) -> T + Send + Sync + Clone,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
@@ -174,7 +174,7 @@ where
             let walker_group = &walker_group;
             let walker_group_id = &walker_group_id;
             let jvec = &jvec;
-            let flogprob = &flogprob;
+            let mut flogprob = flogprob.clone();
             //let rvec=Arc::clone(&rvec);
             let rvec = &rvec;
             //let nwalkers=nwalkers;
@@ -233,7 +233,7 @@ where
                 }
             });
         } else {
-            let task = create_task();
+            let mut task = create_task();
             task();
         }
     }
@@ -245,7 +245,7 @@ where
 }
 
 pub fn sample_st<T, U, V, W, X, F>(
-    flogprob: &F,
+    flogprob: &mut F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     a: T,
@@ -256,7 +256,7 @@ where
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,
     X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop,
-    F: Fn(&V) -> T,
+    F: FnMut(&V) -> T,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
@@ -321,7 +321,7 @@ where
             let walker_group = &walker_group;
             let walker_group_id = &walker_group_id;
             let jvec = &jvec;
-            let flogprob = &flogprob;
+            let flogprob = flogprob;
             //let rvec=Arc::clone(&rvec);
             let rvec = &rvec;
             //let nwalkers=nwalkers;
@@ -368,7 +368,7 @@ where
         };
 
         {
-            let task = create_task();
+            let mut task = create_task();
             task();
         }
     }
