@@ -4,7 +4,7 @@ extern crate scorus;
 
 use rand::Rng;
 use rand::thread_rng;
-use scorus::mcmc::ensemble_sample::sample;
+use scorus::mcmc::ensemble_sample::{sample, sample_st};
 use num_traits::float::Float;
 use num_traits::identities::zero;
 use num_traits::identities::one;
@@ -27,7 +27,7 @@ fn main() {
         121.0, 79.0, 81.0, 61.0, 41.0, 32.0, 32.0, 31.0, 22.0, 18.0, 11.0, 298.0,
     ];
 
-    let logprob = |x: &Vec<f64>| {
+    let mut logprob = |x: &Vec<f64>| {
         let energy = &E;
         let nrec = &nrec;
         let ninj = &ninj;
@@ -69,7 +69,7 @@ fn main() {
 
     let mut lp = Vec::<f64>::new();
     for i in 0..30000 {
-        let aaa = sample(&logprob, &(ensemble, lp), &mut rng, 2.0, 4).unwrap();
+        let aaa = sample(&mut logprob, &(ensemble, lp), &mut rng, 2.0, 4).unwrap();
         ensemble = aaa.0;
         lp = aaa.1;
         if i > 1000 {
