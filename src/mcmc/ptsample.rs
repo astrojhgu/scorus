@@ -200,7 +200,7 @@ where
     }
 }
 
-fn swap_walkers<T, U, V, W, X>(
+pub fn swap_walkers<T, U, V, W, X>(
     ensemble_logprob: &mut (W, X),
     rng: &mut U,
     beta_list: &X,
