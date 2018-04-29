@@ -47,7 +47,7 @@ where
         + Send
         + Drop
         + Sized,
-    F: 'a + Fn(&V) -> T + Send + Sync,
+    F: 'a + Fn(&V) -> T + Send + Sync + Sized,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
         let result = sample(&flogprob, &ensemble_logprob, &mut rng, a, nthread);
@@ -77,7 +77,7 @@ where
         + Resizeable<ElmType = T>
         + Drop
         + Sized,
-    F: 'a + Fn(&V) -> T,
+    F: 'a + Fn(&V) -> T + Sized,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
         let result = sample_st(&flogprob, &ensemble_logprob, &mut rng, a);
@@ -109,7 +109,7 @@ where
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
     X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Resizeable<ElmType = T> + Send + Drop,
-    F: Fn(&V) -> T + Send + Sync,
+    F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
@@ -245,7 +245,7 @@ where
 }
 
 pub fn sample_st<T, U, V, W, X, F>(
-    flogprob: & F,
+    flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     a: T,
@@ -256,7 +256,7 @@ where
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,
     X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop,
-    F: Fn(&V) -> T,
+    F: Fn(&V) -> T + ?Sized,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
@@ -307,8 +307,7 @@ where
     }
     //let lp_cached=cached_logprob.len()!=0;
 
-
-    for k in 0..nwalkers{
+    for k in 0..nwalkers {
         let lp_last_y = match lp_cached {
             false => {
                 let yy1 = flogprob(&ensemble[k]);

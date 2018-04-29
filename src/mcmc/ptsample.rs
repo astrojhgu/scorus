@@ -539,7 +539,7 @@ where
     }
     //let lp_cached=cached_logprob.len()!=0;
 
-    for n in 0..nwalkers*nbeta{
+    for n in 0..nwalkers * nbeta {
         let ibeta = n / nwalkers;
         let k = n - ibeta * nwalkers;
         let lp_last_y = match lp_cached {
@@ -572,8 +572,7 @@ where
             result_ensemble[ibeta * nwalkers + k] = new_y;
             result_logprob[ibeta * nwalkers + k] = lp_y;
         }
-
-    };
+    }
 
     Ok((result_ensemble, result_logprob))
 }

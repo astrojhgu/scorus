@@ -4,7 +4,7 @@ pub fn interp<T>(x: T, xlist: &[T], ylist: &[T]) -> T
 where
     T: Copy + Float,
 {
-    assert!(xlist.len() > 1 && ylist.len() == xlist.len());
+    assert!(xlist.len() >= 1 && ylist.len() == xlist.len());
     for i in 0..(xlist.len() - 1) {
         if (xlist[i] - x) * (xlist[i + 1] - x) <= T::zero() {
             return (ylist[i + 1] - ylist[i]) / (xlist[i + 1] - xlist[i]) * (x - xlist[i])
