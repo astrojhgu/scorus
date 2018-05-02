@@ -1,7 +1,8 @@
 use num_traits::float::Float;
 use num_traits::identities::one;
-
-fn integrate_aux<F, T>(f: &F, a: T, b: T, eps: T, s: T, fa: T, fb: T, fc: T, bottom: isize) -> T
+use super::integration_errors::IntegrationError;
+use std::fmt::Debug;
+fn integrate_aux<F, T>(f: &F, a: T, b: T, eps: T, s: T, fa: T, fb: T, fc: T, bottom: isize) -> Result<T, IntegrationError>
 where
     F: Fn(T) -> T,
     T: Float + Copy,
@@ -20,17 +21,18 @@ where
     let sright = (h / twelve) * (fc + four * fe + fb);
     let s2 = sleft + sright;
     if bottom <= 0 {
-        panic!("Maximum recurse depth reached");
+        return Err(IntegrationError::MaxRecReached);
     }
     if bottom <= 0 || (s2 - s).abs() <= fifteen * eps {
-        return s2 + (s2 - s) / fifteen;
+        Ok(s2 + (s2 - s) / fifteen)
     } else {
-        integrate_aux(f, a, c, eps / two, sleft, fa, fc, fd, bottom - 1)
-            + integrate_aux(f, c, b, eps / two, sright, fc, fb, fe, bottom - 1)
+        let a=integrate_aux(f, a, c, eps / two, sleft, fa, fc, fd, bottom - 1)?;
+        let b=integrate_aux(f, c, b, eps / two, sright, fc, fb, fe, bottom - 1)?;
+        Ok(a+b)
     }
 }
 
-pub fn integrate<F, T>(f: &F, a: T, b: T, eps: T, max_rec_depth: isize) -> T
+pub fn integrate<F, T>(f: &F, a: T, b: T, eps: T, max_rec_depth: isize) -> Result<T, IntegrationError>
 where
     F: Fn(T) -> T,
     T: Float + Copy,
