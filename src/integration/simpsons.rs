@@ -1,7 +1,8 @@
 use num_traits::float::Float;
 use num_traits::identities::one;
 use super::integration_errors::IntegrationError;
-use std::fmt::Debug;
+
+
 fn integrate_aux<F, T>(f: &F, a: T, b: T, eps: T, s: T, fa: T, fb: T, fc: T, bottom: isize) -> Result<T, IntegrationError>
 where
     F: Fn(T) -> T,
