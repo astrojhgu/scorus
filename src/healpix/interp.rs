@@ -4,7 +4,7 @@ use num_traits::cast::NumCast;
 use super::pix::nside2npix;
 use super::super::coordinates::SphCoord;
 
-pub fn ring_above<T>(nside: usize, z: T) -> usize
+fn ring_above<T>(nside: usize, z: T) -> usize
 where
     T: Float,
 {
@@ -26,7 +26,7 @@ where
     }
 }
 
-pub fn get_ring_info2<T>(nside: usize, ring: usize) -> (usize, usize, T, bool)
+fn get_ring_info2<T>(nside: usize, ring: usize) -> (usize, usize, T, bool)
 where
     T: Float + FloatConst,
 {

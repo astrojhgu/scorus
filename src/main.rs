@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 //extern crate std;
 extern crate num_traits;
 extern crate quickersort;
@@ -16,12 +18,11 @@ use std::io::Write;
 use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::interpolation::spline;
 use scorus::interpolation::linear1d::interp;
+use scorus::healpix::utils::{nest2ring, ring2nest};
 fn main() {
-    let xlist = [5., 4., 3., 2., 1., 0.];
-    let ylist = [1., 2., 1., 2., 1., 2.];
-    let mut x = -1.0;
-    while x < 7.0 {
-        println!("{} {}", x, interp(x, &xlist, &ylist));
-        x += 0.01;
+    let nside=512;
+    let npix=12*nside*nside;
+    for i in 0..npix{
+        println!("{} {}", i, nest2ring(nside, i));
     }
 }

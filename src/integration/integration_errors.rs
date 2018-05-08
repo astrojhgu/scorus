@@ -1,4 +1,4 @@
 #[derive(Debug)]
-pub enum IntegrationError{
+pub enum IntegrationError {
     MaxRecReached,
 }
