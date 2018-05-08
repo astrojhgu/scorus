@@ -10,9 +10,9 @@ debug =true
 [dependencies]
 #num = ">0.1.*"
 num-traits = ">0.2.*"
-rand = ">0.4.*"
-rayon = ">=1.0.0"
-quickersort = ">=3.0.0"
+rand = ">0.4.0"
+rayon = ">=1.0.1"
+quickersort = ">=3.0.1"
 special = "0.7.7"
 
 

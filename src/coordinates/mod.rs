@@ -1,6 +1,7 @@
 pub mod vec2d;
 pub mod vec3d;
 pub mod sphcoord;
+pub mod rotation3d;
 
 pub use self::vec3d::Vec3d;
 pub use self::sphcoord::SphCoord;

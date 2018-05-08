@@ -53,13 +53,13 @@ const UTAB: [i32; 256] = [
 const JRLL: [i32; 12] = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
 const JPLL: [i32; 12] = [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7];
 
-pub fn nside2npix(nside: i32) -> i32 {
+pub fn nside2npix32(nside: i32) -> i32 {
     12 * nside * nside
 }
 
-pub fn npix2nside(npix: i32) -> i32 {
+pub fn npix2nside32(npix: i32) -> i32 {
     let res = isqrt(npix / 12);
-    if nside2npix(res) == npix {
+    if nside2npix32(res) == npix {
         res
     } else {
         panic!()
@@ -340,5 +340,18 @@ pub fn nest2ring(nside: usize, ipnest: usize) -> usize {
         nest2ring64(nside as i64, ipnest as i64) as usize
     } else {
         nest2ring32(nside as i32, ipnest as i32) as usize
+    }
+}
+
+pub fn nside2npix(nside:usize)->usize{
+    12*nside*nside
+}
+
+pub fn npix2nside(npix: usize) -> usize{
+    let res = isqrt(npix / 12);
+    if nside2npix(res) == npix {
+        res
+    } else {
+        panic!()
     }
 }

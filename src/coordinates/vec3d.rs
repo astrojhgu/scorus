@@ -74,6 +74,10 @@ where
         self.dot(*self)
     }
 
+    pub fn angle_between(&self, rhs:Vec3d<T>)->T{
+        (self.dot(rhs)/(self.length()*rhs.length())).acos()
+    }
+
     pub fn vdrdpol(&self) -> Vec3d<T> {
         SphCoord::from(*self).vdrdpol()
     }

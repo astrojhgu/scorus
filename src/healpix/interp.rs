@@ -171,3 +171,15 @@ where
     }
     (pix, wgt)
 }
+
+pub fn natural_interp_ring<T>(nside:usize, data:&[T], ptg: SphCoord<T>)->T
+where T:Float+FloatConst{
+    let (pix, wgt)=get_interpol_ring(nside, ptg);
+    let mut result=T::zero();
+    let mut total_wgt=T::zero();
+    for i in 0..pix.len(){
+        result=result+data[pix[i]]*wgt[i];
+        total_wgt=total_wgt+wgt[i];
+    }
+    result/total_wgt
+}
