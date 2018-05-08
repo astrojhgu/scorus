@@ -20,9 +20,6 @@ use scorus::interpolation::spline;
 use scorus::interpolation::linear1d::interp;
 use scorus::healpix::utils::{nest2ring, ring2nest};
 fn main() {
-    let nside=512;
-    let npix=12*nside*nside;
-    for i in 0..npix{
-        println!("{} {}", i, nest2ring(nside, i));
-    }
+    let pi=f64::PI();
+    println!("{:?}", proj(SphCoord::new(pi/2., -pi*0.99)));
 }

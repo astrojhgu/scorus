@@ -16,7 +16,7 @@ where
         ra = ra - two_pi;
     }
     while ra <= -pi {
-        ra = ra - two_pi;
+        ra = ra + two_pi;
     }
 
     #[allow(non_snake_case)]
