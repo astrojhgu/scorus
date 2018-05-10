@@ -21,8 +21,11 @@ use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::interpolation::spline;
 use scorus::interpolation::linear1d::interp;
 use scorus::healpix::utils::{nest2ring, ring2nest};
+use scorus::utils::regulate;
 fn main() {
-    let sph = SphCoord::new(1.9, -1.0);
-    println!("{:?}", proj(sph));
-    println!("{:?}", iproj(proj(sph)));
+    let mut x=-20.0;
+    while x<20.0{
+        println!("{} {}", x, regulate(x, -1., 4.0));
+        x+=0.1;
+    }
 }

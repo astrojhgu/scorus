@@ -1,15 +1,7 @@
-pub trait HasLen {
-    fn len(&self) -> usize;
-}
+pub mod types;
+mod regulate;
 
-pub trait HasElement {
-    type ElmType;
-}
 
-pub trait Resizeable: HasElement {
-    fn resize(&mut self, usize, x: Self::ElmType);
-}
+pub use self::types::{HasLen, HasElement, Resizeable, ItemSwapable};
 
-pub trait ItemSwapable {
-    fn swap_items(&mut self, i: usize, j: usize);
-}
+pub use self::regulate::regulate;
