@@ -8,8 +8,10 @@ extern crate scorus;
 
 use rand::thread_rng;
 use num_traits::Bounded;
+
 use std::fs::File;
-use scorus::map_proj::hammer::{iproj, proj};
+use scorus::map_proj::mollweide::{iproj, proj};
+
 use scorus::coordinates::{SphCoord, Vec3d};
 
 use scorus::interpolation::sph_nn::Interpolator;
@@ -20,6 +22,7 @@ use scorus::interpolation::spline;
 use scorus::interpolation::linear1d::interp;
 use scorus::healpix::utils::{nest2ring, ring2nest};
 fn main() {
-    let pi=f64::PI();
-    println!("{:?}", proj(SphCoord::new(pi/2., -pi*0.99)));
+    let sph = SphCoord::new(1.9, -1.0);
+    println!("{:?}", proj(sph));
+    println!("{:?}", iproj(proj(sph)));
 }

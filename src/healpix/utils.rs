@@ -328,7 +328,7 @@ pub fn nest2ring64(nside: i64, ipnest: i64) -> i64 {
 ///////////////////////////////////////
 
 pub fn ring2nest(nside: usize, ipring: usize) -> usize {
-    if 12 * nside * nside > i32::max_value() as usize{
+    if 12 * nside * nside > i32::max_value() as usize {
         ring2nest64(nside as i64, ipring as i64) as usize
     } else {
         ring2nest32(nside as i32, ipring as i32) as usize
@@ -336,18 +336,18 @@ pub fn ring2nest(nside: usize, ipring: usize) -> usize {
 }
 
 pub fn nest2ring(nside: usize, ipnest: usize) -> usize {
-    if 12 * nside * nside > i32::max_value() as usize{
+    if 12 * nside * nside > i32::max_value() as usize {
         nest2ring64(nside as i64, ipnest as i64) as usize
     } else {
         nest2ring32(nside as i32, ipnest as i32) as usize
     }
 }
 
-pub fn nside2npix(nside:usize)->usize{
-    12*nside*nside
+pub fn nside2npix(nside: usize) -> usize {
+    12 * nside * nside
 }
 
-pub fn npix2nside(npix: usize) -> usize{
+pub fn npix2nside(npix: usize) -> usize {
     let res = isqrt(npix / 12);
     if nside2npix(res) == npix {
         res
