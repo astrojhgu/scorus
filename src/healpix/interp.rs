@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use num_traits::float::Float;
 use num_traits::float::FloatConst;
 use num_traits::cast::NumCast;
@@ -71,7 +73,7 @@ where
 
 pub fn get_interpol_ring<T>(nside: usize, ptg: SphCoord<T>) -> (Vec<usize>, Vec<T>)
 where
-    T: Float + FloatConst,
+    T: Float + FloatConst+Debug,
 {
     let npix = nside2npix(nside);
     let two_pi = T::PI() * T::from(2).unwrap();
@@ -136,6 +138,11 @@ where
         pix[3] = sp + i2 as usize;
         wgt[2] = T::one() - w1;
         wgt[3] = w1;
+        if pix[2]>=npix{
+            pix[2]=0;
+            wgt[2]=T::zero();
+            wgt[3]=T::one();
+        }
     }
 
     if ir1 == 0 {
@@ -151,6 +158,7 @@ where
 
         pix[0] = (pix[2] + 2_usize) & 3;
         pix[1] = (pix[3] + 2_usize) & 3;
+
     } else if ir2 == 4 * nside {
         let wtheta = (ptg.pol - theta1.unwrap()) / (pi - theta1.unwrap());
         wgt[0] = wgt[0] * (T::one() - wtheta);
@@ -168,12 +176,28 @@ where
         wgt[1] = wgt[1] * (T::one() - wtheta);
         wgt[2] = wgt[2] * wtheta;
         wgt[3] = wgt[3] * wtheta;
+
+    }
+
+    let mut any_invalid=false;
+    for i in 0..4{
+        if pix[i]>=npix{
+            pix[i]=0;
+            wgt[i]=T::zero();
+            any_invalid=true;
+        }
+    }
+    if any_invalid {
+        let norm = wgt.iter().fold(T::zero(), |a, &b| { a + b });
+        for x in &mut wgt {
+            *x = *x / norm;
+        }
     }
     (pix, wgt)
 }
 
 pub fn natural_interp_ring<T>(nside:usize, data:&[T], ptg: SphCoord<T>)->T
-where T:Float+FloatConst{
+where T:Float+FloatConst+Debug{
     let (pix, wgt)=get_interpol_ring(nside, ptg);
     let mut result=T::zero();
     let mut total_wgt=T::zero();
