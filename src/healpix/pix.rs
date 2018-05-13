@@ -61,6 +61,3 @@ where
     Vec3d::from_sph_coord(pix2ang_ring(nside, ipix))
 }
 
-pub fn nside2npix(nside: usize) -> usize {
-    12 * nside * nside
-}

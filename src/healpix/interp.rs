@@ -3,8 +3,9 @@ use std::fmt::Debug;
 use num_traits::float::Float;
 use num_traits::float::FloatConst;
 use num_traits::cast::NumCast;
-use super::pix::nside2npix;
+use super::utils::nside2npix;
 use super::super::coordinates::SphCoord;
+use super::super::utils::regulate;
 
 fn ring_above<T>(nside: usize, z: T) -> usize
 where
@@ -75,10 +76,14 @@ pub fn get_interpol_ring<T>(nside: usize, ptg: SphCoord<T>) -> (Vec<usize>, Vec<
 where
     T: Float + FloatConst + Debug,
 {
-    let npix = nside2npix(nside);
+
     let two_pi = T::PI() * T::from(2).unwrap();
+    let az=regulate(ptg.az, T::zero(), two_pi);
+    let pol=ptg.pol;
+    let npix = nside2npix(nside);
+
     let pi = T::PI();
-    let z = ptg.pol.cos();
+    let z = pol.cos();
     let ir1 = ring_above(nside, z);
     let ir2 = ir1 + 1;
     let mut pix = vec![0_usize, 0_usize, 0_usize, 0_usize];
@@ -90,13 +95,13 @@ where
         let (sp, nr, _theta1, shift) = get_ring_info2::<T>(nside, ir1);
         theta1 = Some(_theta1);
         let dphi = two_pi / T::from(nr).unwrap();
-        let tmp = ptg.az / dphi - T::from(if shift { 0.5 } else { 0.0 }).unwrap();
+        let tmp = az / dphi - T::from(if shift { 0.5 } else { 0.0 }).unwrap();
         let mut i1 = if tmp < T::zero() {
             <isize as NumCast>::from(tmp).unwrap() - 1
         } else {
             <isize as NumCast>::from(tmp).unwrap()
         };
-        let w1 = (ptg.az
+        let w1 = (az
             - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap()) * dphi)
             / dphi;
         let mut i2 = i1 + 1;
@@ -116,13 +121,13 @@ where
         let (sp, nr, _theta2, shift) = get_ring_info2::<T>(nside, ir2);
         theta2 = Some(_theta2);
         let dphi = two_pi / T::from(nr).unwrap();
-        let tmp = ptg.az / dphi - T::from(if shift { 0.5 } else { 0.0 }).unwrap();
+        let tmp = az / dphi - T::from(if shift { 0.5 } else { 0.0 }).unwrap();
         let mut i1 = if tmp < T::zero() {
             <isize as NumCast>::from(tmp).unwrap() - 1
         } else {
             <isize as NumCast>::from(tmp).unwrap()
         };
-        let w1 = (ptg.az
+        let w1 = (az
             - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap()) * dphi)
             / dphi;
         let mut i2 = i1 + 1;
@@ -146,7 +151,7 @@ where
     }
 
     if ir1 == 0 {
-        let wtheta = ptg.pol / theta2.unwrap();
+        let wtheta = pol / theta2.unwrap();
         wgt[2] = wgt[2] * wtheta;
         wgt[3] = wgt[3] * wtheta;
         let fac = (T::one() - wtheta) * T::from(0.25).unwrap();
@@ -159,7 +164,7 @@ where
         pix[0] = (pix[2] + 2_usize) & 3;
         pix[1] = (pix[3] + 2_usize) & 3;
     } else if ir2 == 4 * nside {
-        let wtheta = (ptg.pol - theta1.unwrap()) / (pi - theta1.unwrap());
+        let wtheta = (pol - theta1.unwrap()) / (pi - theta1.unwrap());
         wgt[0] = wgt[0] * (T::one() - wtheta);
         wgt[1] = wgt[1] * (T::one() - wtheta);
         let fac = wtheta * T::from(0.25).unwrap();
@@ -170,7 +175,7 @@ where
         pix[2] = ((pix[0] + 2) & 3) + npix - 4;
         pix[3] = ((pix[1] + 2) & 3) + npix - 4;
     } else {
-        let wtheta = (ptg.pol - theta1.unwrap()) / (theta2.unwrap() - theta1.unwrap());
+        let wtheta = (pol - theta1.unwrap()) / (theta2.unwrap() - theta1.unwrap());
         wgt[0] = wgt[0] * (T::one() - wtheta);
         wgt[1] = wgt[1] * (T::one() - wtheta);
         wgt[2] = wgt[2] * wtheta;

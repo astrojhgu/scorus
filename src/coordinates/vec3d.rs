@@ -66,6 +66,21 @@ where
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
+    pub fn cross(&self, rhs:Vec3d<T>) ->Vec3d<T>{
+        let u1=self.x;
+        let u2=self.y;
+        let u3=self.z;
+        let v1=rhs.x;
+        let v2=rhs.y;
+        let v3=rhs.z;
+
+        let s1=u2*v3-u3*v2;
+        let s2=u3*v1-u1*v3;
+        let s3=u1*v2-u2*v1;
+
+        Vec3d::new(s1, s2, s3)
+    }
+
     pub fn length(&self) -> T {
         self.norm2().sqrt()
     }
