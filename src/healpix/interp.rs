@@ -76,10 +76,9 @@ pub fn get_interpol_ring<T>(nside: usize, ptg: SphCoord<T>) -> (Vec<usize>, Vec<
 where
     T: Float + FloatConst + Debug,
 {
-
     let two_pi = T::PI() * T::from(2).unwrap();
-    let az=regulate(ptg.az, T::zero(), two_pi);
-    let pol=ptg.pol;
+    let az = regulate(ptg.az, T::zero(), two_pi);
+    let pol = ptg.pol;
     let npix = nside2npix(nside);
 
     let pi = T::PI();
@@ -101,9 +100,8 @@ where
         } else {
             <isize as NumCast>::from(tmp).unwrap()
         };
-        let w1 = (az
-            - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap()) * dphi)
-            / dphi;
+        let w1 = (az - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap())
+            * dphi) / dphi;
         let mut i2 = i1 + 1;
         if i1 < 0 {
             i1 = i1 + nr as isize;
@@ -127,9 +125,8 @@ where
         } else {
             <isize as NumCast>::from(tmp).unwrap()
         };
-        let w1 = (az
-            - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap()) * dphi)
-            / dphi;
+        let w1 = (az - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap())
+            * dphi) / dphi;
         let mut i2 = i1 + 1;
 
         if i1 < 0 {

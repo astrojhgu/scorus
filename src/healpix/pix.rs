@@ -60,4 +60,3 @@ where
 {
     Vec3d::from_sph_coord(pix2ang_ring(nside, ipix))
 }
-

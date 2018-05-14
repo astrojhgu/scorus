@@ -17,3 +17,4 @@ pub mod map_proj;
 pub mod interpolation;
 pub mod space_search;
 pub mod rand_vec;
+pub mod sph_tessellation;

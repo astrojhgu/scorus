@@ -1,7 +1,6 @@
 pub mod types;
 mod regulate;
 
-
-pub use self::types::{HasLen, HasElement, Resizeable, ItemSwapable};
+pub use self::types::{HasElement, HasLen, ItemSwapable, Resizeable};
 
 pub use self::regulate::regulate;
