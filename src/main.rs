@@ -6,6 +6,7 @@ extern crate quickersort;
 extern crate rand;
 extern crate scorus;
 
+use std::slice;
 use rand::thread_rng;
 use num_traits::Bounded;
 
@@ -23,22 +24,31 @@ use scorus::interpolation::linear1d::interp;
 use scorus::healpix::utils::{nest2ring, ring2nest};
 use scorus::utils::regulate;
 use scorus::sph_tessellation::Tessellation;
-fn main() {
-    let mut tes=Tessellation::<f64>::octahedron();
-    for i in 0..6 {
-        tes.refine();
-    }
-    println!("o rust_logo");
-    for v in &tes.vertices{
-        let angle=v.angle_between(Vec3d::new(0.0, 0.0, 1.0));
-        let v1=v.normalized()*angle.cos().powi(2);
-        //println!("v {} {} {}", v1.x, v1.y, v1.z);
-        //let v1=v.normalized();
-        println!("v {} {} {}", v1.x, v1.y, v1.z);
-    }
+use scorus::opt::powell::fmin;
+use scorus::opt::opt_errors::OptErr;
+use scorus::opt::tolerance::Tolerance;
+fn fobj(x:&Vec<f64>)->f64{
+    x.windows(2).fold(0.0, |a, b|{
+        a+100.0*(b[1]-b[0].powi(2)).powi(2)+(1.0-b[0]).powi(2)
+    })
+}
 
-    for f in &tes.faces{
-        //println!("f {}//{} {}//{} {}//{}", f[0]+1, f[0]+1, f[1]+1, f[1]+1, f[2]+1,f[2]+1);
-        println!("f {} {} {}", f[0]+1, f[1]+1, f[2]+1);
-    }
+fn main() {
+    let ftol=Tolerance::Rel(1e-30);
+    let mut result=vec![0.0, 0.0, 0.0];
+    let result=
+        {
+            for i in 0..100 {
+                result=match fmin(&fobj, &result, ftol){
+                    (x, OptErr::MaxIterExceeded)=>{
+                        println!("a");
+                        x
+                    },
+                    (x, _) => x
+                }
+            }
+            fmin(&fobj, &result, ftol).0
+        };
+
+    println!("{:?}", result);
 }

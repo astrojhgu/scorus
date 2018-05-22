@@ -2,6 +2,7 @@ pub mod linmin;
 pub mod bas_utils;
 pub mod powell;
 pub mod opt_errors;
+pub mod tolerance;
 #[cfg(test)]
 mod tests {
     #[test]
