@@ -12,7 +12,7 @@ use super::bas_utils::sqr;
 use super::opt_errors::OptErr;
 use super::tolerance::Tolerance;
 
-pub fn fmin<F, V, T>(f: &F, p: &V, ftol: Tolerance<T>) -> (V, OptErr)
+pub fn fmin<F, V, T>(f: &F, p: &V, ftol: Tolerance<T>, itmax:usize) -> (V, OptErr)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy+Debug,
     V: Clone + IndexMut<usize, Output = T> + HasLen+Debug,
@@ -30,7 +30,6 @@ where
         xi.push(xi1);
     }
 
-    let itmax = 200;
     let tiny = T::epsilon();
     let mut fret = f(p);
 

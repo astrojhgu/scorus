@@ -39,7 +39,7 @@ fn main() {
     let result=
         {
             for i in 0..100 {
-                result=match fmin(&fobj, &result, ftol){
+                result=match fmin(&fobj, &result, ftol, 2000){
                     (x, OptErr::MaxIterExceeded)=>{
                         println!("a");
                         x
@@ -47,7 +47,7 @@ fn main() {
                     (x, _) => x
                 }
             }
-            fmin(&fobj, &result, ftol).0
+            fmin(&fobj, &result, ftol, 2000).0
         };
 
     println!("{:?}", result);
