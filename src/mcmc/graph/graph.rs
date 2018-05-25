@@ -11,7 +11,7 @@ use num_traits::float::Float;
 use num_traits::identities::zero;
 
 use rand::Rng;
-use rand::Rand;
+use rand::distributions::{Distribution, Standard};
 use rand::distributions::range::SampleRange;
 
 use super::node::Node;
@@ -236,7 +236,8 @@ where
 impl<K, T> Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
-    T: Float + Sync + Rand + SampleRange + Send + Display + Debug,
+    T: Float + Sync + SampleRange + Send + Display + Debug,
+    Standard:Distribution<T>,
 {
     pub fn new() -> Graph<K, T> {
         Graph {

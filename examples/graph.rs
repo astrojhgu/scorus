@@ -5,7 +5,7 @@ use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, mul_node, norma
                                  uniform_node};
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 use scorus::mcmc::ensemble_sample::sample_st;
-use scorus::mcmc::HasLength;
+use scorus::mcmc::HasLen;
 use rand::thread_rng;
 
 fn main() {

@@ -7,7 +7,9 @@ use num_traits::float::Float;
 use num_traits::NumCast;
 use num_traits::identities::{one, zero};
 use std::marker::{Send, Sync};
-use rand::{Rand, Rng};
+use rand::Rng;
+use rand::distributions::Standard;
+use rand::distributions::Distribution;
 use rand::distributions::range::SampleRange;
 //use std::sync::Arc;
 
@@ -29,12 +31,12 @@ where
     T: 'static
         + Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + Sync
         + Send
         + std::fmt::Display,
+    Standard:Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send + Sized,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop + Sized,
@@ -66,7 +68,8 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
     a: T,
 ) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
 where
-    T: 'static + Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    Standard:Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized,
@@ -99,12 +102,12 @@ pub fn sample<T, U, V, W, X, F>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + Sync
         + Send
         + std::fmt::Display,
+    Standard:Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
@@ -251,7 +254,8 @@ pub fn sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float + NumCast + Rand + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    Standard:Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,

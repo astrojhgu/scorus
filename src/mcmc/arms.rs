@@ -7,7 +7,9 @@ use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 
-use rand::{Rand, Rng};
+use rand::Rng;
+use rand::distributions::Standard;
+use rand::distributions::Distribution;
 use rand::distributions::range::SampleRange;
 
 use super::super::utils::HasLen;
@@ -19,13 +21,13 @@ pub struct Section<T>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     pub _x_l: T,
     pub _y_l: T,
@@ -48,13 +50,13 @@ pub enum ArmsErr<T>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     LogProbIsInf(String, T),
     LogProbIsNan(String, T),
@@ -73,13 +75,13 @@ fn fmin<T>(x: T, y: T) -> T
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     if x > y {
         y
@@ -92,13 +94,13 @@ fn fmax<T>(x: T, y: T) -> T
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     if x < y {
         y
@@ -111,13 +113,13 @@ fn eval_log<T, F>(pd: &F, x: T, scale: T) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     match pd(x) - scale {
@@ -134,13 +136,13 @@ pub fn int_exp_y<T>(x: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -187,13 +189,13 @@ pub fn inv_int_exp_y<T>(z: T, p1: (T, T), p2: (T, T)) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -235,13 +237,13 @@ impl<T> std::clone::Clone for Section<T>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     fn clone(&self) -> Self {
         Section { ..*self }
@@ -253,12 +255,12 @@ impl<T> std::marker::Copy for Section<T>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
+        Standard:Distribution<T>,
 {
 }
 */
@@ -266,13 +268,13 @@ impl<T> Section<T>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     pub fn new(xl: T, yl: T, xu: T, yu: T) -> Self {
         //let nan = Float::nan();
@@ -436,13 +438,13 @@ pub fn eval<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErr<T
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     for i in section_list.iter() {
         if i.encloses(x) {
@@ -456,13 +458,13 @@ pub fn eval_ey<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsEr
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+        Standard:Distribution<T>,
 {
     let y = eval(x, section_list)?;
     Ok(y.exp())
@@ -478,13 +480,13 @@ pub fn solve_intersection<T>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -563,13 +565,13 @@ pub fn calc_intersection<T>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     match (before, after) {
         (Some(a), Some(b)) => solve_intersection(
@@ -607,13 +609,13 @@ fn calc_cum_int_exp_y<T>(section_list: &mut VecDeque<Section<T>>)
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     let mut cy = zero::<T>();
     for i in section_list {
@@ -628,13 +630,13 @@ fn calc_scale<T>(section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErr<T>>
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     let mut scale: T = Float::neg_infinity();
     for i in section_list {
@@ -664,13 +666,13 @@ pub fn update_scale<T>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
 {
     let mut section_list = section_list;
     let new_scale = calc_scale(&section_list)?;
@@ -712,13 +714,13 @@ pub fn insert_point<T, F>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let mut section_list = section_list;
@@ -797,13 +799,13 @@ pub fn init<T, F, V>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
 {
@@ -884,13 +886,13 @@ pub fn search_point<T>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let x = {
@@ -927,13 +929,13 @@ pub fn check_range<T, F>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let mut section_list = section_list;
@@ -975,13 +977,13 @@ pub fn fetch_one<T, R>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     R: Rng,
 {
@@ -1057,13 +1059,13 @@ pub fn dump_section_list<T, F>(section_list: &VecDeque<Section<T>>, pd: Option<&
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     for s in section_list {
@@ -1105,13 +1107,13 @@ pub fn sample<T, F, R, V>(
 where
     T: Float
         + NumCast
-        + Rand
         + std::cmp::PartialOrd
         + SampleRange
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
+    Standard:Distribution<T>,
     R: Rng,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,

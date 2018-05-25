@@ -79,8 +79,8 @@ fn main() {
         vec![0.23, 0.12],
     ];
     let y = vec![0.0];
-    //let mut rng = rand::thread_rng();
-    let mut rng = rand::StdRng::new().unwrap();
+    let mut rng = rand::thread_rng();
+    //let mut rng = rand::StdRng::new().unwrap();
 
     //let aa=(x,y);
     //let mut x=shuffle(&x, &mut rng);
