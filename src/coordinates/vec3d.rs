@@ -1,10 +1,10 @@
 use num_traits::float::Float;
 use std::clone::Clone;
 //use std::cmp::{Eq, PartialEq};
+use super::sphcoord::SphCoord;
 use std::convert::From;
 use std::marker::Copy;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
-use super::sphcoord::SphCoord;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Vec3d<T>

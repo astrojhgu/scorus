@@ -1,6 +1,6 @@
+use super::super::coordinates::{SphCoord, Vec2d};
 use num_traits::float::Float;
 use num_traits::float::FloatConst;
-use super::super::coordinates::{SphCoord, Vec2d};
 
 pub fn proj<T>(p: SphCoord<T>) -> Vec2d<T>
 where

@@ -1,8 +1,8 @@
-use std;
-use num_traits::float::Float;
-use std::fmt::{Display, Error, Formatter};
-use std::cell::RefCell;
 use super::super::super::utils::HasLen;
+use num_traits::float::Float;
+use std;
+use std::cell::RefCell;
+use std::fmt::{Display, Error, Formatter};
 
 pub struct GraphVar<T>
 where

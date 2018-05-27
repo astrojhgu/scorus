@@ -2,12 +2,12 @@ extern crate num_traits;
 extern crate rand;
 extern crate scorus;
 
-use rand::Rng;
-use rand::thread_rng;
-use scorus::mcmc::ensemble_sample::{sample, sample_st};
 use num_traits::float::Float;
-use num_traits::identities::zero;
 use num_traits::identities::one;
+use num_traits::identities::zero;
+use rand::thread_rng;
+use rand::Rng;
+use scorus::mcmc::ensemble_sample::{sample, sample_st};
 
 use scorus::mcmc::functions::{logdbin, phi};
 
@@ -37,8 +37,14 @@ fn main() {
         let mu = x[2];
         let sigma = x[3];
 
-        if a < zero() || a > one() || b < zero() || b > one() || mu < zero() || mu > 100.0
-            || sigma < 1e-6 || sigma > 100.0
+        if a < zero()
+            || a > one()
+            || b < zero()
+            || b > one()
+            || mu < zero()
+            || mu > 100.0
+            || sigma < 1e-6
+            || sigma > 100.0
         {
             return f64::neg_infinity();
         }

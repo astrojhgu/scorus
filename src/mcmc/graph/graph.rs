@@ -1,25 +1,25 @@
 use std;
 use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap};
-use std::option::Option;
 use std::convert::From;
+use std::fmt::Debug;
 use std::fmt::{Display, Error, Formatter};
 use std::iter::FromIterator;
-use std::fmt::Debug;
+use std::option::Option;
 
 use num_traits::float::Float;
 use num_traits::identities::zero;
 
-use rand::Rng;
-use rand::distributions::{Distribution, Standard};
 use rand::distributions::range::SampleRange;
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
+use super::super::arms::sample as arms;
+use super::graph_var::GraphVar;
+use super::node::BasicNode;
 use super::node::Node;
 use super::node::NodeContent;
-use super::node::BasicNode;
 use super::node::ValueType;
-use super::graph_var::GraphVar;
-use super::super::arms::sample as arms;
 #[derive(Debug)]
 pub struct NodeHandle(usize);
 
@@ -237,7 +237,7 @@ impl<K, T> Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
     T: Float + Sync + SampleRange + Send + Display + Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     pub fn new() -> Graph<K, T> {
         Graph {

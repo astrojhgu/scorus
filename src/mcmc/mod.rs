@@ -1,11 +1,11 @@
-pub mod utils;
-pub mod ensemble_sample;
-pub mod ptsample;
-pub mod init_ensemble;
-pub mod mcmc_errors;
 pub mod arms;
+pub mod ensemble_sample;
 pub mod functions;
 pub mod graph;
+pub mod init_ensemble;
+pub mod mcmc_errors;
+pub mod ptsample;
+pub mod utils;
 
 pub use super::utils::{HasElement, HasLen, ItemSwapable, Resizeable};
 //pub use self::utils::shuffle;

@@ -1,10 +1,10 @@
 //use ::std;
-use std::marker::Copy;
-use std::ops::IndexMut;
-use std::fmt::Display;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use special::Gamma;
+use std::fmt::Display;
+use std::marker::Copy;
+use std::ops::IndexMut;
 
 use super::super::utils::HasLen;
 
@@ -28,7 +28,8 @@ where
     }
 
     (if m % 2 == 0 { one::<T>() } else { -one::<T>() })
-        * (ln_factorial(T::from(2 * n - 2 * m).unwrap()) - ln_factorial(T::from(m).unwrap())
+        * (ln_factorial(T::from(2 * n - 2 * m).unwrap())
+            - ln_factorial(T::from(m).unwrap())
             - ln_factorial(T::from(n - m).unwrap())
             - ln_factorial(T::from(n - 2 * m).unwrap())
             - T::from(n).unwrap() * T::from(2).unwrap().ln())

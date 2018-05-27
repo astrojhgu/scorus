@@ -1,21 +1,21 @@
 use std;
-use std::sync::Mutex;
 use std::ops::IndexMut;
+use std::sync::Mutex;
 
 use rayon::scope;
 
 use num_traits::float::Float;
-use num_traits::NumCast;
 use num_traits::identities::{one, zero};
+use num_traits::NumCast;
 
-use rand::Rng;
-use rand::distributions::Standard;
-use rand::distributions::Distribution;
 use rand::distributions::range::SampleRange;
+use rand::distributions::Distribution;
+use rand::distributions::Standard;
+use rand::Rng;
 //use std::sync::Arc;
+use super::super::utils::{HasLen, ItemSwapable, Resizeable};
 use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
-use super::super::utils::{HasLen, ItemSwapable, Resizeable};
 
 pub fn create_sampler<'a, T, U, V, W, X, F>(
     mut flogprob: F,
@@ -34,7 +34,7 @@ where
         + Sync
         + Send
         + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send + Sized,
     W: 'static
@@ -87,7 +87,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
 ) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
 where
     T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized + ItemSwapable,
@@ -137,7 +137,7 @@ where
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
     W: Clone
@@ -176,7 +176,7 @@ pub fn sample_st<T, U, V, W, X, F>(
 ) -> Result<(W, X), McmcErr>
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
@@ -195,7 +195,7 @@ where
 fn exchange_prob<T>(lp1: T, lp2: T, beta1: T, beta2: T) -> T
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
 
@@ -212,7 +212,7 @@ pub fn swap_walkers<T, U, V, W, X>(
 ) -> Result<(), McmcErr>
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
@@ -278,7 +278,7 @@ where
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
     W: Clone
@@ -472,7 +472,7 @@ fn only_sample_st<T, U, V, W, X, F>(
 ) -> Result<(W, X), McmcErr>
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,

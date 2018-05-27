@@ -2,13 +2,13 @@ extern crate rand;
 extern crate scorus;
 
 //use std;
-use rand::thread_rng;
-use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
-use scorus::mcmc::graph::graph::Graph;
-use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
-use scorus::mcmc::ensemble_sample::sample_st;
-use rand::distributions::IndependentSample;
 use rand::distributions::normal::Normal;
+use rand::distributions::IndependentSample;
+use rand::thread_rng;
+use scorus::mcmc::ensemble_sample::sample_st;
+use scorus::mcmc::graph::graph::Graph;
+use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
+use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
 use scorus::utils::HasLen;
 
 fn main() {

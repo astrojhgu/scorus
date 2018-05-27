@@ -1,7 +1,7 @@
-use std::fmt::Debug;
+use super::super::coordinates::{SphCoord, Vec2d};
 use num_traits::float::Float;
 use num_traits::float::FloatConst;
-use super::super::coordinates::{SphCoord, Vec2d};
+use std::fmt::Debug;
 
 /*
 https://en.wikipedia.org/wiki/Mollweide_projection

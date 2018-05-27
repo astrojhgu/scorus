@@ -2,16 +2,16 @@ use std::fmt::Display;
 
 use special::Error;
 
-use super::node::Node;
-use super::node::NodeContent;
-use super::node::BasicNode;
-use num_traits::float::Float;
-use std::boxed::Box;
-use num_traits::identities::one;
-use num_traits::identities::zero;
+use super::super::functions::phi;
 use super::graph::NodeAdder;
 use super::graph::NodeHandle;
-use super::super::functions::phi;
+use super::node::BasicNode;
+use super::node::Node;
+use super::node::NodeContent;
+use num_traits::float::Float;
+use num_traits::identities::one;
+use num_traits::identities::zero;
+use std::boxed::Box;
 
 pub fn const_node<T>(v: T) -> NodeAdder<T>
 where

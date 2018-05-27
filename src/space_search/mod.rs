@@ -1,7 +1,7 @@
 mod pdqselect;
 use std::boxed::Box;
-use std::collections::BinaryHeap;
 use std::cmp::{Ord, Ordering, PartialEq, PartialOrd};
+use std::collections::BinaryHeap;
 use std::ops::{Add, Sub};
 
 use self::pdqselect::select_by;

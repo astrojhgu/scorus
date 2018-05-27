@@ -1,13 +1,13 @@
-use rand::Rng;
-use rand::distributions::{Standard, Distribution};
-use rand::distributions::range::SampleRange;
 use num_traits::NumCast;
+use rand::distributions::range::SampleRange;
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 use std::cmp::PartialOrd;
 use std::fmt::Display;
 use std::marker::Copy;
 //use utils::Resizeable;
-use std::ops::IndexMut;
 use std::ops::Index;
+use std::ops::IndexMut;
 //use num_traits::float::Float;
 //use num_traits::NumCast;
 //use num_traits::identities::one;
@@ -18,7 +18,7 @@ pub fn get_one_init_realization<U, T, R>(y1: &U, y2: &U, rng: &mut R) -> U
 where
     U: HasLen + Clone + IndexMut<usize, Output = T> + Index<usize, Output = T>,
     T: NumCast + PartialOrd + SampleRange + Display + Copy,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     R: Rng,
 {
     let mut result = y1.clone();

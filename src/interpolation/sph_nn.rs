@@ -1,11 +1,11 @@
 use num_traits::float::Float;
 use num_traits::Bounded;
-use std::marker::Copy;
-use std::fmt::Debug;
 use rand::Rng;
+use std::fmt::Debug;
+use std::marker::Copy;
 
-use super::super::space_search::{MetricPoint, VpTree};
 use super::super::coordinates::sphcoord::SphCoord;
+use super::super::space_search::{MetricPoint, VpTree};
 use std::ops::{Add, Div, Mul};
 
 impl<T> MetricPoint for SphCoord<T>

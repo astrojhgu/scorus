@@ -1,21 +1,21 @@
 use std;
 use std::ops::IndexMut;
 
-use num_traits::float::Float;
 use num_traits::cast::NumCast;
+use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use std::fmt::Debug;
 
-use super::linmin::linmin;
 use super::super::utils::HasLen;
 use super::bas_utils::sqr;
+use super::linmin::linmin;
 use super::opt_errors::OptErr;
 use super::tolerance::Tolerance;
 
-pub fn fmin<F, V, T>(f: &F, p: &V, ftol: Tolerance<T>, itmax:usize) -> (V, OptErr)
+pub fn fmin<F, V, T>(f: &F, p: &V, ftol: Tolerance<T>, itmax: usize) -> (V, OptErr)
 where
-    T: Float + NumCast + std::cmp::PartialOrd + Copy+Debug,
-    V: Clone + IndexMut<usize, Output = T> + HasLen+Debug,
+    T: Float + NumCast + std::cmp::PartialOrd + Copy + Debug,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Debug,
     F: Fn(&V) -> T,
 {
     let two = one::<T>() + one::<T>();
@@ -30,7 +30,7 @@ where
         xi.push(xi1);
     }
 
-    let tiny = T::epsilon();
+    //let tiny = T::epsilon();
     let mut fret = f(p);
 
     let mut pt = p.clone();
@@ -41,7 +41,7 @@ where
     let mut xit = p.clone();
     let mut ptt = p.clone();
     let mut result = p.clone();
-    for iter in 0..(itmax+1) {
+    for iter in 0..(itmax + 1) {
         fp = fret;
         ibig = 0;
         del = zero::<T>();
@@ -57,7 +57,7 @@ where
             }
         }
 
-        if ftol.accepted(fp, fret){
+        if ftol.accepted(fp, fret) {
             return (result, OptErr::Normal);
         }
 

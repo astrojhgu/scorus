@@ -1,13 +1,13 @@
-use rand::Rng;
-use rand::distributions::{Standard, Distribution};
-use rand::distributions::range::SampleRange;
-use num_traits::float::{Float, FloatConst};
 use super::super::coordinates::SphCoord;
+use num_traits::float::{Float, FloatConst};
+use rand::distributions::range::SampleRange;
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 
 pub fn rand<T, U>(rng: &mut U) -> SphCoord<T>
 where
     T: Float + FloatConst + SampleRange,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
 {
     //gen pol:

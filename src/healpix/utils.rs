@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
-use num_traits::int::PrimInt;
 use num_traits::cast::NumCast;
+use num_traits::int::PrimInt;
 
 pub fn isqrt<T>(x: T) -> T
 where
@@ -80,8 +80,10 @@ pub fn nest2xyf32(nside: i32, mut pix: i32) -> (i32, i32, i32) {
 
 pub fn xyf2nest32(nside: i32, ix: i32, iy: i32, face_num: i32) -> i32 {
     face_num * nside * nside
-        + (UTAB[(ix & 0xff) as usize] | (UTAB[(ix >> 8) as usize] << 16)
-            | (UTAB[(iy & 0xff) as usize] << 1) | (UTAB[(iy >> 8) as usize] << 17))
+        + (UTAB[(ix & 0xff) as usize]
+            | (UTAB[(ix >> 8) as usize] << 16)
+            | (UTAB[(iy & 0xff) as usize] << 1)
+            | (UTAB[(iy >> 8) as usize] << 17))
 }
 
 pub fn xyf2ring32(nside: i32, ix: i32, iy: i32, face_num: i32) -> i32 {
@@ -207,13 +209,15 @@ fn special_div64(mut a: i64, b: i64) -> i64 {
 pub fn compress_bits64(v: i64) -> i64 {
     let mut raw = v & 0x5555555555555555_i64;
     raw |= raw >> 15;
-    CTAB[(raw & 0xff_i64) as usize] as i64 | (CTAB[((raw >> 8) & 0xff) as usize] << 4) as i64
+    CTAB[(raw & 0xff_i64) as usize] as i64
+        | (CTAB[((raw >> 8) & 0xff) as usize] << 4) as i64
         | (CTAB[((raw >> 32) & 0xff) as usize] << 16) as i64
         | (CTAB[((raw >> 40) & 0xff) as usize] << 20) as i64
 }
 
 pub fn spread_bits64(v: i32) -> i64 {
-    UTAB[(v & 0xff) as usize] as i64 | ((UTAB[((v >> 8) & 0xff) as usize] as i64) << 16)
+    UTAB[(v & 0xff) as usize] as i64
+        | ((UTAB[((v >> 8) & 0xff) as usize] as i64) << 16)
         | ((UTAB[((v >> 16) & 0xff) as usize] as i64) << 32)
         | ((UTAB[((v >> 24) & 0xff) as usize] as i64) << 48)
 }

@@ -1,9 +1,9 @@
 extern crate num_traits;
 extern crate rand;
 extern crate scorus;
-use scorus::mcmc::arms::sample as arms;
-use rand::thread_rng;
 use num_traits::float::Float;
+use rand::thread_rng;
+use scorus::mcmc::arms::sample as arms;
 
 fn main() {
     let mut rng = thread_rng();

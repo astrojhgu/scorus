@@ -1,22 +1,22 @@
-use std;
 use rayon::scope;
+use std;
 
-use std::sync::Mutex;
-use std::ops::IndexMut;
 use num_traits::float::Float;
-use num_traits::NumCast;
 use num_traits::identities::{one, zero};
-use std::marker::{Send, Sync};
-use rand::Rng;
-use rand::distributions::Standard;
-use rand::distributions::Distribution;
+use num_traits::NumCast;
 use rand::distributions::range::SampleRange;
+use rand::distributions::Distribution;
+use rand::distributions::Standard;
+use rand::Rng;
+use std::marker::{Send, Sync};
+use std::ops::IndexMut;
+use std::sync::Mutex;
 //use std::sync::Arc;
 
-use super::mcmc_errors::McmcErr;
-use super::utils::draw_z;
 use super::super::utils::HasLen;
 use super::super::utils::Resizeable;
+use super::mcmc_errors::McmcErr;
+use super::utils::draw_z;
 
 use super::utils::scale_vec;
 
@@ -36,7 +36,7 @@ where
         + Sync
         + Send
         + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send + Sized,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop + Sized,
@@ -69,7 +69,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
 ) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
 where
     T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized,
@@ -100,14 +100,8 @@ pub fn sample<T, U, V, W, X, F>(
     nthread: usize,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float
-        + NumCast
-        + std::cmp::PartialOrd
-        + SampleRange
-        + Sync
-        + Send
-        + std::fmt::Display,
-    Standard:Distribution<T>,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + Sync + Send + std::fmt::Display,
+    Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
@@ -255,7 +249,7 @@ pub fn sample_st<T, U, V, W, X, F>(
 ) -> Result<(W, X), McmcErr>
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,

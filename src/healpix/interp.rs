@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 
-use num_traits::float::Float;
-use num_traits::float::FloatConst;
-use num_traits::cast::NumCast;
-use super::utils::nside2npix;
 use super::super::coordinates::SphCoord;
 use super::super::utils::regulate;
+use super::utils::nside2npix;
+use num_traits::cast::NumCast;
+use num_traits::float::Float;
+use num_traits::float::FloatConst;
 
 fn ring_above<T>(nside: usize, z: T) -> usize
 where
@@ -100,8 +100,9 @@ where
         } else {
             <isize as NumCast>::from(tmp).unwrap()
         };
-        let w1 = (az - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap())
-            * dphi) / dphi;
+        let w1 = (az
+            - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap()) * dphi)
+            / dphi;
         let mut i2 = i1 + 1;
         if i1 < 0 {
             i1 = i1 + nr as isize;
@@ -125,8 +126,9 @@ where
         } else {
             <isize as NumCast>::from(tmp).unwrap()
         };
-        let w1 = (az - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap())
-            * dphi) / dphi;
+        let w1 = (az
+            - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap()) * dphi)
+            / dphi;
         let mut i2 = i1 + 1;
 
         if i1 < 0 {

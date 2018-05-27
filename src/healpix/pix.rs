@@ -1,7 +1,7 @@
-use num_traits::float::FloatConst;
-use num_traits::float::Float;
-use super::utils::isqrt;
 use super::super::coordinates::{SphCoord, Vec3d};
+use super::utils::isqrt;
+use num_traits::float::Float;
+use num_traits::float::FloatConst;
 
 pub fn pix2ang_ring_z_phi<T>(nside: usize, pix: usize) -> (T, T)
 where

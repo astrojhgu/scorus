@@ -1,8 +1,8 @@
-use std::ops::IndexMut;
-use std::marker::Copy;
+use super::super::utils::HasLen;
 use num_traits::float::Float;
 use num_traits::identities::zero;
-use super::super::utils::HasLen;
+use std::marker::Copy;
+use std::ops::IndexMut;
 
 pub fn eval<T, V>(x: T, p: &V) -> T
 where

@@ -1,6 +1,6 @@
+use super::integration_errors::IntegrationError;
 use num_traits::float::Float;
 use num_traits::identities::one;
-use super::integration_errors::IntegrationError;
 
 fn integrate_aux<F, T>(
     f: &F,

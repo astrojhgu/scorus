@@ -3,13 +3,16 @@ extern crate num_traits;
 extern crate quickersort;
 extern crate rand;
 extern crate scorus;
+
 use num_traits::float::Float;
+use quickersort::sort_by;
+use rand::Rng;
 use scorus::mcmc::ensemble_sample::sample as ff;
+use scorus::mcmc::mcmc_errors::McmcErr;
 use scorus::mcmc::ptsample::sample as ff1;
 use scorus::mcmc::ptsample::{create_sampler, create_sampler_st};
-use scorus::mcmc::mcmc_errors::McmcErr;
-use rand::Rng;
-use quickersort::sort_by;
+use std::fs::File;
+use std::io::Write;
 
 fn normal_dist(x: &Vec<f64>) -> f64 {
     let mut result = 0_f64;
@@ -128,5 +131,14 @@ fn main() {
             println!("{} {}", results[i][j], j);
         }
         println!("no no no");
+    }
+
+    let mut file = File::create("bimod_data.txt").unwrap();
+
+    for j in 0..results[0].len() {
+        for i in 0..nbeta {
+            write!(file, "{} ", results[i][j]);
+        }
+        writeln!(file, "{}", j);
     }
 }

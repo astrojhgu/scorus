@@ -1,13 +1,13 @@
-use std;
-use std::ops::IndexMut;
-use num_traits::float::Float;
 use num_traits::cast::NumCast;
+use num_traits::float::Float;
 use num_traits::identities::one;
 use num_traits::identities::zero;
+use std;
+use std::ops::IndexMut;
 
 use utils::HasLen;
 
-use super::bas_utils::{max, sign, swap, shft3};
+use super::bas_utils::{max, shft3, sign, swap};
 
 pub fn brent<F, T>(ax: T, bx: T, cx: T, f: &F, tol: T) -> (T, T)
 where
@@ -144,8 +144,8 @@ where
     while *fb > *fc {
         r = (*bx - *ax) * (*fb - *fc);
         q = (*bx - *cx) * (*fb - *fa);
-        u = *bx - ((*bx - *cx) * q - (*bx - *ax) * r)
-            / (two * sign(max((q - r).abs(), tiny), q - r));
+        u = *bx
+            - ((*bx - *cx) * q - (*bx - *ax) * r) / (two * sign(max((q - r).abs(), tiny), q - r));
 
         ulim = *bx + T::from(glimit).unwrap() * (*cx - *bx);
 

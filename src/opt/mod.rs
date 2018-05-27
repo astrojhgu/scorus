@@ -1,7 +1,7 @@
-pub mod linmin;
 pub mod bas_utils;
-pub mod powell;
+pub mod linmin;
 pub mod opt_errors;
+pub mod powell;
 pub mod tolerance;
 #[cfg(test)]
 mod tests {

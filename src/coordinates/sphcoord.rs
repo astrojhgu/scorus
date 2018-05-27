@@ -1,9 +1,9 @@
 use num_traits::float::Float;
 use std::clone::Clone;
 //use std::cmp::Eq;
+use super::vec3d::Vec3d;
 use std::convert::From;
 use std::marker::Copy;
-use super::vec3d::Vec3d;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct SphCoord<T>

@@ -1,9 +1,9 @@
 use std;
 
-use rand::Rng;
-use rand::distributions::Standard;
-use rand::distributions::Distribution;
 use rand::distributions::range::SampleRange;
+use rand::distributions::Distribution;
+use rand::distributions::Standard;
+use rand::Rng;
 
 use num_traits::float::Float;
 use num_traits::identities::one;
@@ -34,7 +34,7 @@ where
 pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
 where
     T: Float + std::cmp::PartialOrd + SampleRange,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     U: Rng,
 {
     let sqrt_a: T = a.sqrt();

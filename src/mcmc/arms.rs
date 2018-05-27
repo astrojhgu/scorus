@@ -1,16 +1,16 @@
 use std;
 use std::ops::IndexMut;
 //use rand::Rand;
-use std::collections::VecDeque;
 use num_traits::float::Float;
-use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
+use num_traits::NumCast;
+use std::collections::VecDeque;
 
-use rand::Rng;
-use rand::distributions::Standard;
-use rand::distributions::Distribution;
 use rand::distributions::range::SampleRange;
+use rand::distributions::Distribution;
+use rand::distributions::Standard;
+use rand::Rng;
 
 use super::super::utils::HasLen;
 //use utils::Resizeable;
@@ -27,7 +27,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     pub _x_l: T,
     pub _y_l: T,
@@ -56,7 +56,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     LogProbIsInf(String, T),
     LogProbIsNan(String, T),
@@ -81,7 +81,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     if x > y {
         y
@@ -100,7 +100,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     if x < y {
         y
@@ -119,7 +119,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     match pd(x) - scale {
@@ -142,7 +142,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -195,7 +195,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -243,7 +243,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     fn clone(&self) -> Self {
         Section { ..*self }
@@ -274,7 +274,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     pub fn new(xl: T, yl: T, xu: T, yu: T) -> Self {
         //let nan = Float::nan();
@@ -444,7 +444,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     for i in section_list.iter() {
         if i.encloses(x) {
@@ -464,7 +464,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-        Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let y = eval(x, section_list)?;
     Ok(y.exp())
@@ -486,7 +486,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let (x1, y1) = p1;
     let (x2, y2) = p2;
@@ -517,7 +517,8 @@ where
         let x_i = -((-(x3 - x4) * (x2 * y1 - x1 * y2) + (x1 - x2) * (x4 * y3 - x3 * y4))
             / (-(x3 - x4) * (-y1 + y2) + (x1 - x2) * (-y3 + y4)));
         let y_i = -(x2 * y1 * y3 - x4 * y1 * y3 - x1 * y2 * y3 + x4 * y2 * y3 - x2 * y1 * y4
-            + x3 * y1 * y4 + x1 * y2 * y4 - x3 * y2 * y4)
+            + x3 * y1 * y4
+            + x1 * y2 * y4 - x3 * y2 * y4)
             / (-x3 * y1 + x4 * y1 + x3 * y2 - x4 * y2 + x1 * y3 - x2 * y3 - x1 * y4 + x2 * y4);
         /*
         eprintln!("pi {} {}", x_i, y_i);
@@ -534,7 +535,8 @@ where
                 ((s.x_l() + s.x_u()) / two, (s.y_l() + s.y_u()) / two)
             }
             (x_i, y_i)
-                if (x_i <= s.x_l()) || (x_i >= s.x_u())
+                if (x_i <= s.x_l())
+                    || (x_i >= s.x_u())
                     || y_i < (y2 + (x_i - x2) / (x3 - x2) * (y3 - y2)) =>
             {
                 ((s.x_l() + s.x_u()) / two, (s.y_l() + s.y_u()) / two)
@@ -571,7 +573,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     match (before, after) {
         (Some(a), Some(b)) => solve_intersection(
@@ -615,7 +617,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let mut cy = zero::<T>();
     for i in section_list {
@@ -636,7 +638,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let mut scale: T = Float::neg_infinity();
     for i in section_list {
@@ -672,7 +674,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
 {
     let mut section_list = section_list;
     let new_scale = calc_scale(&section_list)?;
@@ -720,7 +722,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let mut section_list = section_list;
@@ -805,7 +807,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
 {
@@ -892,7 +894,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let x = {
@@ -935,7 +937,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     let mut section_list = section_list;
@@ -983,7 +985,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     R: Rng,
 {
@@ -1065,7 +1067,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
 {
     for s in section_list {
@@ -1113,7 +1115,7 @@ where
         + std::marker::Send
         + std::fmt::Display
         + std::fmt::Debug,
-    Standard:Distribution<T>,
+    Standard: Distribution<T>,
     R: Rng,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
