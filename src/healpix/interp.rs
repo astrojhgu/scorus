@@ -1,3 +1,6 @@
+//! Interpolating based on healpix data
+
+
 use std::fmt::Debug;
 
 use super::super::coordinates::SphCoord;
@@ -72,6 +75,8 @@ where
     (startpix, ringpix, theta, shifted)
 }
 
+/// get the nearest points around a given point ptg, together with the weight, which can
+/// be used to calculate the interpolation
 pub fn get_interpol_ring<T>(nside: usize, ptg: SphCoord<T>) -> (Vec<usize>, Vec<T>)
 where
     T: Float + FloatConst + Debug,
@@ -198,6 +203,9 @@ where
     (pix, wgt)
 }
 
+
+/// Compute the natural interpolation value, the natural interpolation is calculated through
+/// nearest neighbour interpolation
 pub fn natural_interp_ring<T>(nside: usize, data: &[T], ptg: SphCoord<T>) -> T
 where
     T: Float + FloatConst + Debug,

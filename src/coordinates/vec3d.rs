@@ -1,3 +1,5 @@
+//! 3-D Euclid vectors
+
 use num_traits::float::Float;
 use std::clone::Clone;
 //use std::cmp::{Eq, PartialEq};
@@ -6,13 +8,17 @@ use std::convert::From;
 use std::marker::Copy;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
+/// 3-D Euclid vector
 #[derive(Debug, PartialEq, Eq)]
 pub struct Vec3d<T>
 where
     T: Float + Copy,
 {
+    /// x component
     pub x: T,
+    /// y component
     pub y: T,
+    /// z component
     pub z: T,
 }
 
@@ -39,18 +45,22 @@ impl<T> Vec3d<T>
 where
     T: Float + Copy,
 {
+    /// create a vector from its components
     pub fn new(x: T, y: T, z: T) -> Vec3d<T> {
         Vec3d::<T> { x: x, y: y, z: z }
     }
 
+    /// return the corresponding normalized vector
     pub fn normalized(&self) -> Vec3d<T> {
         (*self) / self.length()
     }
 
+    /// generate a unit vector from a spherical coordinate point
     pub fn from_sph_coord(sc: SphCoord<T>) -> Vec3d<T> {
         Vec3d::<T>::from_angle(sc.pol, sc.az)
     }
 
+    /// componse a SphCoord from pol and az, then calculate from_sph_coord
     pub fn from_angle(pol: T, az: T) -> Vec3d<T> {
         let sp = pol.sin();
         let cp = pol.cos();
@@ -62,10 +72,12 @@ where
         Vec3d { x: x, y: y, z: z }
     }
 
+    /// inner product
     pub fn dot(&self, rhs: Vec3d<T>) -> T {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
+    /// cross product
     pub fn cross(&self, rhs: Vec3d<T>) -> Vec3d<T> {
         let u1 = self.x;
         let u2 = self.y;
@@ -81,26 +93,32 @@ where
         Vec3d::new(s1, s2, s3)
     }
 
+    /// calculate the length
     pub fn length(&self) -> T {
         self.norm2().sqrt()
     }
 
+    /// square of the length
     pub fn norm2(&self) -> T {
         self.dot(*self)
     }
 
+    /// angle between two vectors
     pub fn angle_between(&self, rhs: Vec3d<T>) -> T {
         (self.dot(rhs) / (self.length() * rhs.length())).acos()
     }
 
-    pub fn vdrdpol(&self) -> Vec3d<T> {
-        SphCoord::from(*self).vdrdpol()
+    /// polar angle unit vector
+    pub fn vdpol(&self) -> Vec3d<T> {
+        SphCoord::from(*self).vdpol()
     }
 
-    pub fn vdrdaz(&self) -> Vec3d<T> {
-        SphCoord::from(*self).vdrdaz()
+    /// azimuth angle unit vector
+    pub fn vdaz(&self) -> Vec3d<T> {
+        SphCoord::from(*self).vdaz()
     }
 
+    /// rotate about an axis by angle
     pub fn rotate_about(&self, axis: Vec3d<T>, angle: T) -> Vec3d<T> {
         let axis = axis / axis.length();
         let ux: T = axis.x;

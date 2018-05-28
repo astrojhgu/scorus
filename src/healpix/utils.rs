@@ -1,8 +1,11 @@
+//! pixel indexing
+
 use std::fmt::Debug;
 
 use num_traits::cast::NumCast;
 use num_traits::int::PrimInt;
 
+/// calculate the sqrt of some integer
 pub fn isqrt<T>(x: T) -> T
 where
     T: PrimInt + Debug,
@@ -53,10 +56,13 @@ const UTAB: [i32; 256] = [
 const JRLL: [i32; 12] = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
 const JPLL: [i32; 12] = [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7];
 
+/// get the total number of pixels corresponding to the nside parameter
 pub fn nside2npix32(nside: i32) -> i32 {
     12 * nside * nside
 }
 
+/// calculate the nside parameter from the total number of pixels
+/// if an invalid npix value is given, the program will panic
 pub fn npix2nside32(npix: i32) -> i32 {
     let res = isqrt(npix / 12);
     if nside2npix32(res) == npix {
@@ -66,7 +72,8 @@ pub fn npix2nside32(npix: i32) -> i32 {
     }
 }
 
-pub fn nest2xyf32(nside: i32, mut pix: i32) -> (i32, i32, i32) {
+
+fn nest2xyf32(nside: i32, mut pix: i32) -> (i32, i32, i32) {
     let npface = nside * nside;
     let face_num = pix / npface;
     pix &= npface - 1;
@@ -78,7 +85,7 @@ pub fn nest2xyf32(nside: i32, mut pix: i32) -> (i32, i32, i32) {
     (ix, iy, face_num)
 }
 
-pub fn xyf2nest32(nside: i32, ix: i32, iy: i32, face_num: i32) -> i32 {
+fn xyf2nest32(nside: i32, ix: i32, iy: i32, face_num: i32) -> i32 {
     face_num * nside * nside
         + (UTAB[(ix & 0xff) as usize]
             | (UTAB[(ix >> 8) as usize] << 16)
@@ -86,7 +93,7 @@ pub fn xyf2nest32(nside: i32, ix: i32, iy: i32, face_num: i32) -> i32 {
             | (UTAB[(iy >> 8) as usize] << 17))
 }
 
-pub fn xyf2ring32(nside: i32, ix: i32, iy: i32, face_num: i32) -> i32 {
+fn xyf2ring32(nside: i32, ix: i32, iy: i32, face_num: i32) -> i32 {
     let nl4 = 4 * nside;
     let jr = JRLL[face_num as usize] * nside - ix - iy - 1;
 
@@ -116,7 +123,7 @@ fn special_div32(mut a: i32, b: i32) -> i32 {
     (t << 1) + if a >= b { 1 } else { 0 }
 }
 
-pub fn ring2xyf32(nside: i32, pix: i32) -> (i32, i32, i32) {
+fn ring2xyf32(nside: i32, pix: i32) -> (i32, i32, i32) {
     let ncap = 2 * nside * (nside - 1);
     let npix = 12 * nside * nside;
     let nl2 = 2 * nside;
@@ -168,6 +175,7 @@ pub fn ring2xyf32(nside: i32, pix: i32) -> (i32, i32, i32) {
     (ix, iy, face_num)
 }
 
+/// get the index of a pixel in nest order corresponding to ring order
 pub fn ring2nest32(nside: i32, ipring: i32) -> i32 {
     if nside & (nside - 1) != 0 {
         panic!();
@@ -177,6 +185,7 @@ pub fn ring2nest32(nside: i32, ipring: i32) -> i32 {
     }
 }
 
+/// get the index of a pixel in ring order corresponding to nest order
 pub fn nest2ring32(nside: i32, ipnest: i32) -> i32 {
     if nside & (nside - 1) != 0 {
         panic!();
@@ -186,11 +195,13 @@ pub fn nest2ring32(nside: i32, ipnest: i32) -> i32 {
     }
 }
 
-///////////////////////////////////////
+
+/// get the total number of pixels corresponding to the nside parameter
 pub fn nside2npix64(nside: i64) -> i64 {
     12 * nside * nside
 }
 
+/// if an invalid npix value is given, the program will panic
 pub fn npix2nside64(npix: i64) -> i64 {
     let res = isqrt(npix / 12);
     if nside2npix64(res) == npix {
@@ -206,7 +217,7 @@ fn special_div64(mut a: i64, b: i64) -> i64 {
     (t << 1) + if a >= b { 1 } else { 0 }
 }
 
-pub fn compress_bits64(v: i64) -> i64 {
+fn compress_bits64(v: i64) -> i64 {
     let mut raw = v & 0x5555555555555555_i64;
     raw |= raw >> 15;
     CTAB[(raw & 0xff_i64) as usize] as i64
@@ -215,14 +226,14 @@ pub fn compress_bits64(v: i64) -> i64 {
         | (CTAB[((raw >> 40) & 0xff) as usize] << 20) as i64
 }
 
-pub fn spread_bits64(v: i32) -> i64 {
+fn spread_bits64(v: i32) -> i64 {
     UTAB[(v & 0xff) as usize] as i64
         | ((UTAB[((v >> 8) & 0xff) as usize] as i64) << 16)
         | ((UTAB[((v >> 16) & 0xff) as usize] as i64) << 32)
         | ((UTAB[((v >> 24) & 0xff) as usize] as i64) << 48)
 }
 
-pub fn nest2xyf64(nside: i64, mut pix: i64) -> (i32, i32, i32) {
+fn nest2xyf64(nside: i64, mut pix: i64) -> (i32, i32, i32) {
     let npface: i64 = nside as i64 * nside as i64;
     let face_num = (pix / npface) as i32;
     pix &= npface - 1;
@@ -231,11 +242,11 @@ pub fn nest2xyf64(nside: i64, mut pix: i64) -> (i32, i32, i32) {
     (ix, iy, face_num)
 }
 
-pub fn xyf2nest64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
+fn xyf2nest64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
     face_num as i64 * nside as i64 * nside as i64 + spread_bits64(ix) + (spread_bits64(iy) << 1)
 }
 
-pub fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
+fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
     let nl4 = 4_i64 * nside;
     let jr = JRLL[face_num as usize] as i64 * nside - ix as i64 - iy as i64 - 1_i64;
 
@@ -259,7 +270,7 @@ pub fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
     n_before + jp - 1
 }
 
-pub fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
+fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
     let ncap = 2 * nside * (nside - 1);
     let npix = 12 * nside * nside;
     let nl2 = 2 * nside;
@@ -311,6 +322,8 @@ pub fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
     (ix as i32, iy as i32, face_num as i32)
 }
 
+
+/// get the index of nest order pix corresponding to ring order
 pub fn ring2nest64(nside: i64, ipring: i64) -> i64 {
     if nside & (nside - 1) != 0 {
         panic!()
@@ -320,6 +333,8 @@ pub fn ring2nest64(nside: i64, ipring: i64) -> i64 {
     }
 }
 
+
+/// get the index of ring order pix corresponding to nest order
 pub fn nest2ring64(nside: i64, ipnest: i64) -> i64 {
     if nside & (nside - 1) != 0 {
         panic!()
@@ -329,8 +344,7 @@ pub fn nest2ring64(nside: i64, ipnest: i64) -> i64 {
     }
 }
 
-///////////////////////////////////////
-
+/// get the index of nest order pix corresponding to ring order
 pub fn ring2nest(nside: usize, ipring: usize) -> usize {
     if 12 * nside * nside > i32::max_value() as usize {
         ring2nest64(nside as i64, ipring as i64) as usize
@@ -339,6 +353,7 @@ pub fn ring2nest(nside: usize, ipring: usize) -> usize {
     }
 }
 
+/// get the index of ring order pix corresponding to nest order
 pub fn nest2ring(nside: usize, ipnest: usize) -> usize {
     if 12 * nside * nside > i32::max_value() as usize {
         nest2ring64(nside as i64, ipnest as i64) as usize
@@ -347,10 +362,13 @@ pub fn nest2ring(nside: usize, ipnest: usize) -> usize {
     }
 }
 
+/// get the number of pixels from the nside parameter
 pub fn nside2npix(nside: usize) -> usize {
     12 * nside * nside
 }
 
+/// get the nside parameter from the total number of pixels, it will panic if an invalid
+/// value is given
 pub fn npix2nside(npix: usize) -> usize {
     let res = isqrt(npix / 12);
     if nside2npix(res) == npix {

@@ -1,14 +1,20 @@
+//! 2-D Euclid vectors
+
 use num_traits::float::Float;
 use std::clone::Clone;
 use std::marker::Copy;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
+
+/// 2-D vector
 #[derive(Debug)]
 pub struct Vec2d<T>
 where
     T: Float + Copy,
 {
+    /// x component
     pub x: T,
+    /// y component
     pub y: T,
 }
 
@@ -34,22 +40,27 @@ impl<T> Vec2d<T>
 where
     T: Float + Copy,
 {
+    /// create a vector from its components
     pub fn new(x: T, y: T) -> Vec2d<T> {
         Vec2d::<T> { x: x, y: y }
     }
 
+    /// calculate the normalized vector, i.e., normalize the length to 1
     pub fn normalized(&self) -> Vec2d<T> {
         *self / (self.length())
     }
 
+    /// inner product
     pub fn dot(&self, rhs: Vec2d<T>) -> T {
         self.x * rhs.x + self.y * rhs.y
     }
 
+    /// calculate the length
     pub fn length(&self) -> T {
         self.norm2().sqrt()
     }
 
+    /// calculate the square of length
     pub fn norm2(&self) -> T {
         self.dot(*self)
     }
@@ -61,6 +72,7 @@ where
 {
     type Output = T;
 
+    /// if index=0, the return x, if index=1, return y
     fn index(&self, index: usize) -> &T {
         match index {
             0 => &self.x,
@@ -74,6 +86,7 @@ impl<T> IndexMut<usize> for Vec2d<T>
 where
     T: Float + Copy,
 {
+    /// if index=0, the return x, if index=1, return y
     fn index_mut(&mut self, index: usize) -> &mut T {
         match index {
             0 => &mut self.x,

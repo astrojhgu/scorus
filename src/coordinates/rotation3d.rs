@@ -1,7 +1,13 @@
+//! Rotation of vectors in 3D Euclid space
+
+
 use num_traits::float::Float;
 use std::ops::{Index, Mul};
 
 use super::vec3d::Vec3d;
+
+/// # Rotation matrix
+/// Mearly a 3x3 matrix. Inner data should not be accessed directly
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub struct RotMatrix<T>
@@ -77,6 +83,7 @@ impl<T> RotMatrix<T>
 where
     T: Float + Copy,
 {
+    /// A[i,j]->A[j,i]
     pub fn transpose(&self) -> RotMatrix<T> {
         let mut data = [[T::zero(); 3]; 3];
         let ndim = 3;
@@ -88,10 +95,14 @@ where
         RotMatrix { elements: data }
     }
 
+
+    /// Because of the property of rotation matrix, inv is simply obtained through transpose.
     pub fn inv(&self) -> RotMatrix<T> {
         self.transpose()
     }
 
+    /// Compose a rotation matrix by denoting the rotation about an arbitrary vector as the axis and
+    /// by certain angle
     pub fn about_axis_by_angle(axis: &Vec3d<T>, theta: T) -> RotMatrix<T> {
         let naxis = axis.normalized();
         let ux = naxis.x;

@@ -1,3 +1,5 @@
+//! # Coordinate system related computings
+
 pub mod rotation3d;
 pub mod sphcoord;
 pub mod vec2d;
