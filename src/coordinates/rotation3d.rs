@@ -1,6 +1,5 @@
 //! Rotation of vectors in 3D Euclid space
 
-
 use num_traits::float::Float;
 use std::ops::{Index, Mul};
 
@@ -94,7 +93,6 @@ where
         }
         RotMatrix { elements: data }
     }
-
 
     /// Because of the property of rotation matrix, inv is simply obtained through transpose.
     pub fn inv(&self) -> RotMatrix<T> {

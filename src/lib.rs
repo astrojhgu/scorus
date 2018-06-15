@@ -1,6 +1,5 @@
 #![feature(vec_resize_default)]
 
-
 //! # Scientific Computing for Rust-lang
 
 extern crate num_traits;
@@ -9,8 +8,6 @@ extern crate rayon;
 extern crate special;
 //extern crate pdqselect;
 //use num_traits::float::Float;
-
-
 
 /// Coordinate-system related computings
 pub mod coordinates;
@@ -47,5 +44,3 @@ pub mod sph_tessellation;
 
 /// Some utilities used by other modules
 pub mod utils;
-
-

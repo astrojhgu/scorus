@@ -1,6 +1,5 @@
 //! Interpolating based on healpix data
 
-
 use std::fmt::Debug;
 
 use super::super::coordinates::SphCoord;
@@ -202,7 +201,6 @@ where
     }
     (pix, wgt)
 }
-
 
 /// Compute the natural interpolation value, the natural interpolation is calculated through
 /// nearest neighbour interpolation

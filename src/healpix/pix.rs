@@ -1,6 +1,5 @@
 //! calculate the direction of some certain pixel
 
-
 use super::super::coordinates::{SphCoord, Vec3d};
 use super::utils::isqrt;
 use num_traits::float::Float;
@@ -57,7 +56,6 @@ where
     let (z, phi) = pix2ang_ring_z_phi::<T>(nside, ipix);
     SphCoord::new(z.acos(), phi)
 }
-
 
 /// pixel to 3D vector
 pub fn pix2vec_ring<T>(nside: usize, ipix: usize) -> Vec3d<T>

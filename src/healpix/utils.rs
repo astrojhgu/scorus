@@ -72,7 +72,6 @@ pub fn npix2nside32(npix: i32) -> i32 {
     }
 }
 
-
 fn nest2xyf32(nside: i32, mut pix: i32) -> (i32, i32, i32) {
     let npface = nside * nside;
     let face_num = pix / npface;
@@ -194,7 +193,6 @@ pub fn nest2ring32(nside: i32, ipnest: i32) -> i32 {
         xyf2ring32(nside, ix, iy, face_num)
     }
 }
-
 
 /// get the total number of pixels corresponding to the nside parameter
 pub fn nside2npix64(nside: i64) -> i64 {
@@ -322,7 +320,6 @@ fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
     (ix as i32, iy as i32, face_num as i32)
 }
 
-
 /// get the index of nest order pix corresponding to ring order
 pub fn ring2nest64(nside: i64, ipring: i64) -> i64 {
     if nside & (nside - 1) != 0 {
@@ -332,7 +329,6 @@ pub fn ring2nest64(nside: i64, ipring: i64) -> i64 {
         xyf2nest64(nside, ix, iy, face_num)
     }
 }
-
 
 /// get the index of ring order pix corresponding to nest order
 pub fn nest2ring64(nside: i64, ipnest: i64) -> i64 {

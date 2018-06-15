@@ -5,7 +5,6 @@ use std::clone::Clone;
 use std::marker::Copy;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
-
 /// 2-D vector
 #[derive(Debug)]
 pub struct Vec2d<T>
