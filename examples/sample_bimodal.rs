@@ -100,8 +100,8 @@ fn main() {
 
     let mut xy = (x, y);
 
-    let mut sampler = create_sampler_st(bimodal, xy, rng, blist, 2.0);
-    //let mut sampler=ptsample_closure_st(bimodal, xy, rng, blist, 2.0);
+    //let mut sampler = create_sampler_st(bimodal, xy, rng, blist, 2.0);
+    let mut sampler=create_sampler(bimodal, xy, rng, blist, 2.0, 4);
 
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);

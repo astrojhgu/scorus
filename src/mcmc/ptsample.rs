@@ -18,7 +18,7 @@ use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
 
 pub fn create_sampler<'a, T, U, V, W, X, F>(
-    mut flogprob: F,
+    flogprob: F,
     mut ensemble_logprob: (W, X),
     mut rng: U,
     beta_list: X,
@@ -56,12 +56,12 @@ where
         + Drop
         + Sized
         + ItemSwapable,
-    F: 'a + FnMut(&V) -> T + Send + Sync + Clone,
+    F: 'a + Fn(&V) -> T + Send + Sync,
 {
     Box::new(
         move |handler: &mut FnMut(&Result<(W, X), McmcErr>), sw: bool| {
             let result = sample(
-                &mut flogprob,
+                &flogprob,
                 &ensemble_logprob,
                 &mut rng,
                 &beta_list,
@@ -99,7 +99,7 @@ where
         + Drop
         + Sized
         + ItemSwapable,
-    F: 'a + FnMut(&V) -> T,
+    F: 'a + Fn(&V) -> T,
 {
     Box::new(
         move |handler: &mut FnMut(&Result<(W, X), McmcErr>), sw: bool| {
@@ -121,7 +121,7 @@ where
 }
 
 pub fn sample<T, U, V, W, X, F>(
-    flogprob: &mut F,
+    flogprob: & F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
@@ -155,7 +155,7 @@ where
         + std::marker::Send
         + Drop
         + ItemSwapable,
-    F: FnMut(&V) -> T + std::marker::Sync + std::marker::Send + Clone,
+    F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
     if perform_swap {
         let mut ensemble_logprob1 = (ensemble_logprob.0.clone(), ensemble_logprob.1.clone());
@@ -167,7 +167,7 @@ where
 }
 
 pub fn sample_st<T, U, V, W, X, F>(
-    flogprob: &mut F,
+    flogprob:  &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
@@ -181,7 +181,7 @@ where
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
     X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
-    F: FnMut(&V) -> T,
+    F: Fn(&V) -> T,
 {
     if perform_swap {
         let mut ensemble_logprob1 = (ensemble_logprob.0.clone(), ensemble_logprob.1.clone());
@@ -263,7 +263,7 @@ where
 }
 
 fn only_sample<T, U, V, W, X, F>(
-    flogprob: &mut F,
+    flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
@@ -296,7 +296,7 @@ where
         + std::marker::Send
         + Drop
         + ItemSwapable,
-    F: FnMut(&V) -> T + std::marker::Sync + std::marker::Send + Clone,
+    F: Fn(&V) -> T + std::marker::Sync + std::marker::Send ,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
 
@@ -385,7 +385,7 @@ where
             let jvec = &jvec;
             //let rvec=Arc::clone(&rvec);
             let rvec = &rvec;
-            let mut flogprob = flogprob.clone();
+            let flogprob = flogprob;
             //let nwalkers=nwalkers;
             let task = move || loop {
                 let n: usize;
@@ -452,7 +452,7 @@ where
                 }
             });
         } else {
-            let mut task = create_task();
+            let task = create_task();
             task();
         }
     }
@@ -464,7 +464,7 @@ where
 }
 
 fn only_sample_st<T, U, V, W, X, F>(
-    flogprob: &mut F,
+    flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
@@ -477,7 +477,7 @@ where
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
     X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
-    F: FnMut(&V) -> T,
+    F: Fn(&V) -> T,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
 
