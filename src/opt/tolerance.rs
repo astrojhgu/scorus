@@ -1,6 +1,6 @@
 use num_traits::float::Float;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum Tolerance<T>
 where
     T: Float + Copy,

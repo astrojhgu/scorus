@@ -26,6 +26,7 @@ use scorus::opt::tolerance::Tolerance;
 use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
+use scorus::polynomial::legendre;
 use std::io::Write;
 fn fobj(x: &Vec<f64>) -> f64 {
     x.windows(2).fold(0.0, |a, b| {
@@ -34,20 +35,5 @@ fn fobj(x: &Vec<f64>) -> f64 {
 }
 
 fn main() {
-    let ftol = Tolerance::Rel(1e-30);
-    let mut result = vec![0.0, 0.0, 0.0];
-    let result = {
-        for _i in 0..100 {
-            result = match fmin(&fobj, &result, ftol, 2000) {
-                (x, OptErr::MaxIterExceeded) => {
-                    println!("a");
-                    x
-                }
-                (x, _) => x,
-            }
-        }
-        fmin(&fobj, &result, ftol, 2000).0
-    };
-
-    println!("{:?}", result);
+    println!("{:?}", legendre::legendre2poly(&vec![0., 0.0, 0.0, 0.0,0.0,1.0]));
 }
