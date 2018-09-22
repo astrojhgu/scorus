@@ -93,7 +93,7 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
                     pbest:None,
                 })},
                 Some(ref mut gb) => {
-                    if gb.fitness<p.fitness{
+                    if gb.fitness>p.fitness{
                         gb.position=p.position.clone();
                         gb.velocity=p.velocity.clone();
                         gb.fitness=p.fitness;
@@ -111,7 +111,7 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
                 })),
 
                 Some(ref mut pb)=>{
-                    if p.fitness > pb.fitness{
+                    if p.fitness < pb.fitness{
                         pb.position=p.position.clone();
                         pb.velocity=p.velocity.clone();
                         pb.fitness=p.fitness;
@@ -146,10 +146,10 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         let mut best_sort:Vec<T>=self.swarm.iter().map(|x|{x.fitness}).collect();
         best_sort.sort_unstable_by(|&a,&b|{
             if a>b{
-                std::cmp::Ordering::Less
+                std::cmp::Ordering::Greater
             }
             else if a<b{
-                std::cmp::Ordering::Greater//decrease order
+                std::cmp::Ordering::Less
             }
             else{
                 std::cmp::Ordering::Equal
@@ -168,9 +168,9 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         let mut sorted_swarm:Vec<_>=self.swarm.iter().map(|x|{x.clone()}).collect();
         sorted_swarm.sort_unstable_by(|a, b|{
             if a.fitness>b.fitness{
-                std::cmp::Ordering::Less
-            }else if a.fitness<b.fitness{
                 std::cmp::Ordering::Greater
+            }else if a.fitness<b.fitness{
+                std::cmp::Ordering::Less
             }else{
                 std::cmp::Ordering::Equal
             }
