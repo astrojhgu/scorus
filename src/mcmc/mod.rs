@@ -17,7 +17,7 @@ impl<T> HasLen for Vec<T> {
     }
 }
 
-impl<T:Default+Clone> InitFromLen<T> for Vec<T>{
+impl<T:Default+Clone> InitFromLen for Vec<T>{
     fn init(len:usize)->Vec<T>{
         vec![T::default(); len]
     }

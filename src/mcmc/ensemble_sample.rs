@@ -14,7 +14,7 @@ use std::sync::Mutex;
 //use std::sync::Arc;
 
 use super::super::utils::HasLen;
-use super::super::utils::Resizeable;
+use super::super::utils::InitFromLen;
 use super::mcmc_errors::McmcErr;
 use super::utils::draw_z;
 
@@ -45,7 +45,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + Sync
-        + Resizeable<ElmType = T>
+        + InitFromLen
         + Send
         + Drop
         + Sized,
@@ -77,7 +77,7 @@ where
         + Clone
         + IndexMut<usize, Output = T>
         + HasLen
-        + Resizeable<ElmType = T>
+        + InitFromLen
         + Drop
         + Sized,
     F: 'a + Fn(&V) -> T + Sized,
@@ -105,7 +105,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Resizeable<ElmType = T> + Send + Drop,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send + Drop,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
@@ -154,7 +154,8 @@ where
     let lp_cached = result_logprob.len() == nwalkers;
 
     if !lp_cached {
-        result_logprob.resize(nwalkers, T::zero());
+        //result_logprob.resize(nwalkers, T::zero());
+        result_logprob=X::init(nwalkers);
     }
     //let lp_cached=cached_logprob.len()!=0;
     let result_ensemble = Mutex::new(result_ensemble);
@@ -253,7 +254,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop,
     F: Fn(&V) -> T + ?Sized,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
@@ -301,7 +302,8 @@ where
     let lp_cached = result_logprob.len() == nwalkers;
 
     if !lp_cached {
-        result_logprob.resize(nwalkers, T::zero());
+        //result_logprob.resize(nwalkers, T::zero());
+        result_logprob=X::init(nwalkers);
     }
     //let lp_cached=cached_logprob.len()!=0;
 

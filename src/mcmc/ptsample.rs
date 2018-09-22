@@ -13,7 +13,7 @@ use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
 //use std::sync::Arc;
-use super::super::utils::{HasLen, ItemSwapable, Resizeable};
+use super::super::utils::{HasLen, ItemSwapable, InitFromLen};
 use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
 
@@ -51,7 +51,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + Sync
-        + Resizeable<ElmType = T>
+        + InitFromLen
         + Send
         + Drop
         + Sized
@@ -95,7 +95,7 @@ where
         + Clone
         + IndexMut<usize, Output = T>
         + HasLen
-        + Resizeable<ElmType = T>
+        + InitFromLen
         + Drop
         + Sized
         + ItemSwapable,
@@ -151,7 +151,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + std::marker::Sync
-        + Resizeable<ElmType = T>
+        + InitFromLen
         + std::marker::Send
         + Drop
         + ItemSwapable,
@@ -180,7 +180,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
     F: Fn(&V) -> T,
 {
     if perform_swap {
@@ -216,7 +216,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
 {
     //let mut new_ensemble = ensemble_logprob.0.clone();
     //let mut new_logprob = ensemble_logprob.1.clone();
@@ -292,7 +292,7 @@ where
         + IndexMut<usize, Output = T>
         + HasLen
         + std::marker::Sync
-        + Resizeable<ElmType = T>
+        + InitFromLen
         + std::marker::Send
         + Drop
         + ItemSwapable,
@@ -367,7 +367,8 @@ where
     let lp_cached = result_logprob.len() == result_ensemble.len();
 
     if !lp_cached {
-        result_logprob.resize(result_ensemble.len(), T::zero());
+        //result_logprob.resize(result_ensemble.len(), T::zero());
+        result_logprob=X::init(result_ensemble.len());
     }
     //let lp_cached=cached_logprob.len()!=0;
     let result_ensemble = Mutex::new(result_ensemble);
@@ -476,7 +477,7 @@ where
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Resizeable<ElmType = T> + Drop + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
     F: Fn(&V) -> T,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
@@ -542,7 +543,8 @@ where
     let lp_cached = result_logprob.len() == result_ensemble.len();
 
     if !lp_cached {
-        result_logprob.resize(result_ensemble.len(), T::zero());
+        //result_logprob.resize(result_ensemble.len(), T::zero());
+        result_logprob=X::init(result_ensemble.len());
     }
     //let lp_cached=cached_logprob.len()!=0;
 

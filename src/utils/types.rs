@@ -14,8 +14,7 @@ pub trait ItemSwapable {
     fn swap_items(&mut self, i: usize, j: usize);
 }
 
-pub trait InitFromLen<T>:HasLen+HasElement<ElmType=T>
-where T:Default
+pub trait InitFromLen:HasLen+HasElement
 {
     fn init(usize)->Self;
 }

@@ -16,7 +16,7 @@ use super::super::utils::{InitFromLen};
 pub struct Particle<V,T>
 where
       T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+ SampleRange+ Debug+Send+Sync,
-      V: Clone + IndexMut<usize, Output = T> + InitFromLen<T>+ Debug+Send+Sync,
+      V: Clone + IndexMut<usize, Output = T> + InitFromLen+ Debug+Send+Sync,
 
 {
     pub position:V,
@@ -27,7 +27,7 @@ where
 
 pub struct ParticleSwarmOptimizer<V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+Debug+Send+Sync,
-      V: Clone + IndexMut<usize, Output = T> + InitFromLen<T> +  Debug+Send+Sync,
+      V: Clone + IndexMut<usize, Output = T> + InitFromLen +  Debug+Send+Sync,
 {
     pub lower:V,
     pub upper:V,
@@ -40,7 +40,7 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+De
 
 impl<V,T> ParticleSwarmOptimizer<V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+Debug+Send+Sync,
-      V: Clone + IndexMut<usize, Output = T> + InitFromLen<T> + Debug+Send+Sync,
+      V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug+Send+Sync,
 {
     pub fn new<R>(func:Box<Fn(&V)->T+Send+Sync>, lower:V, upper:V, particle_count:usize, rng:&mut R)->ParticleSwarmOptimizer<V,T>
     where R:Rng
@@ -60,8 +60,8 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         let mut result=Vec::<Particle<V,T> >::new();
         let ndim=lower.len();
         for _i in 0..pc{
-            let mut p=<V as InitFromLen<T>>::init(ndim);
-            let mut v=<V as InitFromLen<T>>::init(ndim);
+            let mut p=V::init(ndim);
+            let mut v=V::init(ndim);
             for j in 0..ndim{
                 p[j]=rng.gen_range(lower[j], upper[j]);
                 v[j]=zero();
