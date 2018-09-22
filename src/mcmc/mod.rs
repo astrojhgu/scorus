@@ -7,7 +7,7 @@ pub mod mcmc_errors;
 pub mod ptsample;
 pub mod utils;
 
-pub use super::utils::{HasElement, HasLen, ItemSwapable, Resizeable};
+pub use super::utils::{HasElement, HasLen, ItemSwapable, Resizeable, InitFromLen};
 //pub use self::utils::shuffle;
 pub use self::init_ensemble::get_one_init_realization;
 
@@ -17,7 +17,13 @@ impl<T> HasLen for Vec<T> {
     }
 }
 
-impl<T: Clone> HasElement for Vec<T> {
+impl<T:Default+Clone> InitFromLen<T> for Vec<T>{
+    fn init(len:usize)->Vec<T>{
+        vec![T::default(); len]
+    }
+}
+
+impl<T> HasElement for Vec<T> {
     type ElmType = T;
 }
 
@@ -29,6 +35,7 @@ impl<T: Clone> Resizeable for Vec<T> {
         Vec::resize(self, s, x);
     }
 }
+
 
 impl<T> ItemSwapable for Vec<T> {
     fn swap_items(&mut self, i: usize, j: usize) {

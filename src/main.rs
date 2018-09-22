@@ -26,14 +26,29 @@ use scorus::opt::tolerance::Tolerance;
 use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
+use scorus::utils::types::{HasElement, HasLen, InitFromLen};
 use scorus::polynomial::legendre;
 use std::io::Write;
+use scorus::opt::pso::*;
 fn fobj(x: &Vec<f64>) -> f64 {
     x.windows(2).fold(0.0, |a, b| {
         a + 100.0 * (b[1] - b[0].powi(2)).powi(2) + (1.0 - b[0]).powi(2)
     })
 }
 
+
+
 fn main() {
-    println!("{:?}", legendre::legendre2poly(&vec![0., 0.0, 0.0, 0.0,0.0,1.0]));
+    let func=|x:&Vec<f64>|{
+        x.iter().map(|&x|{-x*x}).fold(0.0, |a,b|{a+b})
+    };
+
+    let mut rng=thread_rng();
+
+    let mut po=ParticleSwarmOptimizer::new(Box::new(func), vec![-1.0, -1.0], vec![1.0, 1.0], 25, &mut rng);
+
+    for i in 0..100{
+        po.sample(&mut rng, 1.193, 1.193);
+        println!("{:?}", po.swarm[0]);
+    }
 }
