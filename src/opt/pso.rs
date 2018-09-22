@@ -25,7 +25,7 @@ where
     pub pbest: Option<Box<Particle<V,T>>>
 }
 
-pub struct ParticleSwarmOptimizer<V,T>
+pub struct ParticleSwarmMaximizer<V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+Debug+Send+Sync,
       V: Clone + IndexMut<usize, Output = T> + InitFromLen +  Debug+Send+Sync,
 {
@@ -38,16 +38,16 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+De
     pub func:Box<Fn(&V)->T+Send+Sync>
 }
 
-impl<V,T> ParticleSwarmOptimizer<V,T>
+impl<V,T> ParticleSwarmMaximizer<V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+Debug+Send+Sync,
       V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug+Send+Sync,
 {
-    pub fn new<R>(func:Box<Fn(&V)->T+Send+Sync>, lower:V, upper:V, particle_count:usize, rng:&mut R)->ParticleSwarmOptimizer<V,T>
+    pub fn new<R>(func:Box<Fn(&V)->T+Send+Sync>, lower:V, upper:V, particle_count:usize, rng:&mut R)->ParticleSwarmMaximizer<V,T>
     where R:Rng
     {
         let swarm=Self::init_swarm(&func,&lower, &upper, particle_count, rng);
         let ndim=lower.len();
-        ParticleSwarmOptimizer{
+        ParticleSwarmMaximizer{
             lower:lower, upper:upper, particle_count:particle_count, 
             ndim:ndim, swarm:swarm, gbest:None,
             func:func
@@ -93,7 +93,7 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
                     pbest:None,
                 })},
                 Some(ref mut gb) => {
-                    if gb.fitness>p.fitness{
+                    if gb.fitness<p.fitness{
                         gb.position=p.position.clone();
                         gb.velocity=p.velocity.clone();
                         gb.fitness=p.fitness;
@@ -111,7 +111,7 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
                 })),
 
                 Some(ref mut pb)=>{
-                    if p.fitness < pb.fitness{
+                    if p.fitness > pb.fitness{
                         pb.position=p.position.clone();
                         pb.velocity=p.velocity.clone();
                         pb.fitness=p.fitness;
@@ -146,10 +146,10 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         let mut best_sort:Vec<T>=self.swarm.iter().map(|x|{x.fitness}).collect();
         best_sort.sort_unstable_by(|&a,&b|{
             if a>b{
-                std::cmp::Ordering::Greater
+                std::cmp::Ordering::Less
             }
             else if a<b{
-                std::cmp::Ordering::Less
+                std::cmp::Ordering::Greater
             }
             else{
                 std::cmp::Ordering::Equal
@@ -168,9 +168,9 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         let mut sorted_swarm:Vec<_>=self.swarm.iter().map(|x|{x.clone()}).collect();
         sorted_swarm.sort_unstable_by(|a, b|{
             if a.fitness>b.fitness{
-                std::cmp::Ordering::Greater
-            }else if a.fitness<b.fitness{
                 std::cmp::Ordering::Less
+            }else if a.fitness<b.fitness{
+                std::cmp::Ordering::Greater
             }else{
                 std::cmp::Ordering::Equal
             }

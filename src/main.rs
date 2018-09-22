@@ -30,11 +30,6 @@ use scorus::utils::types::{HasElement, HasLen, InitFromLen};
 use scorus::polynomial::legendre;
 use std::io::Write;
 use scorus::opt::pso::*;
-fn fobj(x: &Vec<f64>) -> f64 {
-    x.windows(2).fold(0.0, |a, b| {
-        a + 100.0 * (b[1] - b[0].powi(2)).powi(2) + (1.0 - b[0]).powi(2)
-    })
-}
 
 
 
@@ -45,7 +40,7 @@ fn main() {
 
     let mut rng=thread_rng();
 
-    let mut po=ParticleSwarmOptimizer::new(Box::new(func), vec![-1.0, -1.0], vec![1.0, 1.0], 25, &mut rng);
+    let mut po=ParticleSwarmMaximizer::new(Box::new(func), vec![-1.0, -1.0], vec![1.0, 1.0], 25, &mut rng);
 
     while ! po.converged(0.8, 1e-15, 1e-15){
         po.sample(&mut rng, 1.193, 1.193);
