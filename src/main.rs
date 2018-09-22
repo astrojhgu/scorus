@@ -47,8 +47,10 @@ fn main() {
 
     let mut po=ParticleSwarmOptimizer::new(Box::new(func), vec![-1.0, -1.0], vec![1.0, 1.0], 25, &mut rng);
 
-    for i in 0..100{
+    while ! po.converged(0.8, 1e-15, 1e-15){
         po.sample(&mut rng, 1.193, 1.193);
-        println!("{:?}", po.swarm[0]);
     }
+
+    println!("{:?}", po.gbest);
+
 }

@@ -12,7 +12,7 @@ use super::super::utils::{InitFromLen};
 
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Particle<V,T>
 where
       T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+ SampleRange+ Debug+Send+Sync,
@@ -136,5 +136,59 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         }
 
         self.update_fitness();
+    }
+
+    pub fn converged(&self, p:T, m1:T, m2:T)->bool{
+        self.converge_dfit(p, m1) && self.converge_dspace(p, m2)
+    }
+
+    pub fn converge_dfit(&self,p:T,  m:T)->bool{
+        let mut best_sort:Vec<T>=self.swarm.iter().map(|x|{x.fitness}).collect();
+        best_sort.sort_unstable_by(|&a,&b|{
+            if a>b{
+                std::cmp::Ordering::Less
+            }
+            else if a<b{
+                std::cmp::Ordering::Greater//decrease order
+            }
+            else{
+                std::cmp::Ordering::Equal
+            }
+        });
+        let i1:usize=(T::from(self.particle_count).unwrap()*p).floor().to_usize().unwrap();
+        let best_mean=best_sort[1..i1].iter().fold(zero::<T>(), |a,&b|{a+b})/NumCast::from(i1-1).unwrap();
+        if let Some(ref x)=self.gbest{
+            (x.fitness-best_mean).abs()<m
+        }else{
+            false
+        }
+    }
+
+    pub fn converge_dspace(&self, p:T, m:T)->bool{
+        let mut sorted_swarm:Vec<_>=self.swarm.iter().map(|x|{x.clone()}).collect();
+        sorted_swarm.sort_unstable_by(|a, b|{
+            if a.fitness>b.fitness{
+                std::cmp::Ordering::Less
+            }else if a.fitness<b.fitness{
+                std::cmp::Ordering::Greater
+            }else{
+                std::cmp::Ordering::Equal
+            }
+        });
+        let i1:usize=(T::from(self.particle_count).unwrap()*p).floor().to_usize().unwrap();
+        if let Some(ref gbest)=self.gbest{
+            let max_norm:T=
+            sorted_swarm[0..i1].iter().map(|x|{
+                let mut diff_norm:T=zero();
+
+                for i in 0..self.ndim{
+                    diff_norm=diff_norm+(gbest.position[i]-x.position[i]).powi(2);
+                }
+                diff_norm
+            }).fold(zero::<T>(), |a:T,b:T| b.max(a));
+            max_norm<m
+        }else{
+            false
+        }
     }
 }
