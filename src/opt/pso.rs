@@ -29,8 +29,6 @@ pub struct ParticleSwarmMaximizer<V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+Debug+Send+Sync,
       V: Clone + IndexMut<usize, Output = T> + InitFromLen +  Debug+Send+Sync,
 {
-    pub lower:V,
-    pub upper:V,
     pub particle_count:usize,
     pub ndim:usize,
     pub swarm:Vec<Particle<V,T> >,
@@ -48,10 +46,16 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         let swarm=Self::init_swarm(&func,&lower, &upper, particle_count, rng);
         let ndim=lower.len();
         ParticleSwarmMaximizer{
-            lower:lower, upper:upper, particle_count:particle_count, 
+            particle_count:particle_count,
             ndim:ndim, swarm:swarm, gbest:None,
             func:func
         }
+    }
+
+    pub fn restart<R>(&mut self, lower:V, upper:V, particle_count:usize, rng:&mut R)
+    where R:Rng
+    {
+        self.swarm=Self::init_swarm(&self.func, &lower, &upper, particle_count, rng);
     }
 
     pub fn init_swarm<R>(func:&Box<Fn(&V)->T+Sync+Send>, lower:&V, upper:&V, pc:usize, rng:&mut R)->Vec<Particle<V,T>>
