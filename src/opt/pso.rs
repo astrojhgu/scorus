@@ -40,14 +40,18 @@ impl<V,T> ParticleSwarmMaximizer<V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+Debug+Send+Sync,
       V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug+Send+Sync,
 {
-    pub fn new<R>(func:Box<Fn(&V)->T+Send+Sync>, lower:V, upper:V, particle_count:usize, rng:&mut R)->ParticleSwarmMaximizer<V,T>
+    pub fn new<R>(func:Box<Fn(&V)->T+Send+Sync>, lower:V, upper:V, guess:Option<V>, particle_count:usize, rng:&mut R)->ParticleSwarmMaximizer<V,T>
     where R:Rng
     {
         let swarm=Self::init_swarm(&func,&lower, &upper, particle_count, rng);
         let ndim=lower.len();
+        let gbest=guess.map(|p|{
+            let f=func(&p);
+            Particle{position:p, velocity:V::init(ndim), fitness:f,pbest:None}
+        });
         ParticleSwarmMaximizer{
             particle_count:particle_count,
-            ndim:ndim, swarm:swarm, gbest:None,
+            ndim:ndim, swarm:swarm, gbest:gbest,
             func:func
         }
     }

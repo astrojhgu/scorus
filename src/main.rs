@@ -40,7 +40,7 @@ fn main() {
 
     let mut rng=thread_rng();
 
-    let mut po=ParticleSwarmMaximizer::new(Box::new(func), vec![-1.0, -1.0], vec![1.0, 1.0], 25, &mut rng);
+    let mut po=ParticleSwarmMaximizer::new(Box::new(func), vec![-1.0, -1.0], vec![1.0, 1.0], None, 25, &mut rng);
 
     while ! po.converged(0.8, 1e-15, 1e-15){
         po.sample(&mut rng, 1.193, 1.193);
