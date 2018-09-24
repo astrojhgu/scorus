@@ -1,53 +1,50 @@
-[package]
-name = "scorus"
-version = "0.1.0"
-authors = ["Gu Junhua <jhgu@nao.cas.cn>"]
+[[example]]
+name = 'sample_bimodal'
+path = 'examples/sample_bimodal.rs'
 
-[profile.dev]
-opt-level = 2
-debug =true
+[[example]]
+name = 'eff_and_completeness'
+path = 'examples/eff_and_completeness.rs'
+
+[[example]]
+name = 'graph'
+path = 'examples/graph.rs'
+
+[[example]]
+name = 'gt1'
+path = 'examples/graph_test1.rs'
+
+[[example]]
+name = 'gt2'
+path = 'examples/graph_test2.rs'
+
+[[example]]
+name = 'as1'
+path = 'examples/arms_test.rs'
+
+[[example]]
+name = 'bng'
+path = 'examples/bayes_network_gaussian.rs'
+
+[[test]]
+name = 'ptsample_test1'
+path = 'tests/ptsample_test1.rs'
+
+[[test]]
+name = 'es_test1'
+path = 'tests/es_test1.rs'
 
 [dependencies]
-#num = ">0.1.*"
-num-traits = ">0.2.*"
-rand = ">=0.5"
-rayon = ">=1.0"
-quickersort = ">=3.0"
-special = ">=0.7.*"
+num-traits = '>0.2.*'
+quickersort = '>=3.0'
+rand = '>=0.5'
+rayon = '>=1.0'
+special = '>=0.7.*'
 
-
-[[example]]
-name="sample_bimodal"
-path="examples/sample_bimodal.rs"
-
-[[example]]
-name="eff_and_completeness"
-path="examples/eff_and_completeness.rs"
-
-[[example]]
-name="graph"
-path="examples/graph.rs"
-
-[[example]]
-name="gt1"
-path="examples/graph_test1.rs"
-
-[[example]]
-name="gt2"
-path="examples/graph_test2.rs"
-
-[[example]]
-name="as1"
-path="examples/arms_test.rs"
-
-[[example]]
-name="bng"
-path="examples/bayes_network_gaussian.rs"
-
-[[test]]
-name="ptsample_test1"
-path="tests/ptsample_test1.rs"
-
-[[test]]
-name="es_test1"
-path="tests/es_test1.rs"
+[package]
+authors = ['Gu Junhua <jhgu@nao.cas.cn>']
+name = 'scorus'
+version = '0.1.0'
+[profile.dev]
+debug = true
+opt-level = 2
