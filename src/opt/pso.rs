@@ -33,14 +33,14 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+De
     pub ndim:usize,
     pub swarm:Vec<Particle<V,T> >,
     pub gbest:Option<Particle<V,T> >,
-    pub func:&'a Fn(&V)->T
+    pub func:&'a (Fn(&V)->T+Send+Sync)
 }
 
 impl<'a, V,T> ParticleSwarmMaximizer<'a, V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+Debug+Send+Sync,
       V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug+Send+Sync,
 {
-    pub fn new<R>(func: &'a Fn(&V)->T, lower:V, upper:V, guess:Option<V>, particle_count:usize, rng:&mut R)->ParticleSwarmMaximizer<'a, V,T>
+    pub fn new<R>(func: &'a (Fn(&V)->T+Sync+Send), lower:V, upper:V, guess:Option<V>, particle_count:usize, rng:&mut R)->ParticleSwarmMaximizer<'a, V,T>
     where R:Rng
     {
         let swarm=Self::init_swarm(&func,&lower, &upper, particle_count, rng);
