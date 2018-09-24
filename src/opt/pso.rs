@@ -25,7 +25,7 @@ where
     pub pbest: Option<Box<Particle<V,T>>>
 }
 
-pub struct ParticleSwarmMaximizer<V,T>
+pub struct ParticleSwarmMaximizer<'a, V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+Debug+Send+Sync,
       V: Clone + IndexMut<usize, Output = T> + InitFromLen +  Debug+Send+Sync,
 {
@@ -33,14 +33,14 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy+Default +  SampleRange+De
     pub ndim:usize,
     pub swarm:Vec<Particle<V,T> >,
     pub gbest:Option<Particle<V,T> >,
-    pub func:Box<Fn(&V)->T+Send+Sync>
+    pub func:&'a Fn(&V)->T
 }
 
-impl<V,T> ParticleSwarmMaximizer<V,T>
+impl<'a, V,T> ParticleSwarmMaximizer<'a, V,T>
 where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+Debug+Send+Sync,
       V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug+Send+Sync,
 {
-    pub fn new<R>(func:Box<Fn(&V)->T+Send+Sync>, lower:V, upper:V, guess:Option<V>, particle_count:usize, rng:&mut R)->ParticleSwarmMaximizer<V,T>
+    pub fn new<R>(func: &'a Fn(&V)->T, lower:V, upper:V, guess:Option<V>, particle_count:usize, rng:&mut R)->ParticleSwarmMaximizer<'a, V,T>
     where R:Rng
     {
         let swarm=Self::init_swarm(&func,&lower, &upper, particle_count, rng);
@@ -62,7 +62,7 @@ where T: Float + NumCast + std::cmp::PartialOrd + Copy +Default+  SampleRange+De
         self.swarm=Self::init_swarm(&self.func, &lower, &upper, particle_count, rng);
     }
 
-    pub fn init_swarm<R>(func:&Box<Fn(&V)->T+Sync+Send>, lower:&V, upper:&V, pc:usize, rng:&mut R)->Vec<Particle<V,T>>
+    pub fn init_swarm<R>(func:&Fn(&V)->T, lower:&V, upper:&V, pc:usize, rng:&mut R)->Vec<Particle<V,T>>
     where R:Rng
     {
         let mut result=Vec::<Particle<V,T> >::new();
