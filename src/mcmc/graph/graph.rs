@@ -89,11 +89,7 @@ where
     }
 }
 
-impl<T> std::marker::Copy for ParamObservability<T>
-where
-    T: std::marker::Copy,
-{
-}
+impl<T> std::marker::Copy for ParamObservability<T> where T: std::marker::Copy {}
 
 pub struct NodeAdder<T>
 where
@@ -596,12 +592,10 @@ unsafe impl<K, T> std::marker::Sync for Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
     T: Float + Sync + Send + std::fmt::Display,
-{
-}
+{}
 
 unsafe impl<K, T> std::marker::Send for Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
     T: Float + Sync + Send + std::fmt::Display,
-{
-}
+{}

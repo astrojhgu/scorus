@@ -32,8 +32,7 @@ where
             - ln_factorial(T::from(m).unwrap())
             - ln_factorial(T::from(n - m).unwrap())
             - ln_factorial(T::from(n - 2 * m).unwrap())
-            - T::from(n).unwrap() * T::from(2).unwrap().ln())
-            .exp()
+            - T::from(n).unwrap() * T::from(2).unwrap().ln()).exp()
 }
 
 pub fn legendre2poly<T, V>(p: &V) -> V

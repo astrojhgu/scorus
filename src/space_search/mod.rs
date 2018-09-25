@@ -32,11 +32,7 @@ where
     }
 }
 
-impl<T> Eq for IdxDistPair<T>
-where
-    T: PartialOrd,
-{
-}
+impl<T> Eq for IdxDistPair<T> where T: PartialOrd {}
 
 impl<T> PartialOrd for IdxDistPair<T>
 where
@@ -115,8 +111,7 @@ where
                 &mut self.items[(lower + 1)..upper],
                 median - lower - 1,
                 |p1, p2| {
-                    p0.0
-                        .distance_to(&p1.0)
+                    p0.0.distance_to(&p1.0)
                         .partial_cmp(&p0.0.distance_to(&p2.0))
                         .unwrap()
                 },

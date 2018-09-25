@@ -73,13 +73,7 @@ where
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized,
-    X: 'static
-        + Clone
-        + IndexMut<usize, Output = T>
-        + HasLen
-        + InitFromLen
-        + Drop
-        + Sized,
+    X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + Sized,
     F: 'a + Fn(&V) -> T + Sized,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
@@ -155,7 +149,7 @@ where
 
     if !lp_cached {
         //result_logprob.resize(nwalkers, T::zero());
-        result_logprob=X::init(nwalkers);
+        result_logprob = X::init(nwalkers);
     }
     //let lp_cached=cached_logprob.len()!=0;
     let result_ensemble = Mutex::new(result_ensemble);
@@ -303,7 +297,7 @@ where
 
     if !lp_cached {
         //result_logprob.resize(nwalkers, T::zero());
-        result_logprob=X::init(nwalkers);
+        result_logprob = X::init(nwalkers);
     }
     //let lp_cached=cached_logprob.len()!=0;
 

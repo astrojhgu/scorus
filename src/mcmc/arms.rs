@@ -518,7 +518,8 @@ where
             / (-(x3 - x4) * (-y1 + y2) + (x1 - x2) * (-y3 + y4)));
         let y_i = -(x2 * y1 * y3 - x4 * y1 * y3 - x1 * y2 * y3 + x4 * y2 * y3 - x2 * y1 * y4
             + x3 * y1 * y4
-            + x1 * y2 * y4 - x3 * y2 * y4)
+            + x1 * y2 * y4
+            - x3 * y2 * y4)
             / (-x3 * y1 + x4 * y1 + x3 * y2 - x4 * y2 + x1 * y3 - x2 * y3 - x1 * y4 + x2 * y4);
         /*
         eprintln!("pi {} {}", x_i, y_i);
@@ -544,7 +545,7 @@ where
             (x_i, y_i) => (x_i, y_i),
         }
     } {
-        | (x_i, y_i) if x_i.is_nan() || y_i.is_nan() => {
+        (x_i, y_i) if x_i.is_nan() || y_i.is_nan() => {
             //panic!("d");
             Err(ArmsErr::SolveInterSectionErr(
                 format!("Error@{}", line!()),

@@ -26,11 +26,7 @@ where
     }
 }
 
-unsafe impl<T> std::marker::Sync for GraphVar<T>
-where
-    T: Float + Sync + Send + std::fmt::Display,
-{
-}
+unsafe impl<T> std::marker::Sync for GraphVar<T> where T: Float + Sync + Send + std::fmt::Display {}
 
 impl<T> Display for GraphVar<T>
 where

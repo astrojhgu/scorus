@@ -35,11 +35,7 @@ where
     }
 }
 
-impl<T> Copy for Vec3d<T>
-where
-    T: Float + Copy,
-{
-}
+impl<T> Copy for Vec3d<T> where T: Float + Copy {}
 
 impl<T> Vec3d<T>
 where

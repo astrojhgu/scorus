@@ -84,7 +84,8 @@ where
         let h = x_list[n2] - x_list[n1];
         let a = (x_list[n2] - x) / h;
         let b = (x - x_list[n1]) / h;
-        a * y_list[n1] + b * y_list[n2]
+        a * y_list[n1]
+            + b * y_list[n2]
             + ((a.powi(3) - a) * y2_list[n1] + (b.powi(3) - b) * y2_list[n2]) * h.powi(2)
                 / T::from(6.0).unwrap()
     })

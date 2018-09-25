@@ -22,30 +22,26 @@ use scorus::interpolation::sph_nn::Interpolator;
 use scorus::interpolation::spline;
 use scorus::opt::opt_errors::OptErr;
 use scorus::opt::powell::fmin;
+use scorus::opt::pso::*;
 use scorus::opt::tolerance::Tolerance;
+use scorus::polynomial::legendre;
 use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
 use scorus::utils::types::{HasElement, HasLen, InitFromLen};
-use scorus::polynomial::legendre;
 use std::io::Write;
-use scorus::opt::pso::*;
-
-
 
 fn main() {
-    let func=|x:&Vec<f64>|{
-        x.iter().map(|&x|{-x*x}).fold(0.0, |a,b|{a+b})
-    };
+    let func = |x: &Vec<f64>| x.iter().map(|&x| -x * x).fold(0.0, |a, b| a + b);
 
-    let mut rng=thread_rng();
+    let mut rng = thread_rng();
 
-    let mut po=ParticleSwarmMaximizer::new(&func, vec![-1.0, -1.0], vec![1.0, 1.0], None, 25, &mut rng);
+    let mut po =
+        ParticleSwarmMaximizer::new(&func, vec![-1.0, -1.0], vec![1.0, 1.0], None, 25, &mut rng);
 
-    while ! po.converged(0.8, 1e-15, 1e-15){
+    while !po.converged(0.8, 1e-15, 1e-15) {
         po.sample(&mut rng, 1.193, 1.193);
     }
 
     println!("{:?}", po.gbest);
-
 }

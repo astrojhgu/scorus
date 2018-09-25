@@ -31,11 +31,7 @@ where
     }
 }
 
-impl<T> Copy for SphCoord<T>
-where
-    T: Float + Copy,
-{
-}
+impl<T> Copy for SphCoord<T> where T: Float + Copy {}
 
 impl<T> SphCoord<T>
 where

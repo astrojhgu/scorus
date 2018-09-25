@@ -29,11 +29,7 @@ where
     }
 }
 
-impl<T> Copy for Vec2d<T>
-where
-    T: Float + Copy,
-{
-}
+impl<T> Copy for Vec2d<T> where T: Float + Copy {}
 
 impl<T> Vec2d<T>
 where

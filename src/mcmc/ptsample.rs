@@ -13,7 +13,7 @@ use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
 //use std::sync::Arc;
-use super::super::utils::{HasLen, ItemSwapable, InitFromLen};
+use super::super::utils::{HasLen, InitFromLen, ItemSwapable};
 use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
 
@@ -121,7 +121,7 @@ where
 }
 
 pub fn sample<T, U, V, W, X, F>(
-    flogprob: & F,
+    flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
@@ -167,7 +167,7 @@ where
 }
 
 pub fn sample_st<T, U, V, W, X, F>(
-    flogprob:  &F,
+    flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
     beta_list: &X,
@@ -296,7 +296,7 @@ where
         + std::marker::Send
         + Drop
         + ItemSwapable,
-    F: Fn(&V) -> T + std::marker::Sync + std::marker::Send ,
+    F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
 
@@ -368,7 +368,7 @@ where
 
     if !lp_cached {
         //result_logprob.resize(result_ensemble.len(), T::zero());
-        result_logprob=X::init(result_ensemble.len());
+        result_logprob = X::init(result_ensemble.len());
     }
     //let lp_cached=cached_logprob.len()!=0;
     let result_ensemble = Mutex::new(result_ensemble);
@@ -544,7 +544,7 @@ where
 
     if !lp_cached {
         //result_logprob.resize(result_ensemble.len(), T::zero());
-        result_logprob=X::init(result_ensemble.len());
+        result_logprob = X::init(result_ensemble.len());
     }
     //let lp_cached=cached_logprob.len()!=0;
 

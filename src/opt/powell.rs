@@ -12,12 +12,18 @@ use super::linmin::linmin;
 use super::opt_errors::OptErr;
 use super::tolerance::Tolerance;
 
-pub fn fmin<F, V, T, O>(f: &F, p: &V, ftol: Tolerance<T>, itmax: usize, mut observer:Option<&mut O>) -> (V, OptErr)
+pub fn fmin<F, V, T, O>(
+    f: &F,
+    p: &V,
+    ftol: Tolerance<T>,
+    itmax: usize,
+    mut observer: Option<&mut O>,
+) -> (V, OptErr)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy + Debug,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Debug,
     F: Fn(&V) -> T,
-    O: FnMut(&V, T)
+    O: FnMut(&V, T),
 {
     let two = one::<T>() + one::<T>();
     let n = p.len();
@@ -73,7 +79,7 @@ where
         }
 
         let fptt = f(&ptt);
-        if let Some(ref mut obs)=observer{
+        if let Some(ref mut obs) = observer {
             obs(&ptt, fptt);
         }
         if fptt < fp {
