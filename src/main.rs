@@ -1,5 +1,5 @@
 #![allow(unused_imports)]
-
+#![allow(dead_code)]
 //extern crate std;
 extern crate num_traits;
 extern crate quickersort;
@@ -37,16 +37,19 @@ fn foo(x:f64)->f64{
     (x.powi(2)*20.0).sin()
 }
 
+fn foo2(x:f64)->f64{
+    (x/0.01).sin()
+}
 
 fn main() {
     let n=100000;
     let p:Vec<_>=(0..n+1).map(|i|{
-        foo(i as f64/n as f64)
+        foo2(i as f64/n as f64)
     }).collect();
     let x: Vec<_> = (0..1000).map(|x| x as f64 / 1000.0).collect();
 
     let y=bernstein_poly(&x, &p);
     for i in 0..x.len(){
-        println!("{} {} {}", x[i], y[i], foo(x[i]))
+        println!("{} {} {}", x[i], y[i], foo2(x[i]))
     }
 }
