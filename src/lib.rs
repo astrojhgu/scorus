@@ -44,3 +44,6 @@ pub mod sph_tessellation;
 
 /// Some utilities used by other modules
 pub mod utils;
+
+///some basic math functions
+pub mod basic;
