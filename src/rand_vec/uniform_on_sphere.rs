@@ -1,12 +1,12 @@
 use super::super::coordinates::SphCoord;
 use num_traits::float::{Float, FloatConst};
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 pub fn rand<T, U>(rng: &mut U) -> SphCoord<T>
 where
-    T: Float + FloatConst + SampleRange,
+    T: Float + FloatConst + SampleUniform,
     Standard: Distribution<T>,
     U: Rng,
 {

@@ -1,5 +1,5 @@
 use num_traits::NumCast;
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use std::cmp::PartialOrd;
@@ -17,7 +17,7 @@ use super::super::utils::HasLen;
 pub fn get_one_init_realization<U, T, R>(y1: &U, y2: &U, rng: &mut R) -> U
 where
     U: HasLen + Clone + IndexMut<usize, Output = T> + Index<usize, Output = T>,
-    T: NumCast + PartialOrd + SampleRange + Display + Copy,
+    T: NumCast + PartialOrd + SampleUniform + Display + Copy,
     Standard: Distribution<T>,
     R: Rng,
 {

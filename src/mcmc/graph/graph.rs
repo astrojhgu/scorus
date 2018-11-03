@@ -10,7 +10,7 @@ use std::option::Option;
 use num_traits::float::Float;
 use num_traits::identities::zero;
 
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
@@ -232,7 +232,7 @@ where
 impl<K, T> Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
-    T: Float + Sync + SampleRange + Send + Display + Debug,
+    T: Float + Sync + SampleUniform + Send + Display + Debug,
     Standard: Distribution<T>,
 {
     pub fn new() -> Graph<K, T> {

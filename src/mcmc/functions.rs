@@ -11,7 +11,7 @@ where
 {
     let two = one::<T>() + one::<T>();
     let sqrt_2 = two.sqrt();
-    (one::<T>() + (x / sqrt_2).erf()) / two
+    (one::<T>() + (x / sqrt_2).error()) / two
 }
 
 pub fn lbeta<T>(x: T, y: T) -> T

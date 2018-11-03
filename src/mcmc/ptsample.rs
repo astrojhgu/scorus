@@ -8,10 +8,11 @@ use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use num_traits::NumCast;
 
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
+use rand::seq::SliceRandom;
 //use std::sync::Arc;
 use super::super::utils::{HasLen, InitFromLen, ItemSwapable};
 use super::mcmc_errors::McmcErr;
@@ -30,7 +31,7 @@ where
         + Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + Sync
         + Send
         + std::fmt::Display,
@@ -86,7 +87,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
     a: T,
 ) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
 where
-    T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
@@ -133,7 +134,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
@@ -175,7 +176,7 @@ pub fn sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
@@ -194,7 +195,7 @@ where
 
 fn exchange_prob<T>(lp1: T, lp2: T, beta1: T, beta2: T) -> T
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
@@ -211,7 +212,7 @@ pub fn swap_walkers<T, U, V, W, X>(
     beta_list: &X,
 ) -> Result<(), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
@@ -238,7 +239,8 @@ where
                 //panic!("beta list must be in decreasing order, with no duplicatation");
                 return Err(McmcErr::BetaNotInDecrOrd);
             }
-            rng.shuffle(&mut jvec);
+            //rng.shuffle(&mut jvec);
+            jvec.shuffle(rng);
             //let jvec=shuffle(&jvec, &mut rng);
             for j in 0..nwalker_per_beta {
                 let j1 = jvec[j];
@@ -248,7 +250,7 @@ where
                 let lp2 = new_logprob[(i - 1) * nwalker_per_beta + j2];
                 let ep = exchange_prob(lp1, lp2, beta1, beta2);
                 //println!("{}",ep);
-                let r: T = rng.gen_range(zero(), one());
+                let r: T = rng.gen_range(zero::<T>(), one::<T>());
                 if r < ep {
                     new_ensemble
                         .swap_items(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
@@ -274,7 +276,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
@@ -357,7 +359,7 @@ where
             }
             walker_group[i][gid].push(j);
             walker_group_id[i].push(gid);
-            rvec[i].push(rng.gen_range(zero(), one()));
+            rvec[i].push(rng.gen_range(zero::<T>(), one::<T>()));
             jvec[i].push(rng.gen_range(0, half_nwalkers));
             zvec[i].push(draw_z(rng, a));
         }
@@ -472,7 +474,7 @@ fn only_sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
@@ -534,7 +536,7 @@ where
             }
             walker_group[i][gid].push(j);
             walker_group_id[i].push(gid);
-            rvec[i].push(rng.gen_range(zero(), one()));
+            rvec[i].push(rng.gen_range(zero::<T>(), one::<T>()));
             jvec[i].push(rng.gen_range(0, half_nwalkers));
             zvec[i].push(draw_z(rng, a));
         }

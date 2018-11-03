@@ -1,6 +1,7 @@
 use num_traits::float::Float;
 use num_traits::Bounded;
 use rand::Rng;
+use rand::seq::SliceRandom;
 use std::fmt::Debug;
 use std::marker::Copy;
 
@@ -53,7 +54,8 @@ impl<
     }
 
     pub fn shuffle<U: Rng>(mut self, rng: &mut U) -> NNInterpBuilder<T, V> {
-        rng.shuffle(&mut (self.points));
+        //rng.shuffle(&mut (self.points));
+        self.points.shuffle(rng);
         self
     }
 

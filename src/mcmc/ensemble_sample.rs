@@ -4,7 +4,7 @@ use std;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use num_traits::NumCast;
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
@@ -32,7 +32,7 @@ where
         + Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + Sync
         + Send
         + std::fmt::Display,
@@ -68,7 +68,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
     a: T,
 ) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
 where
-    T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
@@ -94,7 +94,7 @@ pub fn sample<T, U, V, W, X, F>(
     nthread: usize,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + Sync + Send + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send,
@@ -139,7 +139,7 @@ where
         }
         walker_group[gid].push(i);
         walker_group_id.push(gid);
-        rvec.push(rng.gen_range(zero(), one()));
+        rvec.push(rng.gen_range(zero::<T>(), one::<T>()));
         jvec.push(rng.gen_range(0, half_nwalkers));
         zvec.push(draw_z(rng, a));
     }
@@ -243,7 +243,7 @@ pub fn sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleRange + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + IndexMut<usize, Output = T> + HasLen,
@@ -288,7 +288,7 @@ where
         }
         walker_group[gid].push(i);
         walker_group_id.push(gid);
-        rvec.push(rng.gen_range(zero(), one()));
+        rvec.push(rng.gen_range(zero::<T>(), one::<T>()));
         jvec.push(rng.gen_range(0, half_nwalkers));
         zvec.push(draw_z(rng, a));
     }

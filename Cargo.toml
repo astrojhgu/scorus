@@ -35,11 +35,11 @@ name = 'es_test1'
 path = 'tests/es_test1.rs'
 
 [dependencies]
-num-traits = '>0.2.*'
-quickersort = '>=3.0'
-rand = '>=0.5'
-rayon = '>=1.0'
-special = '>=0.7.*'
+num-traits = '0.2.6'
+quickersort = '3.0.1'
+rand = '0.6.0-pre.1'
+rayon = '1.0.3'
+special = '0.8.0'
 
 [package]
 authors = ['Gu Junhua <jhgu@nao.cas.cn>']

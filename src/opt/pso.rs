@@ -5,14 +5,14 @@ use super::super::utils::InitFromLen;
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
 pub struct Particle<V, T>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + Copy + Default + SampleRange + Debug + Send + Sync,
+    T: Float + NumCast + std::cmp::PartialOrd + Copy + Default + SampleUniform + Debug + Send + Sync,
     V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug + Send + Sync,
 {
     pub position: V,
@@ -23,7 +23,7 @@ where
 
 pub struct ParticleSwarmMaximizer<'a, V, T>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + Copy + Default + SampleRange + Debug + Send + Sync,
+    T: Float + NumCast + std::cmp::PartialOrd + Copy + Default + SampleUniform + Debug + Send + Sync,
     V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug + Send + Sync,
 {
     pub particle_count: usize,
@@ -35,7 +35,7 @@ where
 
 impl<'a, V, T> ParticleSwarmMaximizer<'a, V, T>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + Copy + Default + SampleRange + Debug + Send + Sync,
+    T: Float + NumCast + std::cmp::PartialOrd + Copy + Default + SampleUniform + Debug + Send + Sync,
     V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug + Send + Sync,
 {
     pub fn new<R>(
@@ -165,12 +165,12 @@ where
                 if let Some(ref gbest) = self.gbest {
                     for j in 0..self.ndim {
                         let w =
-                            (one::<T>() + rng.gen_range(zero(), one())) / (one::<T>() + one::<T>());
+                            (one::<T>() + rng.gen_range(zero::<T>(), one::<T>())) / (one::<T>() + one::<T>());
                         let part_vel = w * p.velocity[j];
                         let cog_vel =
-                            c1 * rng.gen_range(zero(), one()) * (pbest.position[j] - p.position[j]);
+                            c1 * rng.gen_range(zero::<T>(), one::<T>()) * (pbest.position[j] - p.position[j]);
                         let soc_vel =
-                            c2 * rng.gen_range(zero(), one()) * (gbest.position[j] - p.position[j]);
+                            c2 * rng.gen_range(zero::<T>(), one::<T>()) * (gbest.position[j] - p.position[j]);
                         p.velocity[j] = part_vel + cog_vel + soc_vel;
                         p.position[j] = p.position[j] + p.velocity[j]
                     }

@@ -7,7 +7,7 @@ use num_traits::identities::zero;
 use num_traits::NumCast;
 use std::collections::VecDeque;
 
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
@@ -22,7 +22,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -51,7 +51,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -76,7 +76,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -95,7 +95,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -114,7 +114,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -137,7 +137,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -190,7 +190,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -238,7 +238,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -256,7 +256,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display,
@@ -269,7 +269,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -439,7 +439,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -459,7 +459,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -481,7 +481,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -569,7 +569,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -613,7 +613,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -634,7 +634,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -670,7 +670,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -718,7 +718,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -803,7 +803,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -890,7 +890,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -933,7 +933,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -981,7 +981,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -990,7 +990,7 @@ where
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     R: Rng,
 {
-    let p = rng.gen_range(zero(), one());
+    let p = rng.gen_range(zero::<T>(), one::<T>());
     let n = search_point(section_list, p /*, pd, scale*/)?;
     let y: T = match section_list.back() {
         Some(s) => p * s._cum_int_exp_y_u.unwrap(),
@@ -1063,7 +1063,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -1111,7 +1111,7 @@ where
     T: Float
         + NumCast
         + std::cmp::PartialOrd
-        + SampleRange
+        + SampleUniform
         + std::marker::Sync
         + std::marker::Send
         + std::fmt::Display
@@ -1155,7 +1155,7 @@ where
             x
         };
 
-        let u: T = rng.gen_range(zero(), one());
+        let u: T = rng.gen_range(zero::<T>(), one::<T>());
 
         let ya = eval_log(&pd, xa, scale)?;
         let ycur = eval_log(&pd, xcur, scale)?;

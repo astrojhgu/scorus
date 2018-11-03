@@ -1,6 +1,6 @@
 use std;
 
-use rand::distributions::range::SampleRange;
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
@@ -33,14 +33,14 @@ where
 
 pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
 where
-    T: Float + std::cmp::PartialOrd + SampleRange,
+    T: Float + std::cmp::PartialOrd + SampleUniform,
     Standard: Distribution<T>,
     U: Rng,
 {
     let sqrt_a: T = a.sqrt();
     let unit: T = one();
     let two = unit + unit;
-    let p: T = rng.gen_range(zero(), two * (sqrt_a - unit / sqrt_a));
+    let p: T = rng.gen_range(zero::<T>(), two * (sqrt_a - unit / sqrt_a));
     let y: T = unit / sqrt_a + p / (two);
     y * y
 }
