@@ -2,8 +2,8 @@ extern crate rand;
 extern crate scorus;
 
 //use std;
+use rand::distributions::Distribution;
 use rand::distributions::Normal;
- use rand::distributions::Distribution;
 use rand::thread_rng;
 use scorus::mcmc::ensemble_sample::sample_st;
 use scorus::mcmc::graph::graph::Graph;

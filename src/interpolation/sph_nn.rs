@@ -1,7 +1,7 @@
 use num_traits::float::Float;
 use num_traits::Bounded;
-use rand::Rng;
 use rand::seq::SliceRandom;
+use rand::Rng;
 use std::fmt::Debug;
 use std::marker::Copy;
 
