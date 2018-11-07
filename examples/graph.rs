@@ -14,7 +14,7 @@ fn main() {
     let m = const_node(0.0).add_to(&mut g, &"m".to_string());
     let s = const_node(1.0).add_to(&mut g, &"s".to_string());
     let x = normal_node((m, 0), (s, 0)).add_to(&mut g, &"g".to_string());
-    let x2 = mul_node((x, 0), (x, 0)).add_to(&mut g, &"g2".to_string());
+    let _x2 = mul_node((x, 0), (x, 0)).add_to(&mut g, &"g2".to_string());
 
     g.seal();
     let mut gv = g.init_gv();
@@ -32,7 +32,7 @@ fn main() {
     let mut lp = Vec::new();
 
     let mut rng = thread_rng();
-    for i in 0..10000 {
+    for _i in 0..10000 {
         let aa = sample_st(&|x| g.logpost_all(x), &(ensemble, lp), &mut rng, 2.0).unwrap();
         ensemble = aa.0;
         lp = aa.1;

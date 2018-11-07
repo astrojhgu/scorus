@@ -82,7 +82,7 @@ fn main() {
         vec![0.23, 0.12],
     ];
     let y = vec![0.0];
-    let mut rng = rand::thread_rng();
+    let rng = rand::thread_rng();
     //let mut rng = rand::StdRng::new().unwrap();
 
     //let aa=(x,y);
@@ -98,7 +98,7 @@ fn main() {
         results[i].reserve(niter);
     }
 
-    let mut xy = (x, y);
+    let xy = (x, y);
 
     //let mut sampler = create_sampler_st(bimodal, xy, rng, blist, 2.0);
     let mut sampler = create_sampler(bimodal, xy, rng, blist, 2.0, 4);
