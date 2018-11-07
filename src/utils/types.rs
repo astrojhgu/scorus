@@ -7,7 +7,7 @@ pub trait HasElement {
 }
 
 pub trait Resizeable: HasElement {
-    fn resize(&mut self, usize, x: Self::ElmType);
+    fn resize(&mut self, _: usize, x: Self::ElmType);
 }
 
 pub trait ItemSwapable {
@@ -15,5 +15,5 @@ pub trait ItemSwapable {
 }
 
 pub trait InitFromLen: HasLen + HasElement {
-    fn init(usize) -> Self;
+    fn init(_: usize) -> Self;
 }

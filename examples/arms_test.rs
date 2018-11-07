@@ -10,7 +10,7 @@ fn main() {
     let mut nchange = 0;
     let mut xcur = 1.0;
 
-    for i in 0..1000 {
+    for _i in 0..1000 {
         xcur = arms(
             &|x: f64| (-x * x / (2.0 * 0.1 * 0.1)),
             (-100.0, 100.0),

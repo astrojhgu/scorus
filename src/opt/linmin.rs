@@ -5,7 +5,7 @@ use num_traits::identities::zero;
 use std;
 use std::ops::IndexMut;
 
-use utils::HasLen;
+use crate::utils::HasLen;
 
 use super::bas_utils::{max, shft3, sign, swap};
 

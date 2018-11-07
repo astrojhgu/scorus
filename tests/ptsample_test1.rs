@@ -31,7 +31,7 @@ fn test() {
     let mut rng = rand::thread_rng();
     let mut cached_logprob = Vec::new();
     for i in 0..NBETA {
-        for j in 0..NWALKERS {
+        for _j in 0..NWALKERS {
             ensemble.push(get_one_init_realization(&vec![0.0], &vec![1.0], &mut rng));
         }
         let fi: f64 = i as f64;
@@ -43,7 +43,7 @@ fn test() {
     for i in 0..NITER {
         let aaa = sample(
             &target_dist,
-            (ensemble, cached_logprob),
+            &(ensemble, cached_logprob),
             &mut rng,
             &betalist,
             i % 10 == 0,
@@ -63,7 +63,7 @@ fn test() {
 
     let stddev = ((NITER as f64) * (1.0 - P) * P).sqrt();
     let expected = (NITER as f64) * P;
-    let average = (cnt as f64);
+    let average = cnt as f64;
     if (average - expected).abs() > 3.0 * stddev {
         panic!(format!(
             "Deviate too much: {} vs {} with stddev={}",

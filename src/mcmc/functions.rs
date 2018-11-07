@@ -3,7 +3,7 @@ use special::{Error, Gamma};
 use num_traits::float::Float;
 use num_traits::identities::one;
 
-use basic::log_cn;
+use crate::basic::log_cn;
 
 pub fn phi<T>(x: T) -> T
 where

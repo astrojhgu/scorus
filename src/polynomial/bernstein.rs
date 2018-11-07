@@ -4,8 +4,8 @@ use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use std::ops::IndexMut;
 
-use basic::log_cn;
-use utils::types::InitFromLen;
+use crate::basic::log_cn;
+use crate::utils::types::InitFromLen;
 
 pub fn log_bernstein_base1<T>(x: T, n: usize, nu: usize) -> T
 where

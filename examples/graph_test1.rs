@@ -2,8 +2,8 @@ extern crate rand;
 extern crate scorus;
 
 //use std;
-use rand::distributions::normal::Normal;
-use rand::distributions::IndependentSample;
+use rand::distributions::Normal;
+ use rand::distributions::Distribution;
 use rand::thread_rng;
 use scorus::mcmc::ensemble_sample::sample_st;
 use scorus::mcmc::graph::graph::Graph;
@@ -35,7 +35,7 @@ fn main() {
     for i in 0..10000 {
         let k = format!("n{}", i);
         normal_node((m, 0), (s, 0))
-            .with_all_values(&[Observed(norm.ind_sample(&mut rng))])
+            .with_all_values(&[Observed(norm.sample(&mut rng))])
             .add_to(&mut g, &k);
     }
 
@@ -59,7 +59,7 @@ fn main() {
     ensemble.push(gv.clone());
 
     let mut lp = Vec::new();
-    for i in 0..10000 {
+    for _i in 0..10000 {
         let aa = sample_st(&|x| g.logpost_all(x), &(ensemble, lp), &mut rng, 2.0).unwrap();
         ensemble = aa.0;
         lp = aa.1;
