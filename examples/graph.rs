@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 extern crate rand;
 extern crate scorus;
 use rand::thread_rng;

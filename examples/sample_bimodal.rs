@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+#![allow(dead_code)]
 //sextern crate std;
 extern crate num_traits;
 extern crate quickersort;
@@ -6,10 +8,7 @@ extern crate scorus;
 
 use num_traits::float::Float;
 use quickersort::sort_by;
-use rand::Rng;
-use scorus::mcmc::ensemble_sample::sample as ff;
 use scorus::mcmc::mcmc_errors::McmcErr;
-use scorus::mcmc::ptsample::sample as ff1;
 use scorus::mcmc::ptsample::{create_sampler, create_sampler_st};
 use std::fs::File;
 use std::io::Write;

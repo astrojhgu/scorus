@@ -47,7 +47,7 @@ where
     y2_list
 }
 
-pub fn gen_spline<T>(input_x: &[T], input_y: &[T], d2y0: T, d2y1: T) -> Box<Fn(T) -> T>
+pub fn gen_spline<T>(input_x: &[T], input_y: &[T], d2y0: T, d2y1: T) -> Box<dyn Fn(T) -> T>
 where
     T: Float + Copy + 'static,
 {

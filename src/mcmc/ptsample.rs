@@ -25,7 +25,7 @@ pub fn create_sampler<'a, T, U, V, W, X, F>(
     beta_list: X,
     a: T,
     nthread: usize,
-) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
+) -> Box<dyn 'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
 where
     T: 'static
         + Float
@@ -85,7 +85,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
     mut rng: U,
     beta_list: X,
     a: T,
-) -> Box<'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
+) -> Box<dyn 'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
 where
     T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,

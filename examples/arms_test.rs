@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 extern crate num_traits;
 extern crate rand;
 extern crate scorus;
@@ -15,10 +16,11 @@ fn main() {
             &|x: f64| (-x * x / (2.0 * 0.1 * 0.1)),
             (-100.0, 100.0),
             &vec![-1.0, 0.0, 1.0],
-            1.0,
+            xcur,
             10,
             &mut rng,
             &mut nchange,
         ).unwrap();
+        println!("{}", xcur);
     }
 }

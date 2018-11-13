@@ -59,7 +59,7 @@ impl<
         self
     }
 
-    pub fn done(self) -> Box<Fn(&SphCoord<T>, usize) -> V> {
+    pub fn done(self) -> Box<dyn Fn(&SphCoord<T>, usize) -> V> {
         let ipt = Interpolator {
             tree: VpTree::new(self.points),
         };

@@ -26,12 +26,12 @@ where
         all_deterministic_children: Vec<usize>,
         is_observed: Vec<bool>,
         values: Vec<T>,
-        logprob: Box<Fn(&[T], &[T]) -> T>,
-        range: Box<Fn(&[T]) -> Vec<(T, T)>>,
+        logprob: Box<dyn Fn(&[T], &[T]) -> T>,
+        range: Box<dyn Fn(&[T]) -> Vec<(T, T)>>,
     },
 
     DeterministicNode {
-        calc: Box<Fn(&[T]) -> Vec<T>>,
+        calc: Box<dyn Fn(&[T]) -> Vec<T>>,
     },
 }
 
