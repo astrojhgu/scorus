@@ -1,4 +1,4 @@
-use super::super::super::utils::HasLen;
+use crate::utils::HasLen;
 use num_traits::float::Float;
 use std;
 use std::cell::RefCell;

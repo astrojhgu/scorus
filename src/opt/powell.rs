@@ -6,11 +6,11 @@ use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use std::fmt::Debug;
 
-use super::super::utils::HasLen;
 use super::bas_utils::sqr;
 use super::linmin::linmin;
 use super::opt_errors::OptErr;
 use super::tolerance::Tolerance;
+use crate::utils::HasLen;
 
 pub fn fmin<F, V, T, O>(
     f: &F,

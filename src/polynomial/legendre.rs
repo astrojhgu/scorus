@@ -6,7 +6,7 @@ use std::fmt::Display;
 use std::marker::Copy;
 use std::ops::IndexMut;
 
-use super::super::utils::HasLen;
+use crate::utils::HasLen;
 
 pub fn ln_factorial<T>(x: T) -> T
 where

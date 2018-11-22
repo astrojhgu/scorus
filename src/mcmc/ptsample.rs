@@ -14,9 +14,9 @@ use rand::distributions::Standard;
 use rand::seq::SliceRandom;
 use rand::Rng;
 //use std::sync::Arc;
-use super::super::utils::{HasLen, InitFromLen, ItemSwapable};
 use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
+use crate::utils::{HasLen, InitFromLen, ItemSwapable};
 
 pub fn create_sampler<'a, T, U, V, W, X, F>(
     flogprob: F,

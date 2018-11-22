@@ -2,9 +2,9 @@
 
 use std::fmt::Debug;
 
-use super::super::coordinates::SphCoord;
-use super::super::utils::regulate;
 use super::utils::nside2npix;
+use crate::coordinates::SphCoord;
+use crate::utils::regulate;
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::float::FloatConst;

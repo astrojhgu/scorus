@@ -5,8 +5,8 @@ use rand::Rng;
 use std::fmt::Debug;
 use std::marker::Copy;
 
-use super::super::coordinates::sphcoord::SphCoord;
-use super::super::space_search::{MetricPoint, VpTree};
+use crate::coordinates::sphcoord::SphCoord;
+use crate::space_search::{MetricPoint, VpTree};
 use std::ops::{Add, Div, Mul};
 
 impl<T> MetricPoint for SphCoord<T>

@@ -1,4 +1,4 @@
-use super::super::coordinates::{SphCoord, Vec2d};
+use crate::coordinates::{SphCoord, Vec2d};
 use num_traits::float::Float;
 use num_traits::float::FloatConst;
 

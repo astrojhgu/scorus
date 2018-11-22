@@ -1,7 +1,7 @@
 //! calculate the direction of some certain pixel
 
-use super::super::coordinates::{SphCoord, Vec3d};
 use super::utils::isqrt;
+use crate::coordinates::{SphCoord, Vec3d};
 use num_traits::float::Float;
 use num_traits::float::FloatConst;
 

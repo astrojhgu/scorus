@@ -13,10 +13,10 @@ use std::ops::IndexMut;
 use std::sync::Mutex;
 //use std::sync::Arc;
 
-use super::super::utils::HasLen;
-use super::super::utils::InitFromLen;
 use super::mcmc_errors::McmcErr;
 use super::utils::draw_z;
+use crate::utils::HasLen;
+use crate::utils::InitFromLen;
 
 use super::utils::scale_vec;
 

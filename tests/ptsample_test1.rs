@@ -2,7 +2,6 @@ extern crate num_traits;
 extern crate rand;
 extern crate scorus;
 
-
 use scorus::mcmc::get_one_init_realization;
 use scorus::mcmc::ptsample::sample;
 

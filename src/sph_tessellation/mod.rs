@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use super::coordinates::Vec3d;
+use crate::coordinates::Vec3d;
 use num_traits::float::Float;
 
 pub struct Tessellation<T>

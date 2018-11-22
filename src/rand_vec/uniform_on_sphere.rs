@@ -1,4 +1,4 @@
-use super::super::coordinates::SphCoord;
+use crate::coordinates::SphCoord;
 use num_traits::float::{Float, FloatConst};
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Standard};

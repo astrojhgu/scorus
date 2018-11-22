@@ -11,7 +11,7 @@ use num_traits::identities::zero;
 //use num_traits::NumCast;
 use std::ops::IndexMut;
 //use super::mcmc_errors::McmcErr;
-use super::super::utils::HasLen;
+use crate::utils::HasLen;
 //use super::super::utils::ItemSwapable;
 //use super::super::utils::Resizeable;
 

@@ -12,7 +12,7 @@ use std::ops::IndexMut;
 //use num_traits::NumCast;
 //use num_traits::identities::one;
 //use num_traits::identities::zero;
-use super::super::utils::HasLen;
+use crate::utils::HasLen;
 
 pub fn get_one_init_realization<U, T, R>(y1: &U, y2: &U, rng: &mut R) -> U
 where

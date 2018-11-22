@@ -12,7 +12,7 @@ use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
 
-use super::super::utils::HasLen;
+use crate::utils::HasLen;
 //use utils::Resizeable;
 //use utils::ItemSwapable;
 

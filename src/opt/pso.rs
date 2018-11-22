@@ -1,7 +1,7 @@
 use std;
 use std::ops::IndexMut;
 
-use super::super::utils::InitFromLen;
+use crate::utils::InitFromLen;
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};

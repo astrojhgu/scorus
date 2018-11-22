@@ -1,4 +1,4 @@
-use super::super::utils::HasLen;
+use crate::utils::HasLen;
 use num_traits::float::Float;
 use num_traits::identities::zero;
 use std::marker::Copy;
