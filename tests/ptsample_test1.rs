@@ -3,14 +3,14 @@ extern crate rand;
 extern crate scorus;
 
 use scorus::mcmc::get_one_init_realization;
-use scorus::mcmc::ptsample::sample;
 use scorus::mcmc::mcmc_vec::McmcVec;
+use scorus::mcmc::ptsample::sample;
 const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;
 const NBETA: u32 = 4;
 const P: f64 = 0.2;
 
-fn target_dist(x: &McmcVec<f64,Vec<f64>>) -> f64 {
+fn target_dist(x: &McmcVec<f64, Vec<f64>>) -> f64 {
     let x = x[0];
     if x < 0.0 || x > 1.0 {
         -std::f64::INFINITY
@@ -31,7 +31,11 @@ fn test() {
     let mut cached_logprob = Vec::new();
     for i in 0..NBETA {
         for _j in 0..NWALKERS {
-            ensemble.push(McmcVec(get_one_init_realization(&vec![0.0], &vec![1.0], &mut rng)));
+            ensemble.push(McmcVec(get_one_init_realization(
+                &vec![0.0],
+                &vec![1.0],
+                &mut rng,
+            )));
         }
         let fi: f64 = i as f64;
         betalist.push(1.0 / fi.exp2());

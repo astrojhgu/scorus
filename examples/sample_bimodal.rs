@@ -11,9 +11,9 @@ use std::io::Write;
 
 use num_traits::float::Float;
 use quickersort::sort_by;
+use scorus::linear_space::type_wrapper::LsVec;
 use scorus::mcmc::mcmc_errors::McmcErr;
 use scorus::mcmc::ptsample::{create_sampler, create_sampler_st};
-use scorus::linear_space::type_wrapper::LsVec;
 fn normal_dist(x: &Vec<f64>) -> f64 {
     let mut result = 0_f64;
     for i in x {

@@ -1,7 +1,7 @@
 use std;
-use std::ops::IndexMut;
+use std::ops::{Add, IndexMut, Mul, Sub};
 
-use crate::utils::InitFromLen;
+use crate::linear_space::LinearSpace;
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
@@ -21,7 +21,10 @@ where
         + Debug
         + Send
         + Sync,
-    V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug + Send + Sync,
+    V: Clone + IndexMut<usize, Output = T> + LinearSpace<T> + Debug + Send + Sync,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
 {
     pub position: V,
     pub velocity: V,
@@ -40,7 +43,10 @@ where
         + Debug
         + Send
         + Sync,
-    V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug + Send + Sync,
+    V: Clone + IndexMut<usize, Output = T> + LinearSpace<T> + Debug + Send + Sync,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
 {
     pub particle_count: usize,
     pub ndim: usize,
@@ -60,7 +66,10 @@ where
         + Debug
         + Send
         + Sync,
-    V: Clone + IndexMut<usize, Output = T> + InitFromLen + Debug + Send + Sync,
+    V: Clone + IndexMut<usize, Output = T> + LinearSpace<T> + Debug + Send + Sync,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
 {
     pub fn new<R>(
         func: &'a (Fn(&V) -> T + Sync + Send),
@@ -74,12 +83,12 @@ where
         R: Rng,
     {
         let swarm = Self::init_swarm(&func, &lower, &upper, particle_count, rng);
-        let ndim = lower.len();
+        let ndim = lower.dimension();
         let gbest = guess.map(|p| {
             let f = func(&p);
             Particle {
                 position: p,
-                velocity: V::init(ndim),
+                velocity: &lower * T::zero(),
                 fitness: f,
                 pbest: None,
             }
@@ -111,10 +120,10 @@ where
         R: Rng,
     {
         let mut result = Vec::<Particle<V, T>>::new();
-        let ndim = lower.len();
+        let ndim = lower.dimension();
         for _i in 0..pc {
-            let mut p = V::init(ndim);
-            let mut v = V::init(ndim);
+            let mut p = lower * T::zero();
+            let mut v = lower * T::zero();
             for j in 0..ndim {
                 p[j] = rng.gen_range(lower[j], upper[j]);
                 v[j] = zero();

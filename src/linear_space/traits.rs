@@ -38,4 +38,3 @@ where
         //self.dot(rhs).sqrt()
     }
 }
-

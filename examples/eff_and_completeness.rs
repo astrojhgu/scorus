@@ -10,8 +10,8 @@ use num_traits::identities::one;
 use num_traits::identities::zero;
 use rand::thread_rng;
 use rand::Rng;
-use scorus::mcmc::ensemble_sample::{sample, sample_st};
 use scorus::linear_space::type_wrapper::LsVec;
+use scorus::mcmc::ensemble_sample::{sample, sample_st};
 
 use scorus::mcmc::functions::{logdbin, phi};
 

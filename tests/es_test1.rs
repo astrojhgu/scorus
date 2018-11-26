@@ -12,7 +12,7 @@ const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;
 const P: f64 = 0.2;
 
-fn target_dist(x: &McmcVec<f64,Vec<f64>>) -> f64 {
+fn target_dist(x: &McmcVec<f64, Vec<f64>>) -> f64 {
     let x = x[0];
     if x < 0.0 || x > 1.0 {
         -std::f64::INFINITY
@@ -31,7 +31,11 @@ fn test() {
     let mut rng = rand::thread_rng();
     let mut cached_logprob = Vec::new();
     for _i in 0..NWALKERS {
-        ensemble.push(McmcVec(get_one_init_realization(&vec![0.0], &vec![1.0], &mut rng)));
+        ensemble.push(McmcVec(get_one_init_realization(
+            &vec![0.0],
+            &vec![1.0],
+            &mut rng,
+        )));
     }
 
     let mut result = Vec::new();
