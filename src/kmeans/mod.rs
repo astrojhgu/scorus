@@ -2,7 +2,7 @@ use crate::linear_space::traits::*;
 use num_traits::float::Float;
 use std::ops::{Add, Mul, Sub};
 
-pub fn kmeans<Scalar, T>(points: Vec<T>, mut seeds: Vec<T>, niter:usize) -> Vec<Vec<T>>
+pub fn kmeans<Scalar, T>(points: Vec<T>, mut seeds: Vec<T>, niter: usize) -> Vec<Vec<T>>
 where
     T: PDInnerProdSpace<Scalar>,
     for<'a> &'a T: Add<Output = T>,
@@ -12,9 +12,8 @@ where
 {
     let k = seeds.len();
 
-    let mut iter_cnt=0;
-    let cluster_id=
-    loop {
+    let mut iter_cnt = 0;
+    let cluster_id = loop {
         let cluster_id: Vec<_> = points
             .iter()
             .map(|p| {
@@ -44,7 +43,7 @@ where
             cnts[cid] = cnts[cid] + Scalar::one();
         });
 
-        if iter_cnt==niter{
+        if iter_cnt == niter {
             break cluster_id;
         }
 
@@ -54,12 +53,15 @@ where
             }
             *a = (a as &T) * (Scalar::one() / c);
         });
-        iter_cnt+=1;
+        iter_cnt += 1;
     };
 
-    let mut result:Vec<Vec<_>>=(0..k).map(|_x|{vec![]}).collect();
-    cluster_id.iter().zip(points.into_iter()).for_each(|(&i, p)|{
-        result[i].push(p);
-    });
+    let mut result: Vec<Vec<_>> = (0..k).map(|_x| vec![]).collect();
+    cluster_id
+        .iter()
+        .zip(points.into_iter())
+        .for_each(|(&i, p)| {
+            result[i].push(p);
+        });
     result
 }

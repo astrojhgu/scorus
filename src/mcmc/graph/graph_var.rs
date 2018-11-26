@@ -1,8 +1,10 @@
+use crate::linear_space::LinearSpace;
 use crate::utils::HasLen;
 use num_traits::float::Float;
 use std;
 use std::cell::RefCell;
 use std::fmt::{Display, Error, Formatter};
+use std::ops::{Add, Mul, Sub};
 
 pub struct GraphVar<T>
 where
@@ -75,5 +77,59 @@ where
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.sampleable_values[index]
+    }
+}
+
+impl<'a, T> Add<&'a GraphVar<T>> for &'a GraphVar<T>
+where
+    T: Float + Sync + Send + std::fmt::Display,
+{
+    type Output = GraphVar<T>;
+
+    fn add(self, rhs: Self) -> GraphVar<T> {
+        let mut result = self.clone();
+        for i in 0..result.len() {
+            result[i] = result[i] + rhs[i];
+        }
+        result
+    }
+}
+
+impl<'a, T> Sub<&'a GraphVar<T>> for &'a GraphVar<T>
+where
+    T: Float + Sync + Send + std::fmt::Display,
+{
+    type Output = GraphVar<T>;
+
+    fn sub(self, rhs: Self) -> GraphVar<T> {
+        let mut result = self.clone();
+        for i in 0..result.len() {
+            result[i] = result[i] - rhs[i];
+        }
+        result
+    }
+}
+
+impl<'a, T> Mul<T> for &'a GraphVar<T>
+where
+    T: Float + Sync + Send + std::fmt::Display,
+{
+    type Output = GraphVar<T>;
+
+    fn mul(self, rhs: T) -> GraphVar<T> {
+        let mut result = self.clone();
+        for i in 0..result.len() {
+            result[i] = result[i] * rhs;
+        }
+        result
+    }
+}
+
+impl<T> LinearSpace<T> for GraphVar<T>
+where
+    T: Float + Sync + Send + std::fmt::Display,
+{
+    fn dimension(&self) -> usize {
+        self.len()
     }
 }

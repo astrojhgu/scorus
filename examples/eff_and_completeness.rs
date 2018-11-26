@@ -11,6 +11,7 @@ use num_traits::identities::zero;
 use rand::thread_rng;
 use rand::Rng;
 use scorus::mcmc::ensemble_sample::{sample, sample_st};
+use scorus::linear_space::type_wrapper::LsVec;
 
 use scorus::mcmc::functions::{logdbin, phi};
 
@@ -30,7 +31,7 @@ fn main() {
         121.0, 79.0, 81.0, 61.0, 41.0, 32.0, 32.0, 31.0, 22.0, 18.0, 11.0, 298.0,
     ];
 
-    let mut logprob = |x: &Vec<f64>| {
+    let mut logprob = |x: &LsVec<f64, Vec<f64>>| {
         let energy = &E;
         let nrec = &nrec;
         let ninj = &ninj;
@@ -67,10 +68,12 @@ fn main() {
     let mut ensemble = Vec::new();
 
     for _ in 0..16 {
-        ensemble.push(scorus::mcmc::init_ensemble::get_one_init_realization(
-            &vec![0.0, 0.9, 15.0, 10.0],
-            &vec![0.1, 1.0, 17.0, 13.0],
-            &mut rng,
+        ensemble.push(LsVec(
+            scorus::mcmc::init_ensemble::get_one_init_realization(
+                &vec![0.0, 0.9, 15.0, 10.0],
+                &vec![0.1, 1.0, 17.0, 13.0],
+                &mut rng,
+            ),
         ));
     }
 

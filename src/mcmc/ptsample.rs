@@ -1,8 +1,8 @@
+use rayon::scope;
 use std;
 use std::ops::IndexMut;
+use std::ops::{Add, Mul, Sub};
 use std::sync::Mutex;
-
-use rayon::scope;
 
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
@@ -16,6 +16,7 @@ use rand::Rng;
 //use std::sync::Arc;
 use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
+use crate::linear_space::LinearSpace;
 use crate::utils::{HasLen, InitFromLen, ItemSwapable};
 
 pub fn create_sampler<'a, T, U, V, W, X, F>(
@@ -37,7 +38,10 @@ where
         + std::fmt::Display,
     Standard: Distribution<T>,
     U: 'static + Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLen + Sync + Send + Sized,
+    V: Clone + LinearSpace<T> + Sync + Send + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     W: 'static
         + Clone
         + IndexMut<usize, Output = V>
@@ -90,7 +94,10 @@ where
     T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: 'static + Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
+    V: Clone + LinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized + ItemSwapable,
     X: 'static
         + Clone
@@ -140,7 +147,10 @@ where
         + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
+    V: Clone + LinearSpace<T> + Sync + Send + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     W: Clone
         + IndexMut<usize, Output = V>
         + HasLen
@@ -179,7 +189,10 @@ where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLen,
+    V: Clone + LinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
     X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
     F: Fn(&V) -> T,
@@ -215,7 +228,10 @@ where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLen,
+    V: Clone + LinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
     X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
 {
@@ -282,7 +298,10 @@ where
         + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
+    V: Clone + LinearSpace<T> + Sync + Send + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     W: Clone
         + IndexMut<usize, Output = V>
         + HasLen
@@ -324,7 +343,7 @@ where
         return Err(McmcErr::NWalkersMismatchesNBeta);
     }
 
-    let ndims: T = NumCast::from(ensemble[0].len()).unwrap();
+    let ndims: T = NumCast::from(ensemble[0].dimension()).unwrap();
 
     let half_nwalkers = nwalkers / 2;
     let mut walker_group: Vec<Vec<Vec<usize>>> = Vec::new();
@@ -477,7 +496,10 @@ where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + IndexMut<usize, Output = T> + HasLen,
+    V: Clone + LinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
     X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
     F: Fn(&V) -> T,
@@ -501,7 +523,7 @@ where
         return Err(McmcErr::NWalkersMismatchesNBeta);
     }
 
-    let ndims: T = NumCast::from(ensemble[0].len()).unwrap();
+    let ndims: T = NumCast::from(ensemble[0].dimension()).unwrap();
 
     let half_nwalkers = nwalkers / 2;
     let mut walker_group: Vec<Vec<Vec<usize>>> = Vec::new();

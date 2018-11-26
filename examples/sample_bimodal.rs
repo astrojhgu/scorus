@@ -6,13 +6,14 @@ extern crate quickersort;
 extern crate rand;
 extern crate scorus;
 
+use std::fs::File;
+use std::io::Write;
+
 use num_traits::float::Float;
 use quickersort::sort_by;
 use scorus::mcmc::mcmc_errors::McmcErr;
 use scorus::mcmc::ptsample::{create_sampler, create_sampler_st};
-use std::fs::File;
-use std::io::Write;
-
+use scorus::linear_space::type_wrapper::LsVec;
 fn normal_dist(x: &Vec<f64>) -> f64 {
     let mut result = 0_f64;
     for i in x {
@@ -24,7 +25,7 @@ fn normal_dist(x: &Vec<f64>) -> f64 {
     result
 }
 
-fn bimodal(x: &Vec<f64>) -> f64 {
+fn bimodal(x: &LsVec<f64, Vec<f64>>) -> f64 {
     if x[0] < -15.0 || x[0] > 15.0 || x[1] < 0.0 || x[1] > 1.0 {
         return -std::f64::INFINITY;
     }
@@ -46,7 +47,7 @@ fn foo(x: &Vec<f64>) -> f64 {
 }
 
 fn main() {
-    let x = vec![
+    let x: Vec<_> = vec![
         vec![0.10, 0.20],
         vec![0.20, 0.10],
         vec![0.23, 0.21],
@@ -79,7 +80,9 @@ fn main() {
         vec![0.20, 0.24],
         vec![0.20, 0.12],
         vec![0.23, 0.12],
-    ];
+    ].into_iter()
+    .map(|x| LsVec(x))
+    .collect();
     let y = vec![0.0];
     let rng = rand::thread_rng();
     //let mut rng = rand::StdRng::new().unwrap();
@@ -106,7 +109,7 @@ fn main() {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
 
         sampler(
-            &mut |xy: &Result<(Vec<Vec<f64>>, Vec<f64>), McmcErr>| match xy {
+            &mut |xy: &Result<(Vec<LsVec<f64, Vec<f64>>>, Vec<f64>), McmcErr>| match xy {
                 &Ok(ref xy) => for i in 0..nbeta {
                     results[i].push(xy.0[i * nwalkers + 0][0]);
                 },

@@ -1,17 +1,17 @@
-use std;
-
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
+use std;
+use std::ops::{Add, Mul, Sub};
 
 use num_traits::float::Float;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 //use num_traits::NumCast;
-use std::ops::IndexMut;
 //use super::mcmc_errors::McmcErr;
-use crate::utils::HasLen;
+use crate::linear_space::LinearSpace;
+
 //use super::super::utils::ItemSwapable;
 //use super::super::utils::Resizeable;
 
@@ -45,16 +45,13 @@ where
     y * y
 }
 
-pub fn scale_vec<T, U>(x1: &U, x2: &U, z: T) -> U
+pub fn scale_vec<T, V>(x1: &V, x2: &V, z: T) -> V
 where
     T: Float,
-    U: Clone + IndexMut<usize, Output = T> + HasLen,
+    V: LinearSpace<T>,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
 {
-    let mut result = (*x1).clone();
-    let unit: T = one();
-    for l in 0..x1.len() {
-        result[l] = z * x1[l] + (unit - z) * x2[l];
-    }
-
-    result
+    &(x1 * z) + &(x2 * (T::one() - z))
 }
