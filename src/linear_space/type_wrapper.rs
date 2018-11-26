@@ -1,4 +1,4 @@
-use super::traits::LinearSpace;
+use super::traits::{InnerProdSpace, LinearSpace, PDInnerProdSpace};
 use crate::utils::HasLen;
 use num_traits::Float;
 use std::convert::{AsMut, AsRef};
@@ -86,6 +86,25 @@ where
         self.0.len()
     }
 }
+
+impl<T, V> InnerProdSpace<T> for LsVec<T, V>
+where
+    T: Float,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
+{
+    fn dot(&self, rhs: &Self) -> T {
+        let ndim = self.dimension();
+        (0..ndim)
+            .map(|i| self.0[i] * rhs.0[i])
+            .fold(T::zero(), |a, b| a + b)
+    }
+}
+
+impl<T, V> PDInnerProdSpace<T> for LsVec<T, V>
+where
+    T: Float,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
+{}
 
 impl<T, V> AsRef<[T]> for LsVec<T, V>
 where
