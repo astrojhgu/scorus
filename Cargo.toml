@@ -1,31 +1,3 @@
-[[example]]
-name = 'sample_bimodal'
-path = 'examples/sample_bimodal.rs'
-
-[[example]]
-name = 'eff_and_completeness'
-path = 'examples/eff_and_completeness.rs'
-
-[[example]]
-name = 'graph'
-path = 'examples/graph.rs'
-
-[[example]]
-name = 'gt1'
-path = 'examples/graph_test1.rs'
-
-[[example]]
-name = 'gt2'
-path = 'examples/graph_test2.rs'
-
-[[example]]
-name = 'as1'
-path = 'examples/arms_test.rs'
-
-[[example]]
-name = 'bng'
-path = 'examples/bayes_network_gaussian.rs'
-
 [[test]]
 name = 'ptsample_test1'
 path = 'tests/ptsample_test1.rs'

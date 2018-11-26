@@ -781,27 +781,6 @@ where
     recurse(v, k, &mut is_less);
 }
 
-/// Partially sorts a slice using `compare` to compare elements and puts the `k`th smallest
-/// item in place.
-///
-/// This sort is in-place, unstable, and `O(n log n)` worst-case.
-///
-/// The implementation is based on Orson Peters' pattern-defeating quickselect.
-///
-/// # Examples
-///
-/// ```
-/// let mut v = [5, 4, 1, 3, 2];
-/// let k = 2;
-/// pdqselect::select_by(&mut v, k, |a, b| a.cmp(b));
-/// assert!(v[..k].iter().all(|&x| x <= v[k]));
-/// assert!(v[k+1..].iter().all(|&x| x >= v[k]));
-///
-/// // reverse sorting
-/// pdqselect::select_by(&mut v, k, |a, b| b.cmp(a));
-/// assert!(v[..k].iter().all(|&x| x >= v[k]));
-/// assert!(v[k+1..].iter().all(|&x| x <= v[k]));
-/// ```
 pub fn select_by<T, F>(v: &mut [T], k: usize, mut compare: F)
 where
     F: FnMut(&T, &T) -> Ordering,

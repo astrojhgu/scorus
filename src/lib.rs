@@ -47,3 +47,8 @@ pub mod utils;
 
 ///some basic math functions
 pub mod basic;
+
+//Linear space
+pub mod linear_space;
+
+pub mod kmeans;
