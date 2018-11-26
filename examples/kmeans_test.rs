@@ -15,24 +15,26 @@ use scorus::linear_space;
 use scorus::linear_space::type_wrapper::LsVec;
 
 fn main() {
-    let normal = Normal::new(0.0, 200.0);
+    let normal = Normal::new(0.0, 1.0);
 
     let mut rng = thread_rng();
 
     let mut points = vec![vec![], vec![]];
     for i in 0..1000 {
-        let x = normal.sample(&mut rng) + 1.0;
-        let y = normal.sample(&mut rng) + 1.0;
-        points[0].push(LsVec(vec![x, y]));
+        let x = normal.sample(&mut rng) + 2.0;
+        let y = normal.sample(&mut rng) + 2.0;
+        let cid = if normal.sample(&mut rng) > 0.0 { 1 } else { 0 };
+        points[cid].push(LsVec(vec![x, y]));
     }
 
     for i in 0..1000 {
-        let x = normal.sample(&mut rng) - 1.0;
-        let y = normal.sample(&mut rng) - 1.0;
-        points[1].push(LsVec(vec![x, y]));
+        let x = normal.sample(&mut rng) - 2.0;
+        let y = normal.sample(&mut rng) - 2.0;
+        let cid = if normal.sample(&mut rng) > 0.0 { 1 } else { 0 };
+        points[cid].push(LsVec(vec![x, y]));
     }
 
-    for i in 0..100 {
+    for i in 0..10000 {
         points = kmeans::kmeans_iter(points).unwrap();
     }
 
