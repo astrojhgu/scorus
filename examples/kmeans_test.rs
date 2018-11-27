@@ -20,21 +20,21 @@ fn main() {
     let mut rng = thread_rng();
 
     let mut points = vec![vec![], vec![]];
-    for i in 0..1000 {
+    for _i in 0..1000 {
         let x = normal.sample(&mut rng) + 2.0;
         let y = normal.sample(&mut rng) + 2.0;
         let cid = if normal.sample(&mut rng) > 0.0 { 1 } else { 0 };
         points[cid].push(LsVec(vec![x, y]));
     }
 
-    for i in 0..1000 {
+    for _i in 0..1000 {
         let x = normal.sample(&mut rng) - 2.0;
         let y = normal.sample(&mut rng) - 2.0;
         let cid = if normal.sample(&mut rng) > 0.0 { 1 } else { 0 };
         points[cid].push(LsVec(vec![x, y]));
     }
 
-    for i in 0..10000 {
+    for _i in 0..10000 {
         points = kmeans::kmeans_iter(points).unwrap();
     }
 

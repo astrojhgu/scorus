@@ -6,13 +6,13 @@ extern crate scorus;
 use num_traits::float::Float;
 use scorus::mcmc::ensemble_sample::sample;
 use scorus::mcmc::get_one_init_realization;
-use scorus::mcmc::mcmc_vec::McmcVec;
+use scorus::linear_space::type_wrapper::LsVec;
 
 const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;
 const P: f64 = 0.2;
 
-fn target_dist(x: &McmcVec<f64, Vec<f64>>) -> f64 {
+fn target_dist(x: &LsVec<f64, Vec<f64>>) -> f64 {
     let x = x[0];
     if x < 0.0 || x > 1.0 {
         -std::f64::INFINITY
@@ -31,7 +31,7 @@ fn test() {
     let mut rng = rand::thread_rng();
     let mut cached_logprob = Vec::new();
     for _i in 0..NWALKERS {
-        ensemble.push(McmcVec(get_one_init_realization(
+        ensemble.push(LsVec(get_one_init_realization(
             &vec![0.0],
             &vec![1.0],
             &mut rng,
