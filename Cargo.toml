@@ -9,7 +9,7 @@ path = 'tests/es_test1.rs'
 [dependencies]
 num-traits = '0.2.6'
 quickersort = '3.0.1'
-rand = '0.6.0'
+rand = '0.6.1'
 rayon = '1.0.3'
 special = '0.8.0'
 
