@@ -2,8 +2,8 @@ extern crate num_traits;
 extern crate rand;
 extern crate scorus;
 
-use scorus::mcmc::get_one_init_realization;
 use scorus::linear_space::type_wrapper::LsVec;
+use scorus::mcmc::get_one_init_realization;
 use scorus::mcmc::ptsample::sample;
 const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;

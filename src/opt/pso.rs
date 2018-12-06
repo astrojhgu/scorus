@@ -1,6 +1,8 @@
 use std;
 use std::ops::{Add, IndexMut, Mul, Sub};
 
+use rayon::prelude::*;
+
 use crate::linear_space::LinearSpace;
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
@@ -140,9 +142,15 @@ where
     }
 
     pub fn update_fitness(&mut self) {
-        let f: Vec<T> = self
+        /*let f: Vec<T> = self
             .swarm
             .iter()
+            .map(|p| (self.func)(&p.position))
+            .collect();*/
+
+        let f: Vec<T> = self
+            .swarm
+            .par_iter()
             .map(|p| (self.func)(&p.position))
             .collect();
         f.iter().zip(self.swarm.iter_mut()).for_each(|(&f, p)| {

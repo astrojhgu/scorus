@@ -4,9 +4,9 @@ extern crate rand;
 extern crate scorus;
 
 use num_traits::float::Float;
+use scorus::linear_space::type_wrapper::LsVec;
 use scorus::mcmc::ensemble_sample::sample;
 use scorus::mcmc::get_one_init_realization;
-use scorus::linear_space::type_wrapper::LsVec;
 
 const NITER: u32 = 100000;
 const NWALKERS: u32 = 16;
