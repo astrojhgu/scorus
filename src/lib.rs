@@ -1,5 +1,3 @@
-#![feature(vec_resize_default)]
-
 //! # Scientific Computing for Rust-lang
 
 extern crate num_traits;

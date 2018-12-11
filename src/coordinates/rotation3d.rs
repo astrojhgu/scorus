@@ -60,6 +60,92 @@ where
     }
 }
 
+impl<T> Mul for &RotMatrix<T>
+    where
+        T: Float + Copy,
+{
+    type Output = RotMatrix<T>;
+
+    fn mul(self, rhs: &RotMatrix<T>) -> RotMatrix<T> {
+        let mut data = [[T::zero(); 3]; 3];
+        let ndim = 3;
+        for i in 0..ndim {
+            for j in 0..ndim {
+                let mut y = T::zero();
+                for k in 0..ndim {
+                    y = y + self.elements[i][k] * rhs.elements[k][j];
+                }
+                data[i][j] = y;
+            }
+        }
+        RotMatrix { elements: data }
+    }
+}
+
+impl<T> Mul<&RotMatrix<T>> for RotMatrix<T>
+    where
+        T: Float + Copy,
+{
+    type Output = RotMatrix<T>;
+
+    fn mul(self, rhs: &RotMatrix<T>) -> RotMatrix<T> {
+        let mut data = [[T::zero(); 3]; 3];
+        let ndim = 3;
+        for i in 0..ndim {
+            for j in 0..ndim {
+                let mut y = T::zero();
+                for k in 0..ndim {
+                    y = y + self.elements[i][k] * rhs.elements[k][j];
+                }
+                data[i][j] = y;
+            }
+        }
+        RotMatrix { elements: data }
+    }
+}
+
+impl<T> Mul<RotMatrix<T>> for &RotMatrix<T>
+    where
+        T: Float + Copy,
+{
+    type Output = RotMatrix<T>;
+
+    fn mul(self, rhs: RotMatrix<T>) -> RotMatrix<T> {
+        let mut data = [[T::zero(); 3]; 3];
+        let ndim = 3;
+        for i in 0..ndim {
+            for j in 0..ndim {
+                let mut y = T::zero();
+                for k in 0..ndim {
+                    y = y + self.elements[i][k] * rhs.elements[k][j];
+                }
+                data[i][j] = y;
+            }
+        }
+        RotMatrix { elements: data }
+    }
+}
+
+
+impl<T> Mul<&Vec3d<T>> for &RotMatrix<T>
+    where
+        T: Float + Copy,
+{
+    type Output = Vec3d<T>;
+
+    fn mul(self, rhs: &Vec3d<T>) -> Vec3d<T> {
+        let mut result = Vec3d::new(T::zero(), T::zero(), T::zero());
+        let ndim = 3;
+        for i in 0..ndim {
+            for k in 0..ndim {
+                result[i] = result[i] + self[i][k] * rhs[k];
+            }
+        }
+        result
+    }
+}
+
+
 impl<T> Mul<Vec3d<T>> for RotMatrix<T>
 where
     T: Float + Copy,
@@ -67,6 +153,42 @@ where
     type Output = Vec3d<T>;
 
     fn mul(self, rhs: Vec3d<T>) -> Vec3d<T> {
+        let mut result = Vec3d::new(T::zero(), T::zero(), T::zero());
+        let ndim = 3;
+        for i in 0..ndim {
+            for k in 0..ndim {
+                result[i] = result[i] + self[i][k] * rhs[k];
+            }
+        }
+        result
+    }
+}
+
+impl<T> Mul<Vec3d<T>> for &RotMatrix<T>
+    where
+        T: Float + Copy,
+{
+    type Output = Vec3d<T>;
+
+    fn mul(self, rhs: Vec3d<T>) -> Vec3d<T> {
+        let mut result = Vec3d::new(T::zero(), T::zero(), T::zero());
+        let ndim = 3;
+        for i in 0..ndim {
+            for k in 0..ndim {
+                result[i] = result[i] + self[i][k] * rhs[k];
+            }
+        }
+        result
+    }
+}
+
+impl<T> Mul<&Vec3d<T>> for RotMatrix<T>
+    where
+        T: Float + Copy,
+{
+    type Output = Vec3d<T>;
+
+    fn mul(self, rhs: &Vec3d<T>) -> Vec3d<T> {
         let mut result = Vec3d::new(T::zero(), T::zero(), T::zero());
         let ndim = 3;
         for i in 0..ndim {
