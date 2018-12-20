@@ -32,6 +32,7 @@ use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
 use scorus::utils::types::{HasElement, HasLen, InitFromLen};
+use scorus::integration::adaptive_trapezoid::integrate;
 
 fn foo(x: f64) -> f64 {
     (x.powi(2) * 20.0).sin()
@@ -42,12 +43,7 @@ fn foo2(x: f64) -> f64 {
 }
 
 fn main() {
-    let n = 100_000;
-    let p: Vec<_> = (0..=n).map(|i| foo2(f64::from(i) / f64::from(n))).collect();
-    let x: Vec<_> = (0..1000).map(|x| f64::from(x) / 1000.0).collect();
 
-    let y = bernstein_poly(&x, &p);
-    for i in 0..x.len() {
-        println!("{} {} {}", x[i], y[i], foo2(x[i]))
-    }
+    println!("{}", integrate(&|x:f64|{x.sin()}, 1e-12, &[0.0,1.0, 2.0, f64::PI()]));
+
 }
