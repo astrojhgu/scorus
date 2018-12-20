@@ -109,10 +109,10 @@ where
             / dphi;
         let mut i2 = i1 + 1;
         if i1 < 0 {
-            i1 = i1 + nr as isize;
+            i1 += nr as isize;
         }
         if i2 as usize >= nr {
-            i2 = i2 - nr as isize;
+            i2 -= nr as isize;
         }
         pix[0] = sp + i1 as usize;
         pix[1] = sp + i2 as usize;
