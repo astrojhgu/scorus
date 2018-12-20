@@ -1,3 +1,4 @@
+#![allow(clippy::type_complexity)]
 use std::fmt::{Display, Error, Formatter};
 
 use num_traits::float::Float;
@@ -57,7 +58,7 @@ where
     T: Float + Sync + Send + Display,
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "Parents:\n")?;
+        writeln!(f, "Parents:")?;
 
         for &(i, j) in &self.info.parents {
             write!(f, "{} - {} ", i, j)?;

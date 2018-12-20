@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 //! 3-D Euclid vectors
 
 use num_traits::float::Float;
@@ -43,7 +44,7 @@ where
 {
     /// create a vector from its components
     pub fn new(x: T, y: T, z: T) -> Vec3d<T> {
-        Vec3d::<T> { x: x, y: y, z: z }
+        Vec3d::<T> { x, y, z }
     }
 
     /// return the corresponding normalized vector
@@ -65,7 +66,7 @@ where
         let z = cp;
         let x = sp * ca;
         let y = sp * sa;
-        Vec3d { x: x, y: y, z: z }
+        Vec3d { x, y, z }
     }
 
     /// inner product

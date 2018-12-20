@@ -1,3 +1,7 @@
+#![allow(clippy::many_single_char_names)]
+#![allow(clippy::type_complexity)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::mutex_atomic)]
 use rayon::scope;
 use std;
 use std::ops::IndexMut;
@@ -75,16 +79,15 @@ where
                 nthread,
             );
             handler(&result);
-            match result {
-                Ok(x) => ensemble_logprob = x,
-                _ => (),
+            if let Ok(x) = result {
+                ensemble_logprob = x
             }
         },
     )
 }
 
 pub fn create_sampler_st<'a, T, U, V, W, X, F>(
-    mut flogprob: F,
+    flogprob: F,
     mut ensemble_logprob: (W, X),
     mut rng: U,
     beta_list: X,
@@ -111,18 +114,10 @@ where
 {
     Box::new(
         move |handler: &mut FnMut(&Result<(W, X), McmcErr>), sw: bool| {
-            let result = sample_st(
-                &mut flogprob,
-                &ensemble_logprob,
-                &mut rng,
-                &beta_list,
-                sw,
-                a,
-            );
+            let result = sample_st(&flogprob, &ensemble_logprob, &mut rng, &beta_list, sw, a);
             handler(&result);
-            match result {
-                Ok(x) => ensemble_logprob = x,
-                _ => (),
+            if let Ok(x) = result {
+                ensemble_logprob = x;
             }
         },
     )
@@ -213,9 +208,10 @@ where
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
 
-    match x > one::<T>() {
-        true => one::<T>(),
-        false => x,
+    if x > one::<T>() {
+        one::<T>()
+    } else {
+        x
     }
 }
 
@@ -409,7 +405,7 @@ where
             let rvec = &rvec;
             let flogprob = flogprob;
             //let nwalkers=nwalkers;
-            let task = move || loop {
+            move || loop {
                 let n: usize;
                 {
                     let mut k1 = atomic_k.lock().unwrap();
@@ -423,15 +419,14 @@ where
                 let ibeta = n / nwalkers;
                 let k = n - ibeta * nwalkers;
 
-                let lp_last_y = match lp_cached {
-                    false => {
-                        //let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
-                        let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
-                        let mut lpyy = result_logprob.lock().unwrap();
-                        lpyy[ibeta * nwalkers + k] = yy1;
-                        yy1
-                    }
-                    _ => cached_logprob[ibeta * nwalkers + k],
+                let lp_last_y = if !lp_cached {
+                    //let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
+                    let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
+                    let mut lpyy = result_logprob.lock().unwrap();
+                    lpyy[ibeta * nwalkers + k] = yy1;
+                    yy1
+                } else {
+                    cached_logprob[ibeta * nwalkers + k]
                 };
 
                 let i = walker_group_id[ibeta][k];
@@ -456,8 +451,7 @@ where
                         lpyy[ibeta * nwalkers + k] = lp_y;
                     }
                 }
-            };
-            task
+            }
         };
 
         if nthread > 1 {
@@ -575,15 +569,14 @@ where
     for n in 0..nwalkers * nbeta {
         let ibeta = n / nwalkers;
         let k = n - ibeta * nwalkers;
-        let lp_last_y = match lp_cached {
-            false => {
-                //let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
-                let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
+        let lp_last_y = if !lp_cached {
+            //let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
+            let yy1 = flogprob(&ensemble[ibeta * nwalkers + k]);
 
-                result_logprob[ibeta * nwalkers + k] = yy1;
-                yy1
-            }
-            _ => cached_logprob[ibeta * nwalkers + k],
+            result_logprob[ibeta * nwalkers + k] = yy1;
+            yy1
+        } else {
+            cached_logprob[ibeta * nwalkers + k]
         };
 
         let i = walker_group_id[ibeta][k];

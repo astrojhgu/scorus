@@ -1,3 +1,4 @@
+#![allow(clippy::many_single_char_names)]
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::one;
@@ -16,7 +17,7 @@ where
 {
     let two = one::<T>() + one::<T>();
     let itmax = 100;
-    let cgold = T::from(0.3819660).unwrap();
+    let cgold = T::from(0.381_966_0).unwrap();
     let zeps = T::epsilon() * T::from(1e-3).unwrap();
 
     let (mut a, mut b) = if ax < cx { (ax, cx) } else { (cx, ax) };
@@ -121,7 +122,7 @@ where
     F: Fn(T) -> T,
 {
     let two = one::<T>() + one::<T>();
-    let gold = T::from(1.618034).unwrap();
+    let gold = T::from(1.618_034).unwrap();
     let glimit = 100;
     let tiny = T::epsilon();
     let mut ulim;

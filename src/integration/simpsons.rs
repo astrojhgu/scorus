@@ -1,3 +1,5 @@
+#![allow(clippy::many_single_char_names)]
+#![allow(clippy::too_many_arguments)]
 use super::integration_errors::IntegrationError;
 use num_traits::float::Float;
 use num_traits::identities::one;

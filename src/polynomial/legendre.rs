@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 //use ::std;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
@@ -47,7 +48,7 @@ where
     let n = p.len();
     for i in 0..n {
         //println!("{}", p[i]);
-        for j in 0..(i + 1) {
+        for j in 0..=i {
             //println!("{} {} {}", i,j,p[i]*coefficient::<T>(i,j));
             result[j] = result[j] + p[i] * coefficient(i, j);
         }

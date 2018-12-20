@@ -60,10 +60,7 @@ where
             [3, 4, 5],
             [1, 4, 5],
         ];
-        Tessellation {
-            vertices: vertices,
-            faces: faces,
-        }
+        Tessellation { vertices, faces }
     }
 
     pub fn northern_hemispere() -> Tessellation<T> {
@@ -77,10 +74,7 @@ where
             Vec3d::new(zero, -one, zero),
         ];
         let faces = vec![[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 1, 4]];
-        Tessellation {
-            vertices: vertices,
-            faces: faces,
-        }
+        Tessellation { vertices, faces }
     }
 
     pub fn refine(&mut self) {
@@ -137,6 +131,6 @@ where
         for p in &mut self.vertices {
             *p = *p + center;
         }
-        self.faces = Vec::from(new_faces);
+        self.faces = new_faces;
     }
 }

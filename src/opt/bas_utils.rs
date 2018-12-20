@@ -1,12 +1,11 @@
+#![allow(clippy::many_single_char_names)]
 use num_traits::float::Float;
 
 pub fn swap<T>(a: &mut T, b: &mut T)
 where
     T: Copy,
 {
-    let c = *a;
-    *a = *b;
-    *b = c;
+    std::mem::swap(&mut (*a), &mut (*b))
 }
 
 pub fn shft3<T>(a: &mut T, b: &mut T, c: &mut T, d: T)

@@ -42,9 +42,9 @@ fn foo2(x: f64) -> f64 {
 }
 
 fn main() {
-    let n = 100000;
-    let p: Vec<_> = (0..n + 1).map(|i| foo2(i as f64 / n as f64)).collect();
-    let x: Vec<_> = (0..1000).map(|x| x as f64 / 1000.0).collect();
+    let n = 100_000;
+    let p: Vec<_> = (0..=n).map(|i| foo2(f64::from(i) / f64::from(n))).collect();
+    let x: Vec<_> = (0..1000).map(|x| f64::from(x) / 1000.0).collect();
 
     let y = bernstein_poly(&x, &p);
     for i in 0..x.len() {

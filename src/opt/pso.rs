@@ -75,8 +75,8 @@ where
 {
     pub fn new<R>(
         func: &'a (Fn(&V) -> T + Sync + Send),
-        lower: V,
-        upper: V,
+        lower: &V,
+        upper: &V,
         guess: Option<V>,
         particle_count: usize,
         rng: &mut R,
@@ -84,31 +84,31 @@ where
     where
         R: Rng,
     {
-        let swarm = Self::init_swarm(&func, &lower, &upper, particle_count, rng);
+        let swarm = Self::init_swarm(&func, lower, upper, particle_count, rng);
         let ndim = lower.dimension();
         let gbest = guess.map(|p| {
             let f = func(&p);
             Particle {
                 position: p,
-                velocity: &lower * T::zero(),
+                velocity: lower * T::zero(),
                 fitness: f,
                 pbest: None,
             }
         });
         ParticleSwarmMaximizer {
-            particle_count: particle_count,
-            ndim: ndim,
-            swarm: swarm,
-            gbest: gbest,
-            func: func,
+            particle_count,
+            ndim,
+            swarm,
+            gbest,
+            func,
         }
     }
 
-    pub fn restart<R>(&mut self, lower: V, upper: V, particle_count: usize, rng: &mut R)
+    pub fn restart<R>(&mut self, lower: &V, upper: &V, particle_count: usize, rng: &mut R)
     where
         R: Rng,
     {
-        self.swarm = Self::init_swarm(&self.func, &lower, &upper, particle_count, rng);
+        self.swarm = Self::init_swarm(&self.func, lower, upper, particle_count, rng);
     }
 
     pub fn init_swarm<R>(
@@ -253,7 +253,7 @@ where
     }
 
     pub fn converge_dspace(&self, p: T, m: T) -> bool {
-        let mut sorted_swarm: Vec<_> = self.swarm.iter().map(|x| x.clone()).collect();
+        let mut sorted_swarm: Vec<_> = self.swarm.to_vec();
         sorted_swarm.sort_unstable_by(|a, b| {
             if a.fitness > b.fitness {
                 std::cmp::Ordering::Less

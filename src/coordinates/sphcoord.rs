@@ -39,7 +39,7 @@ where
 {
     /// Create a SphCoord from pol and az
     pub fn new(pol: T, az: T) -> SphCoord<T> {
-        SphCoord::<T> { pol: pol, az: az }
+        SphCoord::<T> { pol, az }
     }
 
     /// Create a SphCoord from a 3D vector by extracting its angular component

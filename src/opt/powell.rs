@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 use std;
 use std::ops::IndexMut;
 
@@ -48,7 +49,7 @@ where
     let mut xit = p.clone();
     let mut ptt = p.clone();
     let mut result = p.clone();
-    for iter in 0..(itmax + 1) {
+    for iter in 0..=itmax {
         fp = fret;
         ibig = 0;
         del = zero::<T>();

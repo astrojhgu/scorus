@@ -1,3 +1,6 @@
+#![allow(clippy::many_single_char_names)]
+#![allow(clippy::type_complexity)]
+#![allow(clippy::mutex_atomic)]
 use rayon::scope;
 use std;
 
@@ -58,9 +61,8 @@ where
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
         let result = sample(&flogprob, &ensemble_logprob, &mut rng, a, nthread);
         handler(&result);
-        match result {
-            Ok(x) => ensemble_logprob = x,
-            _ => (),
+        if let Ok(x) = result {
+            ensemble_logprob = x
         }
     })
 }
@@ -86,9 +88,8 @@ where
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
         let result = sample_st(&flogprob, &ensemble_logprob, &mut rng, a);
         handler(&result);
-        match result {
-            Ok(x) => ensemble_logprob = x,
-            _ => (),
+        if let Ok(x) = result {
+            ensemble_logprob = x;
         }
     })
 }
@@ -180,7 +181,7 @@ where
             //let rvec=Arc::clone(&rvec);
             let rvec = &rvec;
             //let nwalkers=nwalkers;
-            let task = move || loop {
+            move || loop {
                 let k: usize;
                 {
                     let mut k1 = atomic_k.lock().unwrap();
@@ -191,14 +192,13 @@ where
                     break;
                 }
 
-                let lp_last_y = match lp_cached {
-                    false => {
-                        let yy1 = flogprob(&ensemble[k]);
-                        let mut lpyy = result_logprob.lock().unwrap();
-                        lpyy[k] = yy1;
-                        yy1
-                    }
-                    _ => cached_logprob[k],
+                let lp_last_y = if !lp_cached {
+                    let yy1 = flogprob(&ensemble[k]);
+                    let mut lpyy = result_logprob.lock().unwrap();
+                    lpyy[k] = yy1;
+                    yy1
+                } else {
+                    cached_logprob[k]
                 };
 
                 let i = walker_group_id[k];
@@ -218,8 +218,7 @@ where
                         lpyy[k] = lp_y;
                     }
                 }
-            };
-            task
+            }
         };
 
         if nthread > 1 {
@@ -315,13 +314,12 @@ where
     //let lp_cached=cached_logprob.len()!=0;
 
     for k in 0..nwalkers {
-        let lp_last_y = match lp_cached {
-            false => {
-                let yy1 = flogprob(&ensemble[k]);
-                result_logprob[k] = yy1;
-                yy1
-            }
-            _ => cached_logprob[k],
+        let lp_last_y = if !lp_cached {
+            let yy1 = flogprob(&ensemble[k]);
+            result_logprob[k] = yy1;
+            yy1
+        } else {
+            cached_logprob[k]
         };
 
         let i = walker_group_id[k];

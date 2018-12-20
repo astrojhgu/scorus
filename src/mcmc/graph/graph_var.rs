@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 use crate::linear_space::LinearSpace;
 use crate::utils::HasLen;
 use num_traits::float::Float;
@@ -35,11 +36,11 @@ where
     T: Float + Send + Sync + Display,
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "Fixed values:\n")?;
+        writeln!(f, "Fixed values:")?;
         for v in &*self.fixed_values.borrow() {
             write!(f, "{} ", *v)?;
         }
-        write!(f, "\nDeterministic values:\n")?;
+        writeln!(f, "\nDeterministic values:")?;
         for v in &*(self.deterministic_values.borrow()) {
             write!(f, "{} ", v)?;
         }

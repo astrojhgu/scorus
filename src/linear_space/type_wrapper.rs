@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 use super::traits::{InnerProdSpace, LinearSpace, PDInnerProdSpace};
 use crate::utils::HasLen;
 use num_traits::Float;

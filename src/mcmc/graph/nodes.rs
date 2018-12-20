@@ -158,10 +158,8 @@ where
                 let x = x[0];
                 let m = p[0];
                 let s = p[1];
-                let y = -((x - m) * (x - m) / ((one::<T>() + one::<T>()) * s * s))
-                    - ((two * pi).sqrt() * s).ln();
-                //println!("{} {} {} {}", x, m, s, y);
-                return y;
+                -((x - m) * (x - m) / ((one::<T>() + one::<T>()) * s * s))
+                    - ((two * pi).sqrt() * s).ln()
             }),
             range: Box::new(move |p| {
                 let m = p[0];

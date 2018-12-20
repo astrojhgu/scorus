@@ -46,7 +46,7 @@ where
 {
     let n = p.len() - 1;
     //let mut result=V::init(x.len());
-    (0..n + 1)
+    (0..=n)
         .map(|nu| (p[nu], bernstein_base(x, n, nu)))
         .fold(V::init(x.len()), |a, (p1, b)| {
             let mut result = V::init(x.len());

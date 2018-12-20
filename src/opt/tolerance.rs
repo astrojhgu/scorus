@@ -24,22 +24,22 @@ where
     }
 
     pub fn both(rel: T, abs: T) -> Tolerance<T> {
-        Tolerance::Both { rel: rel, abs: abs }
+        Tolerance::Both { rel, abs }
     }
 
     pub fn either(rel: T, abs: T) -> Tolerance<T> {
-        Tolerance::Either { rel: rel, abs: abs }
+        Tolerance::Either { rel, abs }
     }
 
     pub fn accepted(&self, x1: T, x2: T) -> bool {
         let two: T = T::one() + T::one();
-        match self {
-            &Tolerance::Rel(x) => (x2 - x1).abs() < (x1 + x2).abs() * two * x,
-            &Tolerance::Abs(x) => (x2 - x1).abs() < x,
-            &Tolerance::Both { rel, abs } => {
+        match *self {
+            Tolerance::Rel(x) => (x2 - x1).abs() < (x1 + x2).abs() * two * x,
+            Tolerance::Abs(x) => (x2 - x1).abs() < x,
+            Tolerance::Both { rel, abs } => {
                 ((x2 - x1).abs() < (x1 + x2).abs() * two * rel) && ((x2 - x1).abs() < abs)
             }
-            &Tolerance::Either { rel, abs } => {
+            Tolerance::Either { rel, abs } => {
                 ((x2 - x1).abs() < (x1 + x2).abs() * two * rel) || ((x2 - x1).abs() < abs)
             }
         }

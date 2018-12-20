@@ -37,7 +37,7 @@ where
 {
     /// create a vector from its components
     pub fn new(x: T, y: T) -> Vec2d<T> {
-        Vec2d::<T> { x: x, y: y }
+        Vec2d::<T> { x, y }
     }
 
     /// calculate the normalized vector, i.e., normalize the length to 1

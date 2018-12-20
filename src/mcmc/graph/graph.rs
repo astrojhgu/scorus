@@ -1,3 +1,6 @@
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::new_without_default_derive)]
+#![allow(clippy::type_complexity)]
 use std;
 use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap};
@@ -31,6 +34,7 @@ impl Clone for NodeHandle {
 
 impl Copy for NodeHandle {}
 
+#[derive(Default)]
 pub struct Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
@@ -50,24 +54,24 @@ where
     T: Float + Sync + Send + Display,
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "nodes:\n")?;
+        writeln!(f, "nodes:")?;
         for (i, n) in self.nodes.iter().enumerate() {
-            write!(f, "Node: {}, {}\n", i, self.node_key_map.get(&i).unwrap())?;
-            write!(f, "{} \n", &n)?;
-            write!(f, "========\n")?;
+            writeln!(f, "Node: {}, {}", i, &self.node_key_map[&i])?;
+            writeln!(f, "{} ", &n)?;
+            writeln!(f, "========")?;
         }
 
         for (k, id) in &self.key_node_map {
             write!(f, "{}:{} ", k, id)?;
         }
 
-        write!(f, "\nNum of fixed: {}\n", self.num_of_fixed_vars)?;
-        write!(
+        writeln!(f, "\nNum of fixed: {}", self.num_of_fixed_vars)?;
+        writeln!(
             f,
-            "Num of deterministic: {}\n",
+            "Num of deterministic: {}",
             self.num_of_deterministic_vars
         )?;
-        write!(f, "Num of sampleable: {}\n", self.num_of_sampleable_vars)?;
+        writeln!(f, "Num of sampleable: {}", self.num_of_sampleable_vars)?;
         Ok(())
     }
 }
@@ -82,9 +86,9 @@ where
     T: std::marker::Copy,
 {
     fn clone(&self) -> Self {
-        match self {
-            &ParamObservability::Observed(x) => ParamObservability::Observed(x),
-            &ParamObservability::UnObserved(x) => ParamObservability::UnObserved(x),
+        match *self {
+            ParamObservability::Observed(x) => ParamObservability::Observed(x),
+            ParamObservability::UnObserved(x) => ParamObservability::UnObserved(x),
         }
     }
 }
@@ -109,7 +113,7 @@ where
         }
 
         NodeAdder {
-            n: n,
+            n,
             parents: Vec::<(NodeHandle, usize)>::from(p),
         }
     }
@@ -273,16 +277,14 @@ where
     pub fn seal(&mut self) {
         for i in 0..self.nodes.len() {
             let (s, d) = self.enumerate_children_by_kind(i);
-            match &mut self.nodes[i].content {
-                &mut NodeContent::StochasticNode {
-                    ref mut all_stochastic_children,
-                    ref mut all_deterministic_children,
-                    ..
-                } => {
-                    *all_stochastic_children = Vec::from_iter(s);
-                    *all_deterministic_children = Vec::from_iter(d);
-                }
-                _ => {}
+            if let NodeContent::StochasticNode {
+                ref mut all_stochastic_children,
+                ref mut all_deterministic_children,
+                ..
+            } = self.nodes[i].content
+            {
+                *all_stochastic_children = Vec::from_iter(s);
+                *all_deterministic_children = Vec::from_iter(d);
             }
         }
     }
@@ -306,7 +308,7 @@ where
         for (i, n) in self.nodes.iter().enumerate() {
             match n.content {
                 NodeContent::DeterministicNode { .. } => {
-                    self.update_deterministic_value_of(i, &mut gv);
+                    self.update_deterministic_value_of(i, &gv);
                 }
                 NodeContent::StochasticNode {
                     ref is_observed,

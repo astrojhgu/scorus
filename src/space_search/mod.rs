@@ -78,10 +78,7 @@ where
 {
     pub fn new(items: Vec<(MP, V)>) -> VpTree<MP, V> {
         let nitems = items.len();
-        let mut result = VpTree {
-            root: None,
-            items: items,
-        };
+        let mut result = VpTree { root: None, items };
         let root = result.build_from_points(0, nitems);
         result.root = root;
         result
@@ -139,9 +136,9 @@ where
         heap: &mut BinaryHeap<IdxDistPair<MP::Distance>>,
         tau: &mut MP::Distance,
     ) {
-        match node {
-            &None => (),
-            &Some(ref pn) => {
+        match *node {
+            None => (),
+            Some(ref pn) => {
                 let dist = self.items[pn.index].0.distance_to(target);
 
                 if dist < *tau {
@@ -150,7 +147,7 @@ where
                     }
                     heap.push(IdxDistPair {
                         index: pn.index,
-                        dist: dist,
+                        dist,
                     });
                     if heap.len() == k {
                         *tau = heap.peek().unwrap().dist

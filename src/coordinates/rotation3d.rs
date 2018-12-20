@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 //! Rotation of vectors in 3D Euclid space
 
 use num_traits::float::Float;
@@ -61,8 +62,8 @@ where
 }
 
 impl<T> Mul for &RotMatrix<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     type Output = RotMatrix<T>;
 
@@ -83,8 +84,8 @@ impl<T> Mul for &RotMatrix<T>
 }
 
 impl<T> Mul<&RotMatrix<T>> for RotMatrix<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     type Output = RotMatrix<T>;
 
@@ -105,8 +106,8 @@ impl<T> Mul<&RotMatrix<T>> for RotMatrix<T>
 }
 
 impl<T> Mul<RotMatrix<T>> for &RotMatrix<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     type Output = RotMatrix<T>;
 
@@ -126,10 +127,9 @@ impl<T> Mul<RotMatrix<T>> for &RotMatrix<T>
     }
 }
 
-
 impl<T> Mul<&Vec3d<T>> for &RotMatrix<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     type Output = Vec3d<T>;
 
@@ -144,7 +144,6 @@ impl<T> Mul<&Vec3d<T>> for &RotMatrix<T>
         result
     }
 }
-
 
 impl<T> Mul<Vec3d<T>> for RotMatrix<T>
 where
@@ -165,8 +164,8 @@ where
 }
 
 impl<T> Mul<Vec3d<T>> for &RotMatrix<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     type Output = Vec3d<T>;
 
@@ -183,8 +182,8 @@ impl<T> Mul<Vec3d<T>> for &RotMatrix<T>
 }
 
 impl<T> Mul<&Vec3d<T>> for RotMatrix<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     type Output = Vec3d<T>;
 

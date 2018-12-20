@@ -1,3 +1,4 @@
+#![allow(clippy::many_single_char_names)]
 use crate::coordinates::{SphCoord, Vec2d};
 use num_traits::float::Float;
 use num_traits::float::FloatConst;

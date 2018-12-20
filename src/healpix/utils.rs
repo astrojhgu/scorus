@@ -76,10 +76,10 @@ fn nest2xyf32(nside: i32, mut pix: i32) -> (i32, i32, i32) {
     let npface = nside * nside;
     let face_num = pix / npface;
     pix &= npface - 1;
-    let mut raw = (pix & 0x5555) | ((pix & 0x55550000) >> 15);
+    let mut raw = (pix & 0x5555) | ((pix & 0x5555_0000) >> 15);
     let ix = CTAB[(raw & 0xff) as usize] | (CTAB[(raw >> 8) as usize] << 4);
     pix >>= 1;
-    raw = (pix & 0x5555) | ((pix & 0x55550000) >> 15);
+    raw = (pix & 0x5555) | ((pix & 0x5555_0000) >> 15);
     let iy = CTAB[(raw & 0xff) as usize] | (CTAB[(raw >> 8) as usize] << 4);
     (ix, iy, face_num)
 }
@@ -216,19 +216,19 @@ fn special_div64(mut a: i64, b: i64) -> i64 {
 }
 
 fn compress_bits64(v: i64) -> i64 {
-    let mut raw = v & 0x5555555555555555_i64;
+    let mut raw = v & 0x5555_5555_5555_5555_i64;
     raw |= raw >> 15;
-    CTAB[(raw & 0xff_i64) as usize] as i64
-        | (CTAB[((raw >> 8) & 0xff) as usize] << 4) as i64
-        | (CTAB[((raw >> 32) & 0xff) as usize] << 16) as i64
-        | (CTAB[((raw >> 40) & 0xff) as usize] << 20) as i64
+    <i64 as std::convert::From<_>>::from(CTAB[(raw & 0xff_i64) as usize])
+        | <i64 as std::convert::From<_>>::from(CTAB[((raw >> 8) & 0xff) as usize] << 4)
+        | <i64 as std::convert::From<_>>::from(CTAB[((raw >> 32) & 0xff) as usize] << 16)
+        | <i64 as std::convert::From<_>>::from(CTAB[((raw >> 40) & 0xff) as usize] << 20)
 }
 
 fn spread_bits64(v: i32) -> i64 {
-    UTAB[(v & 0xff) as usize] as i64
-        | ((UTAB[((v >> 8) & 0xff) as usize] as i64) << 16)
-        | ((UTAB[((v >> 16) & 0xff) as usize] as i64) << 32)
-        | ((UTAB[((v >> 24) & 0xff) as usize] as i64) << 48)
+    <i64 as std::convert::From<_>>::from(UTAB[(v & 0xff) as usize])
+        | (<i64 as std::convert::From<_>>::from(UTAB[((v >> 8) & 0xff) as usize]) << 16)
+        | (<i64 as std::convert::From<_>>::from(UTAB[((v >> 16) & 0xff) as usize]) << 32)
+        | (<i64 as std::convert::From<_>>::from(UTAB[((v >> 24) & 0xff) as usize]) << 48)
 }
 
 fn nest2xyf64(nside: i64, mut pix: i64) -> (i32, i32, i32) {
@@ -241,12 +241,17 @@ fn nest2xyf64(nside: i64, mut pix: i64) -> (i32, i32, i32) {
 }
 
 fn xyf2nest64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
-    face_num as i64 * nside as i64 * nside as i64 + spread_bits64(ix) + (spread_bits64(iy) << 1)
+    <i64 as std::convert::From<_>>::from(face_num) * nside * nside
+        + spread_bits64(ix)
+        + (spread_bits64(iy) << 1)
 }
 
 fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
     let nl4 = 4_i64 * nside;
-    let jr = JRLL[face_num as usize] as i64 * nside - ix as i64 - iy as i64 - 1_i64;
+    let jr = <i64 as std::convert::From<_>>::from(JRLL[face_num as usize]) * nside
+        - <i64 as std::convert::From<_>>::from(ix)
+        - <i64 as std::convert::From<_>>::from(iy)
+        - 1_i64;
 
     let (nr, n_before, kshift) = if jr < nside {
         let nr = jr;
@@ -259,7 +264,12 @@ fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
         let ncap = 2 * nside * (nside - 1);
         (nr, ncap + (jr - nside) * nl4, (jr - nside) & 1)
     };
-    let mut jp = (JPLL[face_num as usize] as i64 * nr + ix as i64 - iy as i64 + 1_i64 + kshift) / 2;
+    let mut jp = (<i64 as std::convert::From<_>>::from(JPLL[face_num as usize]) * nr
+        + <i64 as std::convert::From<_>>::from(ix)
+        - <i64 as std::convert::From<_>>::from(iy)
+        + 1_i64
+        + kshift)
+        / 2;
     if jp > nl4 {
         jp -= nl4;
     } else if jp < 1 {
@@ -309,8 +319,9 @@ fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
         (iring, iphi, kshift, nr, face_num)
     };
 
-    let irt = iring - (JRLL[face_num as usize] as i64 * nside) + 1;
-    let mut ipt = 2 * iphi - JPLL[face_num as usize] as i64 * nr - kshift - 1;
+    let irt = iring - (<i64 as std::convert::From<_>>::from(JRLL[face_num as usize]) * nside) + 1;
+    let mut ipt =
+        2 * iphi - <i64 as std::convert::From<_>>::from(JPLL[face_num as usize]) * nr - kshift - 1;
     if ipt >= nl2 {
         ipt -= 8 * nside;
     }

@@ -37,7 +37,7 @@ pub fn interp<T>(x: T, xlist: &[T], ylist: &[T]) -> T
 where
     T: Copy + Float,
 {
-    assert!(xlist.len() >= 1 && ylist.len() == xlist.len());
+    assert!(!xlist.is_empty() && ylist.len() == xlist.len());
     if encloses(x, *xlist.first().unwrap(), *xlist.last().unwrap()) {
         let (l, r) = bisect_search(x, xlist);
         if xlist[r] == xlist[l] {
@@ -54,15 +54,15 @@ where
         }
         if *xlist.first().unwrap() < *xlist.last().unwrap() {
             if x <= *xlist.first().unwrap() {
-                return *ylist.first().unwrap();
+                *ylist.first().unwrap()
             } else {
-                return *ylist.last().unwrap();
+                *ylist.last().unwrap()
             }
         } else if *xlist.first().unwrap() > *xlist.last().unwrap() {
             if x >= *xlist.first().unwrap() {
-                return *ylist.first().unwrap();
+                *ylist.first().unwrap()
             } else {
-                return *ylist.last().unwrap();
+                *ylist.last().unwrap()
             }
         } else {
             unreachable!("should never reach here");

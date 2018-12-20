@@ -15,9 +15,7 @@ where
 {
     type Distance = T;
     fn distance_to(&self, other: &Self) -> T {
-        let d = self.angle_between(*other);
-        //println!("d={:?}", d);
-        d
+        self.angle_between(*other)
     }
 }
 
@@ -73,6 +71,7 @@ impl<
         V: Copy + Default + Add<V, Output = V> + Mul<T, Output = V> + Div<T, Output = V> + Debug,
     > Interpolator<T, V>
 {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> NNInterpBuilder<T, V> {
         NNInterpBuilder { points: Vec::new() }
     }

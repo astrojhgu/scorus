@@ -1,3 +1,4 @@
+#![allow(clippy::needless_range_loop)]
 use std;
 use std::ops::IndexMut;
 //use rand::Rand;
@@ -204,24 +205,22 @@ where
     //println!("k={}", k);
     match if (x1 == x2) && z.is_zero() {
         x1
+    } else if k.is_zero() {
+        match x1 + z * (-y1).exp() {
+            r if r.is_infinite() => x1 + (z.ln() - y1).exp(),
+            r => r,
+        }
     } else {
-        if k.is_zero() {
-            match x1 + z * (-y1).exp() {
-                r if r.is_infinite() => x1 + (z.ln() - y1).exp(),
-                r => r,
-            }
+        let u: T = one::<T>() + k * z * (-y1).exp();
+        //println!("u={}", u);
+        if u.is_infinite() {
+            x1 + ((k * z).ln() - y1) / k
         } else {
-            let u: T = one::<T>() + k * z * (-y1).exp();
-            //println!("u={}", u);
-            if u.is_infinite() {
-                x1 + ((k * z).ln() - y1) / k
+            x1 + (if u <= zero() {
+                (y1.exp() + k * z).ln() - y1
             } else {
-                x1 + (if u <= zero() {
-                    (y1.exp() + k * z).ln() - y1
-                } else {
-                    u.ln()
-                }) / k
-            }
+                u.ln()
+            }) / k
         }
     } {
         r if r.is_nan() => {
@@ -690,7 +689,7 @@ where
 
     for i in 0..section_list.len() {
         let (xi, yi) = calc_intersection(
-            section_list.get(i).unwrap(),
+            &section_list[i],
             if i == 0 {
                 None
             } else {
@@ -1075,25 +1074,22 @@ where
         println!("{} {}", s.x_l(), s.y_l());
         println!("{} {}", s.x_i(), s.y_i());
         println!("{} {}", s.x_u(), s.y_u());
-        println!("");
+        println!();
     }
 
     println!("no no no");
     //return;
-    match pd {
-        Some(ref f) => {
-            let xmin = section_list.front().unwrap().x_l();
-            let xmax = section_list.back().unwrap().x_u();
-            let mut x = xmin;
-            loop {
-                println!("{} {}", x, eval_log(f, x, scale).unwrap());
-                x = x + dx;
-                if x > xmax {
-                    break;
-                }
+    if let Some(ref f) = pd {
+        let xmin = section_list.front().unwrap().x_l();
+        let xmax = section_list.back().unwrap().x_u();
+        let mut x = xmin;
+        loop {
+            println!("{} {}", x, eval_log(f, x, scale).unwrap());
+            x = x + dx;
+            if x > xmax {
+                break;
             }
         }
-        _ => (),
     }
     //println!("{}", scale)
 }
@@ -1138,11 +1134,7 @@ where
             section_list = update_scale(section_list, &mut scale)?;
 
             let need_cr = if let Some(x) = section_list.back() {
-                if x._cum_int_exp_y_u.unwrap().is_infinite() {
-                    true
-                } else {
-                    false
-                }
+                x._cum_int_exp_y_u.unwrap().is_infinite()
             } else {
                 false
             };
@@ -1165,9 +1157,9 @@ where
         if u.ln() > fmin(zero(), ya - ycur + fmin(ycur, eycur) - fmin(ya, eya)) {
             xm = xcur;
         } else {
-            *xmchange_count = *xmchange_count + 1;
+            *xmchange_count += 1;
             xm = xa;
-            i = i + 1;
+            i += 1;
         }
         xcur = xm;
     }
