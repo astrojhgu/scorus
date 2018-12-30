@@ -20,6 +20,7 @@ use scorus::polynomial::bernstein::bernstein_poly;
 
 use num_traits::float::{Float, FloatConst};
 use scorus::healpix::utils::{nest2ring, ring2nest};
+use scorus::integration::adaptive_trapezoid::integrate;
 use scorus::interpolation::linear1d::interp;
 use scorus::interpolation::sph_nn::Interpolator;
 use scorus::interpolation::spline;
@@ -32,7 +33,6 @@ use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
 use scorus::utils::types::{HasElement, HasLen, InitFromLen};
-use scorus::integration::adaptive_trapezoid::integrate;
 
 fn foo(x: f64) -> f64 {
     (x.powi(2) * 20.0).sin()
@@ -43,7 +43,8 @@ fn foo2(x: f64) -> f64 {
 }
 
 fn main() {
-
-    println!("{}", integrate(&|x:f64|{x.sin()}, 1e-12, &[0.0,1.0, 2.0, f64::PI()]));
-
+    println!(
+        "{}",
+        integrate(&|x: f64| x.sin(), 1e-12, &[0.0, 1.0, 2.0, f64::PI()])
+    );
 }
