@@ -45,6 +45,6 @@ fn foo2(x: f64) -> f64 {
 fn main() {
     println!(
         "{}",
-        integrate(&|x: f64| x.sin(), 1e-12, &[0.0, 1.0, 2.0, f64::PI()])
+        integrate(&|x: f64| x.powi(2).sin(), 1e-5, &[0.0, 100.0])
     );
 }
