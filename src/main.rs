@@ -45,6 +45,10 @@ fn foo2(x: f64) -> f64 {
 fn main() {
     println!(
         "{}",
-        integrate(&|x: f64| x.powi(2).sin(), 1e-5, &[0.0, 100.0])
+        integrate(
+            &|x: f64| x.powi(2).sin(),
+            1e-4,
+            &[0.0, 1.0, 2.0, (8.0 * f64::PI()).sqrt()]
+        )
     );
 }

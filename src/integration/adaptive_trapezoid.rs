@@ -3,7 +3,6 @@
 
 use num_traits::float::Float;
 use std::collections::linked_list::LinkedList;
-use std::collections::BinaryHeap;
 use std::fmt::Debug;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -88,10 +87,10 @@ where
 
 fn refine_iter<T>(
     func: &dyn Fn(T) -> T,
-    (not_refined, mut sorted_result): (LinkedList<Interval<T>>, BinaryHeap<Interval<T>>),
+    (not_refined, mut refined_result): (LinkedList<Interval<T>>, LinkedList<Interval<T>>),
     eps: T,
     original_width: T,
-) -> (LinkedList<Interval<T>>, BinaryHeap<Interval<T>>)
+) -> (LinkedList<Interval<T>>, LinkedList<Interval<T>>)
 where
     T: Float,
 {
@@ -99,46 +98,54 @@ where
     for i in not_refined.into_iter() {
         let interval_width = i.x2 - i.x1;
         match i.try_refine(func, eps / original_width * interval_width) {
-            RefineResult::NoMorRefine(i1) => sorted_result.push(i1),
+            RefineResult::NoMorRefine(i1) => refined_result.push_back(i1),
             RefineResult::Refined(i1, i2) => {
                 updated_not_refined.push_back(i1);
                 updated_not_refined.push_back(i2);
             }
         }
     }
-    (updated_not_refined, sorted_result)
+    (updated_not_refined, refined_result)
 }
 
 fn refine_until_converged<T>(
     func: &dyn Fn(T) -> T,
     init_list: LinkedList<Interval<T>>,
     eps: T,
-) -> BinaryHeap<Interval<T>>
+) -> LinkedList<Interval<T>>
 where
     T: Float,
 {
     let original_width = init_list.back().unwrap().x2 - init_list.front().unwrap().x1;
-    let mut refined_list = init_list;
-    let mut sorted_result = BinaryHeap::new();
+    let mut unrefined_list = init_list;
+    let mut refined_result = LinkedList::new();
     loop {
-        let refined = refine_iter(func, (refined_list, sorted_result), eps, original_width);
-        refined_list = refined.0;
-        sorted_result = refined.1;
-        if refined_list.is_empty() {
-            break sorted_result;
+        let refined = refine_iter(func, (unrefined_list, refined_result), eps, original_width);
+        unrefined_list = refined.0;
+        refined_result = refined.1;
+        if unrefined_list.is_empty() {
+            break refined_result;
         }
     }
 }
 
-fn sum_up<T>(mut bh: BinaryHeap<Interval<T>>) -> T
+fn sum_up<T>(il: LinkedList<Interval<T>>) -> T
 where
     T: Float + Debug,
 {
-    let mut result = T::zero();
-    while let Some(i) = bh.pop() {
-        result = result + i.subsum;
-    }
-    result
+    let mut sorted: Vec<_> = il.into_iter().map(|x| x.subsum).collect();
+
+    (&mut sorted).sort_by(|a, b| {
+        if a.abs() < b.abs() {
+            std::cmp::Ordering::Less
+        } else if a.abs() > b.abs() {
+            std::cmp::Ordering::Greater
+        } else {
+            std::cmp::Ordering::Equal
+        }
+    });
+
+    sorted.into_iter().fold(T::zero(), |a, b| a + b)
 }
 
 pub fn integrate<T>(func: &dyn Fn(T) -> T, eps: T, init_ticks: &[T]) -> T
