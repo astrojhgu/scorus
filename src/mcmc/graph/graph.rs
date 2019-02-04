@@ -1,5 +1,5 @@
 #![allow(clippy::needless_range_loop)]
-#![allow(clippy::new_without_default_derive)]
+#![allow(clippy::new_without_default)]
 #![allow(clippy::type_complexity)]
 use std;
 use std::cell::RefCell;
