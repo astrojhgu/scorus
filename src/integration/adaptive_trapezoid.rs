@@ -4,8 +4,10 @@
 use num_traits::float::Float;
 use std::fmt::Debug;
 
-#[derive(Clone, Copy)]
-struct Point<T> {
+#[derive(Clone, Copy, Debug)]
+struct Point<T>
+where T:Debug
+{
     x: T,
     f: T,
 }
@@ -48,8 +50,9 @@ where
         let left = *points.last().unwrap();
         let mid = (left.x + right.x) * half;
         let fmid = func(mid);
-        if (left.f + right.f - fmid * two).abs() <= eps {
-            let area = (left.f + right.f + fmid * two) * (right.x - left.x) * 
+        let dx=right.x-left.x;
+        if (left.f + right.f - fmid * two).abs() <= eps || dx.abs()<=T::from(2).unwrap()*mid.abs().max(T::one())*T::epsilon() {
+            let area = (left.f + right.f + fmid * two) * dx *
             quarter;
             let (s, c)=neumaier_sum(area, total_area, comp);
             total_area=s;
