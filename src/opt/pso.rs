@@ -104,6 +104,34 @@ where
         }
     }
 
+    pub fn from_ensemble(
+        func: &'a (Fn(&V) -> T + Sync + Send),
+        ensemble: &[V],
+        guess: Option<V>,
+    ) -> ParticleSwarmMaximizer<'a, V, T>
+    {
+        let particle_count=ensemble.len();
+        let swarm = Self::init_swarm_from_ensemble(&func, ensemble);
+        let ndim = ensemble[0].dimension();
+        let gbest = guess.map(|p| {
+            let f = func(&p);
+            Particle {
+                position: p,
+                velocity: &ensemble[0] * T::zero(),
+                fitness: f,
+                pbest: None,
+            }
+        });
+        ParticleSwarmMaximizer {
+            particle_count,
+            ndim,
+            swarm,
+            gbest,
+            func,
+        }
+    }
+
+
     pub fn restart<R>(&mut self, lower: &V, upper: &V, particle_count: usize, rng: &mut R)
     where
         R: Rng,
@@ -141,6 +169,29 @@ where
         result
     }
 
+    pub fn init_swarm_from_ensemble(
+        func: &Fn(&V) -> T,
+        ensemble: &[V],
+    ) -> Vec<Particle<V, T>>
+    {
+        let mut result = Vec::<Particle<V, T>>::new();
+
+        for v in ensemble {
+            let mut p = v.clone();
+            let mut v = v * T::zero();
+
+            let f = func(&p);
+            result.push(Particle {
+                position: p,
+                velocity: v,
+                fitness: f,
+                pbest: None,
+            });
+        }
+        result
+    }
+
+
     pub fn update_fitness(&mut self) {
         /*let f: Vec<T> = self
             .swarm
@@ -158,7 +209,7 @@ where
         });
     }
 
-    pub fn sample<R>(&mut self, rng: &mut R, c1: T, c2: T)
+    pub fn sample<R>(&mut self, rng: &mut R, w: T, c1: T, c2: T)
     where
         R: Rng,
     {
@@ -205,8 +256,6 @@ where
             if let Some(ref pbest) = p.pbest {
                 if let Some(ref gbest) = self.gbest {
                     for j in 0..self.ndim {
-                        let w = (one::<T>() + rng.gen_range(zero::<T>(), one::<T>()))
-                            / (one::<T>() + one::<T>());
                         let part_vel = w * p.velocity[j];
                         let cog_vel = c1
                             * rng.gen_range(zero::<T>(), one::<T>())
