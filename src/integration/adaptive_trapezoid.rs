@@ -6,7 +6,8 @@ use std::fmt::Debug;
 
 #[derive(Clone, Copy, Debug)]
 struct Point<T>
-where T:Debug
+where
+    T: Debug,
 {
     x: T,
     f: T,
@@ -44,24 +45,25 @@ where
         .iter()
         .map(|&x| Point::<T> { x, f: func(x) })
         .collect();
-    let mut right=points.pop().unwrap();
+    let mut right = points.pop().unwrap();
     let eps = eps * four / full_width;
     while !points.is_empty() {
         let left = *points.last().unwrap();
         let mid = (left.x + right.x) * half;
         let fmid = func(mid);
-        let dx=right.x-left.x;
-        if (left.f + right.f - fmid * two).abs() <= eps || dx.abs()<=T::from(2).unwrap()*mid.abs().max(T::one())*T::epsilon() {
-            let area = (left.f + right.f + fmid * two) * dx *
-            quarter;
-            let (s, c)=neumaier_sum(area, total_area, comp);
-            total_area=s;
-            comp=c;
-            right=left;
+        let dx = right.x - left.x;
+        if (left.f + right.f - fmid * two).abs() <= eps
+            || dx.abs() <= T::from(2).unwrap() * mid.abs().max(T::one()) * T::epsilon()
+        {
+            let area = (left.f + right.f + fmid * two) * dx * quarter;
+            let (s, c) = neumaier_sum(area, total_area, comp);
+            total_area = s;
+            comp = c;
+            right = left;
             points.pop();
         } else {
             points.push(Point::<T> { x: mid, f: fmid });
         }
     }
-    total_area+comp
+    total_area + comp
 }

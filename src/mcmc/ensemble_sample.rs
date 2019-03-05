@@ -46,16 +46,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop + Sized,
-    X: 'static
-        + Clone
-        + IndexMut<usize, Output = T>
-        + HasLen
-        + Sync
-        + InitFromLen
-        + Send
-        + Drop
-        + Sized,
+    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Sized,
+    X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send + Sized,
     F: 'a + Fn(&V) -> T + Send + Sync + Sized,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
@@ -81,8 +73,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized,
-    X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + Sized,
+    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sized,
+    X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Sized,
     F: 'a + Fn(&V) -> T + Sized,
 {
     Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
@@ -109,8 +101,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send + Drop,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;
@@ -259,8 +251,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Drop,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop,
+    W: Clone + IndexMut<usize, Output = V> + HasLen,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen,
     F: Fn(&V) -> T + ?Sized,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;

@@ -46,15 +46,7 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: 'static
-        + Clone
-        + IndexMut<usize, Output = V>
-        + HasLen
-        + Sync
-        + Send
-        + Drop
-        + Sized
-        + ItemSwapable,
+    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + Sized + ItemSwapable,
     X: 'static
         + Clone
         + IndexMut<usize, Output = T>
@@ -62,7 +54,6 @@ where
         + Sync
         + InitFromLen
         + Send
-        + Drop
         + Sized
         + ItemSwapable,
     F: 'a + Fn(&V) -> T + Send + Sync,
@@ -101,15 +92,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Drop + Sized + ItemSwapable,
-    X: 'static
-        + Clone
-        + IndexMut<usize, Output = T>
-        + HasLen
-        + InitFromLen
-        + Drop
-        + Sized
-        + ItemSwapable,
+    W: 'static + Clone + IndexMut<usize, Output = V> + HasLen + Sized + ItemSwapable,
+    X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Sized + ItemSwapable,
     F: 'a + Fn(&V) -> T,
 {
     Box::new(
@@ -151,7 +135,6 @@ where
         + HasLen
         + std::marker::Sync
         + std::marker::Send
-        + Drop
         + ItemSwapable,
     X: Clone
         + IndexMut<usize, Output = T>
@@ -159,7 +142,6 @@ where
         + std::marker::Sync
         + InitFromLen
         + std::marker::Send
-        + Drop
         + ItemSwapable,
     F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
@@ -188,8 +170,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + ItemSwapable,
     F: Fn(&V) -> T,
 {
     if perform_swap {
@@ -228,8 +210,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + ItemSwapable,
 {
     //let mut new_ensemble = ensemble_logprob.0.clone();
     //let mut new_logprob = ensemble_logprob.1.clone();
@@ -303,7 +285,6 @@ where
         + HasLen
         + std::marker::Sync
         + std::marker::Send
-        + Drop
         + ItemSwapable,
     X: Clone
         + IndexMut<usize, Output = T>
@@ -311,7 +292,6 @@ where
         + std::marker::Sync
         + InitFromLen
         + std::marker::Send
-        + Drop
         + ItemSwapable,
     F: Fn(&V) -> T + std::marker::Sync + std::marker::Send,
 {
@@ -494,8 +474,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Drop + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Drop + ItemSwapable,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + ItemSwapable,
     F: Fn(&V) -> T,
 {
     let (ref ensemble, ref cached_logprob) = *ensemble_logprob;

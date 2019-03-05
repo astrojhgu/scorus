@@ -29,11 +29,11 @@ where
 
     //println!("{:?}", seeds);
 
-    if seeds.iter().any(|x| x.is_none()) {
+    if seeds.iter().any(std::option::Option::is_none) {
         None
     } else {
         let mut result: Vec<Vec<T>> = (0..k).map(|_| vec![]).collect();
-        let seeds: Vec<_> = seeds.into_iter().map(|x| x.unwrap()).collect();
+        let seeds: Vec<_> = seeds.into_iter().map(std::option::Option::unwrap).collect();
 
         points.into_iter().flatten().for_each(|x| {
             let cid = seeds

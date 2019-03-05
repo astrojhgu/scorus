@@ -108,9 +108,8 @@ where
         func: &'a (Fn(&V) -> T + Sync + Send),
         ensemble: &[V],
         guess: Option<V>,
-    ) -> ParticleSwarmMaximizer<'a, V, T>
-    {
-        let particle_count=ensemble.len();
+    ) -> ParticleSwarmMaximizer<'a, V, T> {
+        let particle_count = ensemble.len();
         let swarm = Self::init_swarm_from_ensemble(&func, ensemble);
         let ndim = ensemble[0].dimension();
         let gbest = guess.map(|p| {
@@ -130,7 +129,6 @@ where
             func,
         }
     }
-
 
     pub fn restart<R>(&mut self, lower: &V, upper: &V, particle_count: usize, rng: &mut R)
     where
@@ -169,11 +167,7 @@ where
         result
     }
 
-    pub fn init_swarm_from_ensemble(
-        func: &Fn(&V) -> T,
-        ensemble: &[V],
-    ) -> Vec<Particle<V, T>>
-    {
+    pub fn init_swarm_from_ensemble(func: &Fn(&V) -> T, ensemble: &[V]) -> Vec<Particle<V, T>> {
         let mut result = Vec::<Particle<V, T>>::new();
 
         for v in ensemble {
@@ -190,7 +184,6 @@ where
         }
         result
     }
-
 
     pub fn update_fitness(&mut self) {
         /*let f: Vec<T> = self
