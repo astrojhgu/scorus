@@ -81,7 +81,9 @@ fn main() {
 
     let mut lp = Vec::<f64>::new();
     for i in 0..30000 {
-        let aaa = sample(&mut logprob, &(ensemble, lp), &mut rng, 2.0, 4).unwrap();
+        //let aaa = sample(&mut logprob, &(ensemble, lp), &mut rng, 2.0, 4)//.unwrap();
+
+        let aaa = sample_st(&mut logprob, &(ensemble, lp), &mut rng, 2.0).unwrap();
         ensemble = aaa.0;
         lp = aaa.1;
         if i > 1000 {
