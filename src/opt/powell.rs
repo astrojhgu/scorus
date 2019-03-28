@@ -61,7 +61,7 @@ where
             linmin(f, &mut result, &mut xit, &mut fret);
             if (fptt - fret) > del {
                 del = fptt - fret;
-                ibig = i + 1;
+                ibig = i;
             }
         }
 
@@ -75,7 +75,7 @@ where
 
         for j in 0..n {
             ptt[j] = two * result[j] - pt[j];
-            xit[j] = p[j] - pt[j];
+            xit[j] = result[j] - pt[j];
             pt[j] = result[j];
         }
 
@@ -88,7 +88,7 @@ where
             if t < zero() {
                 linmin(f, &mut result, &mut xit, &mut fret);
                 for j in 0..n {
-                    xi[j][ibig - 1] = xi[j][n - 1];
+                    xi[j][ibig] = xi[j][n - 1];
                     xi[j][n - 1] = xit[j];
                 }
             }
