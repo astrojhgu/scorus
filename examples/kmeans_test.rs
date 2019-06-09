@@ -4,14 +4,12 @@ extern crate scorus;
 use std::fs::File;
 use std::io::Write;
 
+use rand::distributions::Distribution;
 use rand::distributions::Normal;
-use rand::distributions::{Distribution, Standard};
 use rand::thread_rng;
 
-use std::ops::{Add, Mul, Sub};
-
 use scorus::kmeans;
-use scorus::linear_space;
+
 use scorus::linear_space::type_wrapper::LsVec;
 
 fn main() {
