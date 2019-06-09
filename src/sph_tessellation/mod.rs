@@ -98,7 +98,7 @@ where
         let mut new_faces = Vec::<[usize; 3]>::new();
 
         for f in &self.faces {
-            let mut edges = [(f[0], f[1]), (f[1], f[2]), (f[0], f[2])];
+            let edges = [(f[0], f[1]), (f[1], f[2]), (f[0], f[2])];
 
             let mut new_vertex_ids = [0, 0, 0];
             for i in 0..3 {

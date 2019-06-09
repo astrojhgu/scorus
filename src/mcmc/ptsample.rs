@@ -30,7 +30,7 @@ pub fn create_sampler<'a, T, U, V, W, X, F>(
     beta_list: X,
     a: T,
     nthread: usize,
-) -> Box<dyn 'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
+) -> Box<dyn 'a + FnMut(&mut dyn FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
 where
     T: 'static
         + Float
@@ -59,7 +59,7 @@ where
     F: 'a + Fn(&V) -> T + Send + Sync,
 {
     Box::new(
-        move |handler: &mut FnMut(&Result<(W, X), McmcErr>), sw: bool| {
+        move |handler: &mut dyn FnMut(&Result<(W, X), McmcErr>), sw: bool| {
             let result = sample(
                 &flogprob,
                 &ensemble_logprob,
@@ -83,7 +83,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
     mut rng: U,
     beta_list: X,
     a: T,
-) -> Box<dyn 'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
+) -> Box<dyn 'a + FnMut(&mut dyn FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
 where
     T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
@@ -97,7 +97,7 @@ where
     F: 'a + Fn(&V) -> T,
 {
     Box::new(
-        move |handler: &mut FnMut(&Result<(W, X), McmcErr>), sw: bool| {
+        move |handler: &mut dyn FnMut(&Result<(W, X), McmcErr>), sw: bool| {
             let result = sample_st(&flogprob, &ensemble_logprob, &mut rng, &beta_list, sw, a);
             handler(&result);
             if let Ok(x) = result {

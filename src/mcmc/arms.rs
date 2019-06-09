@@ -827,7 +827,7 @@ where
 
     let mut section_list = VecDeque::<Section<T>>::new();
     for i in 0..(init_x.len() - 1) {
-        let mut s = Section::new(
+        let s = Section::new(
             init_x[i],
             eval_log(pd, init_x[i], zero())?,
             init_x[i + 1],

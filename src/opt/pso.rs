@@ -54,7 +54,7 @@ where
     pub ndim: usize,
     pub swarm: Vec<Particle<V, T>>,
     pub gbest: Option<Particle<V, T>>,
-    pub func: &'a (Fn(&V) -> T + Send + Sync),
+    pub func: &'a (dyn Fn(&V) -> T + Send + Sync),
 }
 
 impl<'a, V, T> ParticleSwarmMaximizer<'a, V, T>
@@ -74,7 +74,7 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     pub fn new<R>(
-        func: &'a (Fn(&V) -> T + Sync + Send),
+        func: &'a (dyn Fn(&V) -> T + Sync + Send),
         lower: &V,
         upper: &V,
         guess: Option<V>,
@@ -105,7 +105,7 @@ where
     }
 
     pub fn from_ensemble(
-        func: &'a (Fn(&V) -> T + Sync + Send),
+        func: &'a (dyn Fn(&V) -> T + Sync + Send),
         ensemble: &[V],
         guess: Option<V>,
     ) -> ParticleSwarmMaximizer<'a, V, T> {
@@ -138,7 +138,7 @@ where
     }
 
     pub fn init_swarm<R>(
-        func: &Fn(&V) -> T,
+        func: &dyn Fn(&V) -> T,
         lower: &V,
         upper: &V,
         pc: usize,
@@ -167,12 +167,12 @@ where
         result
     }
 
-    pub fn init_swarm_from_ensemble(func: &Fn(&V) -> T, ensemble: &[V]) -> Vec<Particle<V, T>> {
+    pub fn init_swarm_from_ensemble(func: &dyn Fn(&V) -> T, ensemble: &[V]) -> Vec<Particle<V, T>> {
         let mut result = Vec::<Particle<V, T>>::new();
 
         for v in ensemble {
-            let mut p = v.clone();
-            let mut v = v * T::zero();
+            let p = v.clone();
+            let v = v * T::zero();
 
             let f = func(&p);
             result.push(Particle {

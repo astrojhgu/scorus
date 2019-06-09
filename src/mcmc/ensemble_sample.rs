@@ -30,7 +30,7 @@ pub fn create_sampler<'a, T, U, V, W, X, F>(
     mut rng: U,
     a: T,
     nthread: usize,
-) -> Box<dyn 'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
+) -> Box<dyn 'a + FnMut(&mut dyn FnMut(&Result<(W, X), McmcErr>)) -> ()>
 where
     T: 'static
         + Float
@@ -50,7 +50,7 @@ where
     X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send + Sized,
     F: 'a + Fn(&V) -> T + Send + Sync + Sized,
 {
-    Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
+    Box::new(move |handler: &mut dyn FnMut(&Result<(W, X), McmcErr>)| {
         let result = sample(&flogprob, &ensemble_logprob, &mut rng, a, nthread);
         handler(&result);
         if let Ok(x) = result {
@@ -64,7 +64,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
     mut ensemble_logprob: (W, X),
     mut rng: U,
     a: T,
-) -> Box<dyn 'a + FnMut(&mut FnMut(&Result<(W, X), McmcErr>)) -> ()>
+) -> Box<dyn 'a + FnMut(&mut dyn FnMut(&Result<(W, X), McmcErr>)) -> ()>
 where
     T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
     Standard: Distribution<T>,
@@ -77,7 +77,7 @@ where
     X: 'static + Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + Sized,
     F: 'a + Fn(&V) -> T + Sized,
 {
-    Box::new(move |handler: &mut FnMut(&Result<(W, X), McmcErr>)| {
+    Box::new(move |handler: &mut dyn FnMut(&Result<(W, X), McmcErr>)| {
         let result = sample_st(&flogprob, &ensemble_logprob, &mut rng, a);
         handler(&result);
         if let Ok(x) = result {
