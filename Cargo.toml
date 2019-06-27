@@ -7,11 +7,11 @@ name = 'es_test1'
 path = 'tests/es_test1.rs'
 
 [dependencies]
-num-traits = '0.2.6'
+num-traits = '0.2.8'
 quickersort = '3.0.1'
-rand = '0.6.5'
-rayon = '1.0.3'
-special = '0.8.0'
+rand = '0.7.0-pre.1'
+rayon = '1.1.0'
+special = '0.8.1'
 
 [package]
 authors = ['Gu Junhua <jhgu@nao.cas.cn>']
