@@ -90,3 +90,36 @@ where
         n1 += 1;
     }
 }
+
+pub fn eval_all_orders<T>(n: usize, x: T) -> Vec<T>
+    where
+        T: Float + Copy,
+{
+    let one = one::<T>();
+
+    if n == 0 {
+        return vec![one];
+    }
+    if n == 1 {
+        return vec![one, x];
+    }
+
+    let mut result=vec![zero::<T>(); n+1];
+    result[0]=one;
+    result[1]=x;
+
+    let mut pn1 = x;
+    let mut pn2 = one;
+
+    let mut n1 = 2_usize;
+    loop {
+        let pn = next_p(n1, x, pn1, pn2);
+        result[n1]=pn;
+        if n1 == n {
+            return result;
+        }
+        pn2 = pn1;
+        pn1 = pn;
+        n1 += 1;
+    }
+}
