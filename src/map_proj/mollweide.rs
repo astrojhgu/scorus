@@ -8,6 +8,22 @@ use std::fmt::Debug;
 https://en.wikipedia.org/wiki/Mollweide_projection
 */
 
+pub fn regulate_az<T>(mut az: T)->T
+where T:Float+FloatConst
+{
+    let pi=T::PI();
+    let two=T::one()+T::one();
+    let twopi=two*pi;
+    while az>pi{
+        az=az-twopi;
+    }
+    while az<=-pi{
+        az=az+twopi;
+    }
+    az
+}
+
+
 fn theta_iter<T>(theta: T, pol: T) -> T
 where
     T: Float + FloatConst,
@@ -31,19 +47,20 @@ where
     T: Float + FloatConst + Debug,
 {
     let mut theta0 = T::FRAC_PI_2() - pol;
-    loop {
+    for _i in 0..1000 {
         let theta1 = theta_iter(theta0, pol);
 
         if theta1.is_nan() {
             return theta0;
         }
-
+        //println!("{:?} {:?} {:?}", (theta1-theta0).abs(), theta0, pol);
         if (theta1 - theta0).abs() <= T::epsilon() {
             return theta1;
         } else {
             theta0 = theta1;
         }
     }
+    theta0
 }
 
 pub fn proj<T>(p: SphCoord<T>) -> Vec2d<T>
@@ -51,7 +68,7 @@ where
     T: Float + FloatConst + Debug,
 {
     let r: T = get_r();
-    let lambda = p.az;
+    let lambda = regulate_az(p.az);
     let theta = solve_theta(p.pol);
     let two = T::one() + T::one();
     let x = r * two * T::SQRT_2() / T::PI() * lambda * theta.cos();
