@@ -13,6 +13,16 @@ where
     fn dimension(&self) -> usize;
 }
 
+pub trait FiniteLinearSpace<Scalar>: LinearSpace<Scalar>+std::ops::Index<usize, Output=Scalar>+std::ops::IndexMut<usize, Output=Scalar>
+where Scalar: Num,
+Self: Sized,
+for<'a> &'a Self: Add<Output = Self>,
+for<'a> &'a Self: Sub<Output = Self>,
+for<'a> &'a Self: Mul<Scalar, Output = Self>,
+{
+}
+
+
 pub trait InnerProdSpace<Scalar>: LinearSpace<Scalar>
 where
     Scalar: Num,
