@@ -34,7 +34,7 @@ use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
 use scorus::utils::types::{HasElement, HasLen, InitFromLen};
 use scorus::mcmc::dream::utils::multinomial;
-use scorus::mcmc::dream::dream::DreamState;
+use scorus::mcmc::dream::dream::{init_chain, sample};
 use scorus::linear_space::type_wrapper::LsVec;
 use rand::Rng;
 
@@ -49,27 +49,23 @@ fn foo2(x: f64) -> f64 {
 fn main() {
     let mut rng=thread_rng();
     let ndim=1000;
-    
+    let nchains=32;
     let mut x=Vec::new();
 
-    for i in 0..16{
+    for i in 0..nchains{
         let p:Vec<_>=(0..ndim).map(|_|{
             rng.gen_range(-1.0e-3, 1.0e-3)
         }).collect();
         x.push(LsVec(p));
     }
 
-    let mut dream=DreamState::new(x, &foo, 0.001, 0.001);
+    let mut ensemble_lp=init_chain(x, &foo, 4);
     
-    let thin=100;
-    for i in 0..1000000{
-        for j in 0..dream.nchains(){
-            dream.evolve_single_chain(j, &foo, 4, 1., &mut rng);
-        }
-        if i%thin==0{
-            //println!("{:?}", dream.x[0]);
-            println!("{} {}", dream.x[0][0], dream.x[0][1]);
+    let thin=10;
+    for i in 0..100000{
+        sample(&mut ensemble_lp, &foo, 4, 0.9, 0.1, 1e-5, &mut rng, 4);
+        if i%thin ==0{
+            println!("{} {}", ensemble_lp.0[0][0],ensemble_lp.0[0][1]);
         }
     }
-    
 }

@@ -1,9 +1,9 @@
 use rand::Rng;
-use num_traits::{Float, NumCast};
+use num_traits::{Float};
 use rand::distributions::uniform::SampleUniform;
 
 pub fn multinomial<T, U>(logp: &[T], rng: &mut U)->usize
-where T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+where T: Float + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
 U: Rng
 {
     let mut max_lp=-T::infinity();
@@ -40,14 +40,14 @@ U: Rng
 
 
 pub fn calc_gamma<T>(delta: usize, dim: usize)->T
-where T: Float + NumCast + std::fmt::Debug,
+where T: Float + std::fmt::Debug,
 {
     let two=T::one()+T::one();
     T::from(2.38).unwrap()/(two*T::from(delta*dim).unwrap()).sqrt()
 }
 
 pub fn replace_flag<T, R>(ndims: usize, cr: T, rng: &mut R)->(Vec<bool>, usize)
-where T: Float + NumCast + std::fmt::Debug + SampleUniform,
+where T: Float + std::fmt::Debug + SampleUniform,
 R: Rng,
 {
     let result:Vec<_>=(0..ndims).map(|_|{
