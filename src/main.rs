@@ -33,9 +33,13 @@ use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
 use scorus::utils::types::{HasElement, HasLen, InitFromLen};
+use scorus::mcmc::dream::utils::multinomial;
+use scorus::mcmc::dream::dream::DreamState;
+use scorus::linear_space::type_wrapper::LsVec;
+use rand::Rng;
 
-fn foo(x: f64) -> f64 {
-    (x.powi(2) * 20.0).sin()
+fn foo(x: &LsVec<f64, Vec<f64>>) -> f64 {
+    -x.0.iter().map(|&x|{x.powi(2)/2.0}).sum::<f64>()
 }
 
 fn foo2(x: f64) -> f64 {
@@ -43,12 +47,29 @@ fn foo2(x: f64) -> f64 {
 }
 
 fn main() {
-    println!(
-        "{}",
-        integrate(
-            &|x: f64| x.powi(2).sin(),
-            1e-10,
-            &[0.0, 1.0, 2.0, (8.0 * f64::PI()).sqrt()]
-        )
-    );
+    let mut rng=thread_rng();
+    let ndim=1000;
+    
+    let mut x=Vec::new();
+
+    for i in 0..16{
+        let p:Vec<_>=(0..ndim).map(|_|{
+            rng.gen_range(-1.0e-3, 1.0e-3)
+        }).collect();
+        x.push(LsVec(p));
+    }
+
+    let mut dream=DreamState::new(x, &foo, 0.001, 0.001);
+    
+    let thin=100;
+    for i in 0..1000000{
+        for j in 0..dream.nchains(){
+            dream.evolve_single_chain(j, &foo, 4, 1., &mut rng);
+        }
+        if i%thin==0{
+            //println!("{:?}", dream.x[0]);
+            println!("{} {}", dream.x[0][0], dream.x[0][1]);
+        }
+    }
+    
 }

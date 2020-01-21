@@ -8,6 +8,7 @@ pub mod mcmc_errors;
 pub mod ptsample;
 pub mod twalk;
 pub mod utils;
+pub mod dream;
 
 pub use super::utils::{HasElement, HasLen, InitFromLen, ItemSwapable, Resizeable};
 //pub use self::utils::shuffle;

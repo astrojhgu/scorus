@@ -4,7 +4,7 @@ use std::ops::{Add, Mul, Sub};
 
 pub trait LinearSpace<Scalar>
 where
-    Scalar: Num,
+    Scalar: Num+Copy,
     Self: Sized,
     for<'a> &'a Self: Add<Output = Self>,
     for<'a> &'a Self: Sub<Output = Self>,
@@ -14,18 +14,25 @@ where
 }
 
 pub trait FiniteLinearSpace<Scalar>: LinearSpace<Scalar>+std::ops::Index<usize, Output=Scalar>+std::ops::IndexMut<usize, Output=Scalar>
-where Scalar: Num,
+where Scalar: Num+Copy,
 Self: Sized,
 for<'a> &'a Self: Add<Output = Self>,
 for<'a> &'a Self: Sub<Output = Self>,
 for<'a> &'a Self: Mul<Scalar, Output = Self>,
 {
+    fn element_wise_prod(&self, rhs: &Self)->Self{
+        let mut result=self-self;
+        for i in 0..self.dimension(){
+            result[i]=result[i]*rhs[i]
+        }
+        result
+    }
 }
 
 
 pub trait InnerProdSpace<Scalar>: LinearSpace<Scalar>
 where
-    Scalar: Num,
+    Scalar: Num+Copy,
     Self: Sized,
     for<'a> &'a Self: Add<Output = Self>,
     for<'a> &'a Self: Sub<Output = Self>,
@@ -36,7 +43,7 @@ where
 
 pub trait PDInnerProdSpace<Scalar>: InnerProdSpace<Scalar>
 where
-    Scalar: Float,
+    Scalar: Float+Copy,
     Self: Sized,
     for<'a> &'a Self: Add<Output = Self>,
     for<'a> &'a Self: Sub<Output = Self>,
