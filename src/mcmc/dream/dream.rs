@@ -107,7 +107,7 @@ where
 {
     let alpha = (lp - old_lp[i]).exp();
     if rng.gen_range(T::zero(), T::one()) < alpha {
-        print!("a");
+        //print!("a");
         old[i] = proposed;
         old_lp[i] = lp;
         true
