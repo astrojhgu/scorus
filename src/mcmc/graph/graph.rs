@@ -314,13 +314,15 @@ where
                     ref is_observed,
                     ref values,
                     ..
-                } => for (j, p) in n.info.idx_in_var.iter().enumerate() {
-                    if is_observed[j] {
-                        gv.fixed_values.borrow_mut()[*p] = values[j];
-                    } else {
-                        gv[*p] = values[j];
+                } => {
+                    for (j, p) in n.info.idx_in_var.iter().enumerate() {
+                        if is_observed[j] {
+                            gv.fixed_values.borrow_mut()[*p] = values[j];
+                        } else {
+                            gv[*p] = values[j];
+                        }
                     }
-                },
+                }
             }
         }
         gv
@@ -443,7 +445,8 @@ where
             10,
             rng,
             nchanged,
-        ).unwrap();
+        )
+        .unwrap();
         self.set_value_then_update(i, j, x, &mut gv);
     }
 
@@ -594,10 +597,12 @@ unsafe impl<K, T> std::marker::Sync for Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
     T: Float + Sync + Send + std::fmt::Display,
-{}
+{
+}
 
 unsafe impl<K, T> std::marker::Send for Graph<K, T>
 where
     K: std::hash::Hash + Eq + Clone,
     T: Float + Sync + Send + std::fmt::Display,
-{}
+{
+}

@@ -80,7 +80,8 @@ fn main() {
         vec![0.20, 0.24],
         vec![0.20, 0.12],
         vec![0.23, 0.12],
-    ].into_iter()
+    ]
+    .into_iter()
     .map(|x| LsVec(x))
     .collect();
     let y = vec![0.0];
@@ -110,9 +111,11 @@ fn main() {
 
         sampler(
             &mut |xy: &Result<(Vec<LsVec<f64, Vec<f64>>>, Vec<f64>), McmcErr>| match xy {
-                &Ok(ref xy) => for i in 0..nbeta {
-                    results[i].push(xy.0[i * nwalkers + 0][0]);
-                },
+                &Ok(ref xy) => {
+                    for i in 0..nbeta {
+                        results[i].push(xy.0[i * nwalkers + 0][0]);
+                    }
+                }
                 _ => (),
             },
             k % 10 == 0,

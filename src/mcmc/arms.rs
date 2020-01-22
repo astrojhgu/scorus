@@ -868,14 +868,12 @@ where
 
     calc_cum_int_exp_y(&mut section_list);
     //
-    assert!(
-        section_list
-            .back()
-            .unwrap()
-            ._cum_int_exp_y_u
-            .unwrap()
-            .is_finite()
-    );
+    assert!(section_list
+        .back()
+        .unwrap()
+        ._cum_int_exp_y_u
+        .unwrap()
+        .is_finite());
     Ok(section_list)
 }
 

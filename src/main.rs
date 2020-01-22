@@ -19,11 +19,15 @@ use scorus::polynomial::bernstein::bernstein_base;
 use scorus::polynomial::bernstein::bernstein_poly;
 
 use num_traits::float::{Float, FloatConst};
+use rand::Rng;
 use scorus::healpix::utils::{nest2ring, ring2nest};
 use scorus::integration::adaptive_trapezoid::integrate;
 use scorus::interpolation::linear1d::interp;
 use scorus::interpolation::sph_nn::Interpolator;
 use scorus::interpolation::spline;
+use scorus::linear_space::type_wrapper::LsVec;
+use scorus::mcmc::dream::dream::{init_chain, sample};
+use scorus::mcmc::dream::utils::multinomial;
 use scorus::opt::opt_errors::OptErr;
 use scorus::opt::powell::fmin;
 use scorus::opt::pso::*;
@@ -33,13 +37,9 @@ use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
 use scorus::utils::types::{HasElement, HasLen, InitFromLen};
-use scorus::mcmc::dream::utils::multinomial;
-use scorus::mcmc::dream::dream::{init_chain, sample};
-use scorus::linear_space::type_wrapper::LsVec;
-use rand::Rng;
 
 fn foo(x: &LsVec<f64, Vec<f64>>) -> f64 {
-    -x.0.iter().map(|&x|{x.powi(2)/2.0}).sum::<f64>()
+    -x.0.iter().map(|&x| x.powi(2) / 2.0).sum::<f64>()
 }
 
 fn foo2(x: f64) -> f64 {
@@ -47,31 +47,39 @@ fn foo2(x: f64) -> f64 {
 }
 
 fn main() {
-    let mut rng=thread_rng();
-    let ndim=10;
-    let nchains=5;
-    let mut x=Vec::new();
+    let mut rng = thread_rng();
+    let ndim = 10;
+    let nchains = 5;
+    let mut x = Vec::new();
 
-    for i in 0..nchains{
-        let p:Vec<_>=(0..ndim).map(|_|{
-            rng.gen_range(-1.0e-3, 1.0e-3)
-        }).collect();
+    for _i in 0..nchains {
+        let p: Vec<_> = (0..ndim).map(|_| rng.gen_range(-1.0e-3, 1.0e-3)).collect();
         x.push(LsVec(p));
     }
 
-    let mut ensemble_lp=init_chain(x, &foo, 4);
-    
-    let thin=10;
-    for i in 0..1_000_000{
-        sample(&mut ensemble_lp, &foo, 4, 0.5, 0.1, 1e-12, &mut rng, &Some(Box::new(move |a, b|{
-            if i%10==0{
-                1.0
-            }else{
-                2.38/((a*b) as f64).sqrt()
-            }
-        })), 4);
-        if i%thin ==0{
-            println!("{} {}", ensemble_lp.0[0][0],ensemble_lp.0[0][1]);
+    let mut ensemble_lp = init_chain(x, &foo, 4);
+
+    let thin = 10;
+    for i in 0..1_000_000 {
+        sample(
+            &mut ensemble_lp,
+            &foo,
+            4,
+            0.5,
+            0.1,
+            1e-12,
+            &mut rng,
+            &Some(Box::new(move |a, b| {
+                if i % 10 == 0 {
+                    1.0
+                } else {
+                    2.38 / ((a * b) as f64).sqrt()
+                }
+            })),
+            4,
+        );
+        if i % thin == 0 {
+            println!("{} {}", ensemble_lp.0[0][0], ensemble_lp.0[0][1]);
         }
     }
 }

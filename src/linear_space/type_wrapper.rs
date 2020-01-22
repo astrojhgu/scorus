@@ -1,5 +1,5 @@
 #![allow(clippy::needless_range_loop)]
-use super::traits::{InnerProdSpace, LinearSpace,FiniteLinearSpace, PDInnerProdSpace};
+use super::traits::{FiniteLinearSpace, InnerProdSpace, LinearSpace, PDInnerProdSpace};
 use crate::utils::HasLen;
 use num_traits::Float;
 use std::convert::{AsMut, AsRef};
@@ -88,11 +88,12 @@ where
     }
 }
 
-impl<T, V> FiniteLinearSpace<T> for LsVec<T,V>
-where 
-T: Float,
-V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
-{}
+impl<T, V> FiniteLinearSpace<T> for LsVec<T, V>
+where
+    T: Float,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
+{
+}
 
 impl<T, V> InnerProdSpace<T> for LsVec<T, V>
 where
@@ -111,7 +112,8 @@ impl<T, V> PDInnerProdSpace<T> for LsVec<T, V>
 where
     T: Float,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
-{}
+{
+}
 
 impl<T, V> AsRef<[T]> for LsVec<T, V>
 where

@@ -5,10 +5,10 @@ pub mod graph;
 pub mod init_ensemble;
 pub mod mcmc_errors;
 //pub mod mcmc_vec;
+pub mod dream;
 pub mod ptsample;
 pub mod twalk;
 pub mod utils;
-pub mod dream;
 
 pub use super::utils::{HasElement, HasLen, InitFromLen, ItemSwapable, Resizeable};
 //pub use self::utils::shuffle;

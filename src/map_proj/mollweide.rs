@@ -8,21 +8,21 @@ use std::fmt::Debug;
 https://en.wikipedia.org/wiki/Mollweide_projection
 */
 
-pub fn regulate_az<T>(mut az: T)->T
-where T:Float+FloatConst
+pub fn regulate_az<T>(mut az: T) -> T
+where
+    T: Float + FloatConst,
 {
-    let pi=T::PI();
-    let two=T::one()+T::one();
-    let twopi=two*pi;
-    while az>pi{
-        az=az-twopi;
+    let pi = T::PI();
+    let two = T::one() + T::one();
+    let twopi = two * pi;
+    while az > pi {
+        az = az - twopi;
     }
-    while az<=-pi{
-        az=az+twopi;
+    while az <= -pi {
+        az = az + twopi;
     }
     az
 }
-
 
 fn theta_iter<T>(theta: T, pol: T) -> T
 where

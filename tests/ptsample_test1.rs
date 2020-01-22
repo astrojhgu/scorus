@@ -52,7 +52,8 @@ fn test() {
             i % 10 == 0,
             2.0,
             1,
-        ).unwrap();
+        )
+        .unwrap();
         ensemble = aaa.0;
         cached_logprob = aaa.1;
         result.push(ensemble[0][0]);

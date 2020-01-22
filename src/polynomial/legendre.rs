@@ -33,7 +33,8 @@ where
             - ln_factorial(T::from(m).unwrap())
             - ln_factorial(T::from(n - m).unwrap())
             - ln_factorial(T::from(n - 2 * m).unwrap())
-            - T::from(n).unwrap() * T::from(2).unwrap().ln()).exp()
+            - T::from(n).unwrap() * T::from(2).unwrap().ln())
+        .exp()
 }
 
 pub fn legendre2poly<T, V>(p: &V) -> V
@@ -92,8 +93,8 @@ where
 }
 
 pub fn eval_all_orders<T>(n: usize, x: T) -> Vec<T>
-    where
-        T: Float + Copy,
+where
+    T: Float + Copy,
 {
     let one = one::<T>();
 
@@ -104,9 +105,9 @@ pub fn eval_all_orders<T>(n: usize, x: T) -> Vec<T>
         return vec![one, x];
     }
 
-    let mut result=vec![zero::<T>(); n+1];
-    result[0]=one;
-    result[1]=x;
+    let mut result = vec![zero::<T>(); n + 1];
+    result[0] = one;
+    result[1] = x;
 
     let mut pn1 = x;
     let mut pn2 = one;
@@ -114,7 +115,7 @@ pub fn eval_all_orders<T>(n: usize, x: T) -> Vec<T>
     let mut n1 = 2_usize;
     loop {
         let pn = next_p(n1, x, pn1, pn2);
-        result[n1]=pn;
+        result[n1] = pn;
         if n1 == n {
             return result;
         }

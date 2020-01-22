@@ -1,3 +1,4 @@
+#![allow(clippy::comparison_chain)]
 use std;
 use std::ops::{Add, IndexMut, Mul, Sub};
 
@@ -187,10 +188,10 @@ where
 
     pub fn update_fitness(&mut self) {
         /*let f: Vec<T> = self
-            .swarm
-            .iter()
-            .map(|p| (self.func)(&p.position))
-            .collect();*/
+        .swarm
+        .iter()
+        .map(|p| (self.func)(&p.position))
+        .collect();*/
 
         let f: Vec<T> = self
             .swarm
@@ -319,7 +320,8 @@ where
                         diff_norm = diff_norm + (gbest.position[i] - x.position[i]).powi(2);
                     }
                     diff_norm
-                }).fold(zero::<T>(), |a: T, b: T| b.max(a));
+                })
+                .fold(zero::<T>(), |a: T, b: T| b.max(a));
             max_norm < m
         } else {
             false

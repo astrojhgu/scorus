@@ -1,10 +1,11 @@
+#![allow(clippy::eq_op)]
 use num_traits::float::Float;
 use num_traits::Num;
 use std::ops::{Add, Mul, Sub};
 
 pub trait LinearSpace<Scalar>
 where
-    Scalar: Num+Copy,
+    Scalar: Num + Copy,
     Self: Sized,
     for<'a> &'a Self: Add<Output = Self>,
     for<'a> &'a Self: Sub<Output = Self>,
@@ -13,26 +14,29 @@ where
     fn dimension(&self) -> usize;
 }
 
-pub trait FiniteLinearSpace<Scalar>: LinearSpace<Scalar>+std::ops::Index<usize, Output=Scalar>+std::ops::IndexMut<usize, Output=Scalar>
-where Scalar: Num+Copy,
-Self: Sized,
-for<'a> &'a Self: Add<Output = Self>,
-for<'a> &'a Self: Sub<Output = Self>,
-for<'a> &'a Self: Mul<Scalar, Output = Self>,
+pub trait FiniteLinearSpace<Scalar>:
+    LinearSpace<Scalar>
+    + std::ops::Index<usize, Output = Scalar>
+    + std::ops::IndexMut<usize, Output = Scalar>
+where
+    Scalar: Num + Copy,
+    Self: Sized,
+    for<'a> &'a Self: Add<Output = Self>,
+    for<'a> &'a Self: Sub<Output = Self>,
+    for<'a> &'a Self: Mul<Scalar, Output = Self>,
 {
-    fn element_wise_prod(&self, rhs: &Self)->Self{
-        let mut result=self-self;
-        for i in 0..self.dimension(){
-            result[i]=result[i]*rhs[i]
+    fn element_wise_prod(&self, rhs: &Self) -> Self {
+        let mut result = self - self;
+        for i in 0..self.dimension() {
+            result[i] = result[i] * rhs[i]
         }
         result
     }
 }
 
-
 pub trait InnerProdSpace<Scalar>: LinearSpace<Scalar>
 where
-    Scalar: Num+Copy,
+    Scalar: Num + Copy,
     Self: Sized,
     for<'a> &'a Self: Add<Output = Self>,
     for<'a> &'a Self: Sub<Output = Self>,
@@ -43,7 +47,7 @@ where
 
 pub trait PDInnerProdSpace<Scalar>: InnerProdSpace<Scalar>
 where
-    Scalar: Float+Copy,
+    Scalar: Float + Copy,
     Self: Sized,
     for<'a> &'a Self: Add<Output = Self>,
     for<'a> &'a Self: Sub<Output = Self>,

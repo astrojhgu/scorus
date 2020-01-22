@@ -18,11 +18,13 @@ where
     if az < twothird {
         <usize as NumCast>::from(
             T::from(nside).unwrap() * (T::from(2).unwrap() - T::from(1.5).unwrap() * z),
-        ).unwrap()
+        )
+        .unwrap()
     } else {
         let iring = <usize as NumCast>::from(
             T::from(nside).unwrap() * (T::from(3.0).unwrap() * (T::one() - az)).sqrt(),
-        ).unwrap();
+        )
+        .unwrap();
         if z > T::zero() {
             iring
         } else {

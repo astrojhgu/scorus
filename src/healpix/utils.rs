@@ -144,13 +144,19 @@ fn ring2xyf32(nside: i32, pix: i32) -> (i32, i32, i32) {
         let irm = nl2 + 2 - ire;
         let ifm = (iphi - ire / 2 + nside - 1) / nside;
         let ifp = (iphi - irm / 2 + nside - 1) / nside;
-        let face_num = if ifp == ifm {
+        let face_num = match ifp {
+            _ if ifp == ifm => ifp | 4,
+            _ if ifp < ifm => ifp,
+            _ => ifm + 8,
+        };
+        /*
+        if ifp == ifm {
             ifp | 4
         } else if ifp < ifm {
             ifp
         } else {
             ifm + 8
-        };
+        };*/
         (iring, iphi, kshift, nr, face_num)
     } else {
         let ip = npix - pix;
@@ -300,13 +306,19 @@ fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
         let irm = nl2 + 2 - ire;
         let ifm = (iphi - ire / 2 + nside - 1) / nside;
         let ifp = (iphi - irm / 2 + nside - 1) / nside;
-        let face_num = if ifp == ifm {
+        let face_num = match ifp {
+            _ if ifp == ifm => ifp | 4,
+            _ if ifp < ifm => ifp,
+            _ => ifm + 8,
+        };
+        /*
+        if ifp == ifm {
             ifp | 4
         } else if ifp < ifm {
             ifp
         } else {
             ifm + 8
-        };
+        };*/
         (iring, iphi, kshift, nr, face_num)
     } else {
         let ip = npix - pix;

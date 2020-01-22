@@ -32,7 +32,8 @@ where
             zero()
         } else {
             (c + T::from(nu).unwrap() * x[i].ln()
-                + T::from(n - nu).unwrap() * (one::<T>() - x[i]).ln()).exp()
+                + T::from(n - nu).unwrap() * (one::<T>() - x[i]).ln())
+            .exp()
         };
     }
     result

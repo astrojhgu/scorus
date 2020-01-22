@@ -1,3 +1,4 @@
+#![allow(clippy::comparison_chain)]
 use crate::linear_space::traits::*;
 use num_traits::float::Float;
 use std::cmp::Ordering;
@@ -25,7 +26,8 @@ where
                         * (Scalar::one() / Scalar::from(subset.len()).unwrap()),
                 )
             }
-        }).collect();
+        })
+        .collect();
 
     //println!("{:?}", seeds);
 
@@ -48,7 +50,8 @@ where
                     } else {
                         Ordering::Equal
                     }
-                }).unwrap()
+                })
+                .unwrap()
                 .0;
             result[cid].push(x);
         });

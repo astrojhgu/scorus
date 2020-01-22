@@ -20,7 +20,8 @@ fn main() {
             10,
             &mut rng,
             &mut nchange,
-        ).unwrap();
+        )
+        .unwrap();
         println!("{}", xcur);
     }
 }
