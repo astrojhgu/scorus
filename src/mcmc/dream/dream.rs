@@ -107,9 +107,11 @@ where
 {
     let alpha = (lp - old_lp[i]).exp();
     if rng.gen_range(T::zero(), T::one()) < alpha {
+        println!("accept");
         old[i] = proposed;
         old_lp[i] = lp;
     }
+    //println!("reject {:?} {:?}", lp, old_lp[i]);
 }
 
 pub fn init_chain<T, V, W, F>(ensemble: W, flogprob: &F, njobs: usize) -> (W, Vec<T>)
@@ -173,6 +175,7 @@ pub fn sample<T, U, V, W, X, F>(
     b_star: T,
     rng: &mut U,
     gamma_func: &Option<Box<dyn Fn(usize, usize) -> T>>,
+    support_func: &Option<Box<dyn Fn(&V) -> bool>>,
     njobs: usize,
 ) where
     T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
@@ -190,7 +193,9 @@ pub fn sample<T, U, V, W, X, F>(
     let nchains = ensemble_logprob.1.len();
     let proposed_points: Vec<_> = (0..nchains)
         .map(|i| {
-            propose_point(
+            let mut p;
+            loop{
+                p=propose_point(
                 &ensemble_logprob.0,
                 i,
                 delta,
@@ -199,7 +204,15 @@ pub fn sample<T, U, V, W, X, F>(
                 b_star,
                 gamma_func,
                 rng,
-            )
+            );
+                if let Some(sp)=support_func{
+                    if sp(&p){
+                        return p;
+                    }
+                }else{
+                    return p;
+                }
+            }
         })
         .collect();
 

@@ -76,6 +76,7 @@ fn main() {
                     2.38 / ((a * b) as f64).sqrt()
                 }
             })),
+            &None,
             4,
         );
         if i % thin == 0 {
