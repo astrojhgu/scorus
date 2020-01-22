@@ -92,7 +92,7 @@ where
     proposed
 }
 
-pub fn accept<T, U, V, W, X>(old: &mut W, old_lp: &mut X, i: usize, proposed: V, lp: T, rng: &mut U)
+pub fn accept<T, U, V, W, X>(old: &mut W, old_lp: &mut X, i: usize, proposed: V, lp: T, rng: &mut U)->bool
 where
     T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -110,8 +110,9 @@ where
         print!("a");
         old[i] = proposed;
         old_lp[i] = lp;
+        true
     }else{
-        print!("r");
+        false
     }
     //println!("reject {:?} {:?}", lp, old_lp[i]);
 }
@@ -179,7 +180,7 @@ pub fn sample<T, U, V, W, X, F>(
     gamma_func: &Option<Box<dyn Fn(usize, usize) -> T>>,
     support_func: &Option<Box<dyn Fn(&V) -> bool>>,
     njobs: usize,
-) where
+)->Vec<bool> where
     T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
@@ -256,12 +257,13 @@ pub fn sample<T, U, V, W, X, F>(
     }
 
     let next_lp = next_lp.into_inner().unwrap();
+    let mut accepted=Vec::new();
     for (i, (proposed, lp)) in proposed_points
         .into_iter()
         .zip(next_lp.into_iter())
         .enumerate()
     {
-        accept(
+        let a=accept(
             &mut ensemble_logprob.0,
             &mut ensemble_logprob.1,
             i,
@@ -269,6 +271,7 @@ pub fn sample<T, U, V, W, X, F>(
             lp,
             rng,
         );
+        accepted.push(a);
     }
-    println!();
+    accepted    
 }
