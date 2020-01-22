@@ -107,9 +107,11 @@ where
 {
     let alpha = (lp - old_lp[i]).exp();
     if rng.gen_range(T::zero(), T::one()) < alpha {
-        println!("accept");
+        print!("a");
         old[i] = proposed;
         old_lp[i] = lp;
+    }else{
+        print!("r");
     }
     //println!("reject {:?} {:?}", lp, old_lp[i]);
 }
@@ -268,4 +270,5 @@ pub fn sample<T, U, V, W, X, F>(
             rng,
         );
     }
+    println!();
 }
