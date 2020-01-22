@@ -48,8 +48,8 @@ fn foo2(x: f64) -> f64 {
 
 fn main() {
     let mut rng=thread_rng();
-    let ndim=1000;
-    let nchains=32;
+    let ndim=10;
+    let nchains=5;
     let mut x=Vec::new();
 
     for i in 0..nchains{
@@ -62,8 +62,14 @@ fn main() {
     let mut ensemble_lp=init_chain(x, &foo, 4);
     
     let thin=10;
-    for i in 0..100000{
-        sample(&mut ensemble_lp, &foo, 4, 0.9, 0.1, 1e-5, &mut rng, 4);
+    for i in 0..1_000_000{
+        sample(&mut ensemble_lp, &foo, 4, 0.5, 0.1, 1e-12, &mut rng, &Some(Box::new(move |a, b|{
+            if i%10==0{
+                1.0
+            }else{
+                2.38/((a*b) as f64).sqrt()
+            }
+        })), 4);
         if i%thin ==0{
             println!("{} {}", ensemble_lp.0[0][0],ensemble_lp.0[0][1]);
         }

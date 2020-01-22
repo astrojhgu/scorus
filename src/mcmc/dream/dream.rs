@@ -27,6 +27,7 @@ use crate::utils::InitFromLen;
 use super::utils::{multinomial, calc_gamma, replace_flag};
 
 
+
 pub fn sample_dx<T, U, V, W>(old: &W, i: usize, delta: usize, rng: &mut U)->V
 where
 T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
@@ -53,7 +54,7 @@ W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
 }
 
 
-pub fn propose_point<T, U, V, W>(old: &W, i: usize, delta: usize, cr: T, b: T, b_star: T, rng: &mut U)->V
+pub fn propose_point<T, U, V, W>(old: &W, i: usize, delta: usize, cr: T, b: T, b_star: T, gamma_func: &Option<Box<dyn Fn(usize, usize)->T>>, rng: &mut U)->V
 where
 T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
 Standard: Distribution<T>,
@@ -68,7 +69,12 @@ W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
     let dx=sample_dx(old, i, delta, rng);
     let (flag, dprime)=replace_flag(dx.dimension(), cr, rng);
     //println!("{:?} {}", flag, dprime);
-    let gamma=calc_gamma(delta, dprime);
+    let gamma=if let Some(g)=gamma_func{
+        g(delta, dprime)
+    }else{
+        calc_gamma(delta, dprime)
+    };
+    
     let mut proposed=old[i].clone();
     for d in 0..proposed.dimension(){
         if flag[d]{
@@ -152,7 +158,7 @@ F: Fn(&V) -> T + Send + Sync + ?Sized,
 }    
 
 
-pub fn sample<T, U, V, W, X, F>(ensemble_logprob: &mut (W, X), flogprob: &F, delta:usize, cr: T,b: T, b_star: T, rng: &mut U, njobs: usize)
+pub fn sample<T, U, V, W, X, F>(ensemble_logprob: &mut (W, X), flogprob: &F, delta:usize, cr: T,b: T, b_star: T, rng: &mut U, gamma_func: &Option<Box<dyn Fn(usize, usize)->T>>, njobs: usize)
 where
 T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
 Standard: Distribution<T>,
@@ -168,7 +174,7 @@ F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     let nchains=ensemble_logprob.1.len();
     let proposed_points: Vec<_>=(0..nchains).map(|i|{
-        propose_point(&ensemble_logprob.0, i, delta, cr, b, b_star, rng)
+        propose_point(&ensemble_logprob.0, i, delta, cr, b, b_star, gamma_func, rng)
     }).collect();
 
     let next_lp=Mutex::new(vec![T::zero(); nchains]);
