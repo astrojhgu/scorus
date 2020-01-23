@@ -39,7 +39,7 @@ where
         + SampleUniform
         + Sync
         + Send
-        + std::fmt::Display,
+        + std::fmt::Debug,
     Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + LinearSpace<T> + Sync + Send + Sized,
@@ -85,7 +85,7 @@ pub fn create_sampler_st<'a, T, U, V, W, X, F>(
     a: T,
 ) -> Box<dyn 'a + FnMut(&mut dyn FnMut(&Result<(W, X), McmcErr>), bool) -> ()>
 where
-    T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
+    T: 'static + Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     U: 'static + Rng,
     V: Clone + LinearSpace<T> + Sized,
@@ -123,7 +123,7 @@ where
         + SampleUniform
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Debug,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + LinearSpace<T> + Sync + Send + Sized,
@@ -163,7 +163,7 @@ pub fn sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + LinearSpace<T> + Sized,
@@ -185,7 +185,7 @@ where
 
 fn exchange_prob<T>(lp1: T, lp2: T, beta1: T, beta2: T) -> T
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
 {
     let x = ((beta2 - beta1) * (-lp2 + lp1)).exp();
@@ -203,7 +203,7 @@ pub fn swap_walkers<T, U, V, W, X>(
     beta_list: &X,
 ) -> Result<(), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + LinearSpace<T> + Sized,
@@ -273,7 +273,7 @@ where
         + SampleUniform
         + std::marker::Sync
         + std::marker::Send
-        + std::fmt::Display,
+        + std::fmt::Debug,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + LinearSpace<T> + Sync + Send + Sized,
@@ -467,7 +467,7 @@ fn only_sample_st<T, U, V, W, X, F>(
     a: T,
 ) -> Result<(W, X), McmcErr>
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Display,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     U: Rng,
     V: Clone + LinearSpace<T> + Sized,

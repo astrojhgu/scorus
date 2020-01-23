@@ -20,13 +20,14 @@ use rand_distr::StandardNormal;
 use crate::linear_space::FiniteLinearSpace;
 use crate::utils::HasLen;
 use crate::utils::InitFromLen;
+use crate::utils::ItemSwapable;
 use rand::distributions::Standard;
 use std::ops::{Add, IndexMut, Mul, Sub};
 use std::sync::Mutex;
-
+use super::super::utils::swap_walkers;
 use super::utils::{calc_gamma, replace_flag};
 
-pub fn sample_dx<T, U, V, W>(old: &W, i: usize, delta: usize, rng: &mut U) -> V
+pub fn sample_dx<T, U, V, W>(old: &W,ibeta: usize, i: usize, delta: usize,nbeta: usize,  rng: &mut U) -> V
 where
     T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -35,26 +36,30 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send+ ItemSwapable,
 {
     //step 1a
-    let delta = delta.min(old.len() / 2);
-    let mut j_list: Vec<_> = (0..old.len()).filter(|&x| x != i).collect();
+    let delta = delta.min(old.len()/nbeta / 2);
+    let nchains_per_beta=old.len()/nbeta;
+    let mut j_list: Vec<_> = (0..nchains_per_beta).filter(|&x| x != i).collect();
     j_list.shuffle(rng);
     let n_list: Vec<_> = j_list.iter().take(delta).cloned().collect();
     let j_list: Vec<_> = j_list.iter().skip(delta).take(delta).cloned().collect();
-    let start_point = &old[i];
+    //println!("{} {} {} {}", ibeta, nchains_per_beta, nbeta, i);
+    let start_point = &old[ibeta*nchains_per_beta+i];
     let mut dx = start_point - start_point;
     for (&j, &n) in j_list.iter().zip(n_list.iter()) {
-        dx = &dx + &(&old[j] - &old[n]);
+        dx = &dx + &(&old[ibeta*nchains_per_beta+j] - &old[ibeta*nchains_per_beta+n]);
     }
     dx
 }
 
 pub fn propose_point<T, U, V, W>(
     old: &W,
+    ibeta: usize,
     i: usize,
     delta: usize,
+    nbeta: usize, 
     cr: T,
     b: T,
     b_star: T,
@@ -70,9 +75,10 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send+ ItemSwapable,
 {
-    let dx = sample_dx(old, i, delta, rng);
+    let nchains_per_beta=old.len()/nbeta;
+    let dx = sample_dx(old, ibeta, i, delta, nbeta, rng);
     let (flag, dprime) = replace_flag(dx.dimension(), cr, rng);
     //println!("{:?} {}", flag, dprime);
     let gamma = if let Some(g) = gamma_func {
@@ -81,7 +87,7 @@ where
         calc_gamma(delta, dprime)
     };
 
-    let mut proposed = old[i].clone();
+    let mut proposed = old[ibeta*nchains_per_beta+i].clone();
     for d in 0..proposed.dimension() {
         if flag[d] {
             proposed[d] = proposed[d]
@@ -92,7 +98,7 @@ where
     proposed
 }
 
-pub fn accept<T, U, V, W, X>(old: &mut W, old_lp: &mut X, i: usize, proposed: V, lp: T, rng: &mut U)->bool
+pub fn accept<T, U, V, W, X>(old: &mut W, old_lp: &mut X,ibeta: usize, i: usize, proposed: V, lp: T, beta_list: &X, rng: &mut U)->bool
 where
     T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -102,19 +108,22 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send + ItemSwapable,
 {
-    let alpha = (lp - old_lp[i]).exp();
+    let nbeta=beta_list.len();
+    let nchains_per_beta=old.len()/nbeta;
+    let alpha = ((lp - old_lp[i])*beta_list[ibeta]).exp();
     if rng.gen_range(T::zero(), T::one()) < alpha {
         //print!("a");
-        old[i] = proposed;
-        old_lp[i] = lp;
+        old[ibeta*nchains_per_beta+i] = proposed;
+        old_lp[ibeta*nchains_per_beta+i] = lp;
         true
     }else{
+        //println!("reject {:?} {:?}", lp, old_lp[i]);
         false
     }
-    //println!("reject {:?} {:?}", lp, old_lp[i]);
+    
 }
 
 pub fn init_chain<T, V, W, F>(ensemble: W, flogprob: &F, njobs: usize) -> (W, Vec<T>)
@@ -124,7 +133,7 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send+ ItemSwapable,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     let nchains = ensemble.len();
@@ -177,9 +186,11 @@ pub fn sample<T, U, V, W, X, F>(
     b: T,
     b_star: T,
     rng: &mut U,
+    beta_list: &X,
     gamma_func: &Option<Box<dyn Fn(usize, usize) -> T>>,
     support_func: &Option<Box<dyn Fn(&V) -> bool>>,
     njobs: usize,
+    perform_swap: bool,
 )->Vec<bool> where
     T: Float + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -189,19 +200,31 @@ pub fn sample<T, U, V, W, X, F>(
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send + ItemSwapable,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send + ItemSwapable,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     let nchains = ensemble_logprob.1.len();
+    let nbeta=beta_list.len();
+    let nchains_per_beta=nchains/nbeta;
+
+    assert!(nbeta*nchains_per_beta==nchains);
+
+    if perform_swap{
+        swap_walkers(ensemble_logprob, rng, beta_list).unwrap();
+    }
+
     let proposed_points: Vec<_> = (0..nchains)
         .map(|i| {
             let mut p;
+            let ibeta=i/nchains_per_beta;
             loop{
                 p=propose_point(
                 &ensemble_logprob.0,
-                i,
+                ibeta,
+                i-ibeta*nchains_per_beta,
                 delta,
+                nbeta,
                 cr,
                 b,
                 b_star,
@@ -263,15 +286,19 @@ pub fn sample<T, U, V, W, X, F>(
         .zip(next_lp.into_iter())
         .enumerate()
     {
+        let ibeta=i/nchains_per_beta;
         let a=accept(
             &mut ensemble_logprob.0,
             &mut ensemble_logprob.1,
-            i,
+            ibeta,
+            i-ibeta*nchains_per_beta,
             proposed,
             lp,
+            beta_list,
             rng,
         );
         accepted.push(a);
     }
-    accepted    
+    //println!("{:?}", accepted);
+    accepted  
 }

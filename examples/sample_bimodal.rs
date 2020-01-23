@@ -132,10 +132,6 @@ fn main() {
                 std::cmp::Ordering::Equal
             }
         });
-        for j in 0..results[i].len() {
-            println!("{} {}", results[i][j], j);
-        }
-        println!("no no no");
     }
 
     let mut file = File::create("bimod_data.txt").unwrap();
