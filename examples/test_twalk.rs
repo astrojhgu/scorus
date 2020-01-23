@@ -16,19 +16,18 @@ use scorus::mcmc::twalk::{sample_st, TWalkKernal, TWalkParams, TWalkState};
 fn normal_dist(x: &LsVec<f64, Vec<f64>>) -> f64 {
     let mut result = 0_f64;
     for &i in &x.0 {
-        result -= i * i/2.0;
+        result -= i * i / 2.0;
     }
     result
 }
 
-fn rosenbrock(x: &LsVec<f64, Vec<f64>>)->f64{
-    let mut result=0.0;
-    for i in 0..x.0.len()-1{
-        result+=100.0*(x[i+1]-x[i].powi(2)).powi(2)+(1.0-x[i]).powi(2);
+fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
+    let mut result = 0.0;
+    for i in 0..x.0.len() - 1 {
+        result += 100.0 * (x[i + 1] - x[i].powi(2)).powi(2) + (1.0 - x[i]).powi(2);
     }
     -result
 }
-
 
 fn main() {
     let ndim = 100;
@@ -46,22 +45,26 @@ fn main() {
         &normal_dist,
     );
 
-    let thin=100;
-    let mut kernel_cnt=vec![0;4];
-    let mut accept_cnt=vec![0;4];
+    let thin = 100;
+    let mut kernel_cnt = vec![0; 4];
+    let mut accept_cnt = vec![0; 4];
     for i in 0..100000 {
-        let result=sample_st(&rosenbrock, &mut state, &param, &mut rng);
-        kernel_cnt[result.last_kernel.to_usize()]+=1;
-        if result.accepted{
-            accept_cnt[result.last_kernel.to_usize()]+=1;
+        let result = sample_st(&rosenbrock, &mut state, &param, &mut rng);
+        kernel_cnt[result.last_kernel.to_usize()] += 1;
+        if result.accepted {
+            accept_cnt[result.last_kernel.to_usize()] += 1;
         }
-        if i%thin==0{
+        if i % thin == 0 {
             println!("{:?} {:?}", state.x[0], state.x[1]);
             //println!("{} {:?}", result.accepted, state.x);
         }
     }
     eprintln!("{:?}", kernel_cnt);
     eprintln!("{:?}", accept_cnt);
-    let accept_rate:Vec<_>=accept_cnt.iter().zip(kernel_cnt.iter()).map(|(&a,&c)| if c==0 {0.0} else {a as f64/c as f64}).collect();
+    let accept_rate: Vec<_> = accept_cnt
+        .iter()
+        .zip(kernel_cnt.iter())
+        .map(|(&a, &c)| if c == 0 { 0.0 } else { a as f64 / c as f64 })
+        .collect();
     eprintln!("{:?}", accept_rate);
 }

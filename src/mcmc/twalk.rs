@@ -23,7 +23,6 @@ use crate::linear_space::FiniteLinearSpace;
 //use crate::utils::HasLen;
 //use crate::utils::InitFromLen;
 
-
 #[derive(Clone, Copy, Debug)]
 pub enum TWalkKernal {
     Walk,
@@ -51,16 +50,15 @@ impl TWalkKernal {
         }
     }
 
-    pub fn to_usize(&self)->usize{
-        match self{
-            TWalkKernal::Walk=>0,
-            TWalkKernal::Traverse=>1,
-            TWalkKernal::Blow=>2, 
-            TWalkKernal::Hop=>3,
+    pub fn to_usize(self) -> usize {
+        match self {
+            TWalkKernal::Walk => 0,
+            TWalkKernal::Traverse => 1,
+            TWalkKernal::Blow => 2,
+            TWalkKernal::Hop => 3,
         }
     }
 }
-
 
 pub struct TWalkParams<T>
 where
@@ -71,7 +69,6 @@ where
     pub pphi: T,
     pub fw: Vec<T>,
 }
-
 
 impl<T> TWalkParams<T>
 where
@@ -97,14 +94,10 @@ where
         }
     }
 
-    pub fn with_pphi(self, pphi: T)->Self{
-        TWalkParams{
-            pphi, 
-            ..self
-        }
+    pub fn with_pphi(self, pphi: T) -> Self {
+        TWalkParams { pphi, ..self }
     }
 }
-
 
 #[derive(Clone)]
 pub struct TWalkState<T, V>
@@ -124,9 +117,9 @@ where
 
 #[derive(Clone)]
 pub struct TWalkResult<T, V>
-where 
-T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
-V: Clone
+where
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+    V: Clone,
 {
     pub a: T,
     pub original: V,
@@ -197,15 +190,17 @@ where
     result
 }
 
-pub fn gen_update_flags<T, U>(n: usize, pphi: T, rng: &mut U)->Vec<bool>
-where T: Float+SampleUniform,
-U: Rng
+pub fn gen_update_flags<T, U>(n: usize, pphi: T, rng: &mut U) -> Vec<bool>
+where
+    T: Float + SampleUniform,
+    U: Rng,
 {
-    loop{
-        let result:Vec<_>=(0..n).map(|_|{
-        rng.gen_range(T::zero(), T::one())<pphi}).collect();
-        if result.iter().any(|&b|b){
-            break result
+    loop {
+        let result: Vec<_> = (0..n)
+            .map(|_| rng.gen_range(T::zero(), T::one()) < pphi)
+            .collect();
+        if result.iter().any(|&b| b) {
+            break result;
         }
     }
 }
@@ -225,7 +220,7 @@ where
     let mut result = x.clone();
     let dx = x - xp;
     let two = T::one() + T::one();
-    let update_flags=gen_update_flags(n, param.pphi, rng);
+    let update_flags = gen_update_flags(n, param.pphi, rng);
     //println!("{:?}", update_flags.iter().enumerate().filter(|(i, &f)| f).collect::<Vec<_>>());
     for i in 0..n {
         if update_flags[i] {
@@ -274,9 +269,9 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     let n = x.dimension();
-    
+
     let mut result = x.clone();
-    let update_flags=gen_update_flags(n, param.pphi, rng);
+    let update_flags = gen_update_flags(n, param.pphi, rng);
     //println!("{:?}", update_flags.iter().enumerate().filter(|(i, &f)| f).collect::<Vec<_>>());
     for i in 0..n {
         if update_flags[i] {
@@ -300,14 +295,14 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     let n = x.dimension();
-    
+
     let mut sigma = T::zero();
     let dx = xp - x;
-    let update_flags=gen_update_flags(n, param.pphi, rng);
+    let update_flags = gen_update_flags(n, param.pphi, rng);
     //println!("{:?}", update_flags.iter().enumerate().filter(|(i, &f)| f).collect::<Vec<_>>());
     for i in 0..n {
         if update_flags[i] {
-            sigma=sigma.max(dx[i].abs());
+            sigma = sigma.max(dx[i].abs());
         }
     }
     let mut result = x.clone();
@@ -363,11 +358,11 @@ where
     let n = x.dimension();
     let mut sigma = T::zero();
     let dx = xp - x;
-    let update_flags=gen_update_flags(n, param.pphi, rng);
+    let update_flags = gen_update_flags(n, param.pphi, rng);
 
     for i in 0..n {
         if update_flags[i] {
-            sigma=sigma.max(dx[i].abs());
+            sigma = sigma.max(dx[i].abs());
         }
     }
 
@@ -378,7 +373,7 @@ where
             result[i] = x[i] + sigma * rng.sample(StandardNormal);
         }
     }
-    
+
     (result, update_flags)
 }
 
@@ -415,55 +410,69 @@ where
     let two = T::one() + T::one();
     let kernel = TWalkKernal::random(&param.fw, rng);
     //println!("{:?}", kernel);
-    let mut proposed=state.clone();
-    let (x, xp, u, up)=if rng.gen_range(T::zero(), two) < T::one(){
-        (&proposed.x, &mut proposed.xp, &proposed.u, &mut proposed.up)
-    }else{
-        (&proposed.xp, &mut proposed.x, &proposed.up, &mut proposed.u)
+    let mut proposed = state.clone();
+    let (x, xp, up) = if rng.gen_range(T::zero(), two) < T::one() {
+        (&proposed.x, &mut proposed.xp, &mut proposed.up)
+    } else {
+        (&proposed.xp, &mut proposed.x, &mut proposed.u)
     };
-
 
     let mut result = match kernel {
         TWalkKernal::Walk => {
             let (yp, phi) = sim_walk(xp, x, rng, param);
-            let nphi=phi.iter().filter(|&&b|{b}).count();
-            let u_prop = *u;
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi>0 {
+            let nphi = phi.iter().filter(|&&b| b).count();
+            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 (up_prop, (up_prop - *up).exp())
             } else {
                 (-T::infinity(), T::zero())
             };
-            let result=TWalkResult{a, original: xp.clone(), proposed: yp.clone(), u: *up, u_proposed: up_prop, accepted: false, last_kernel: kernel, update_flags: phi};
-            *xp=yp;
-            *up=up_prop;
+            let result = TWalkResult {
+                a,
+                original: xp.clone(),
+                proposed: yp.clone(),
+                u: *up,
+                u_proposed: up_prop,
+                accepted: false,
+                last_kernel: kernel,
+                update_flags: phi,
+            };
+            *xp = yp;
+            *up = up_prop;
             result
         }
         TWalkKernal::Traverse => {
             let beta = sim_beta(rng, param);
             //println!("beta={:?}", beta);
             let (yp, phi) = sim_traverse(xp, x, beta, rng, param);
-            let nphi=phi.iter().filter(|&&b|{b}).count();
-            
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi >0 {
-                let up_prop = flogprob(&yp);    
-                let a=((up_prop - *up)
-                    - T::from(nphi as isize - 2).unwrap() * beta.ln())
-                .exp();
+            let nphi = phi.iter().filter(|&&b| b).count();
+
+            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
+                let up_prop = flogprob(&yp);
+                let a = ((up_prop - *up) - T::from(nphi as isize - 2).unwrap() * beta.ln()).exp();
                 (up_prop, a)
-            }else{
+            } else {
                 (-T::infinity(), T::zero())
             };
-            let result=TWalkResult{a, original: xp.clone(), proposed: yp.clone(), u: *up, u_proposed: up_prop, accepted: false, last_kernel: kernel, update_flags: phi};
-                *xp=yp;
-                *up=up_prop;
+            let result = TWalkResult {
+                a,
+                original: xp.clone(),
+                proposed: yp.clone(),
+                u: *up,
+                u_proposed: up_prop,
+                accepted: false,
+                last_kernel: kernel,
+                update_flags: phi,
+            };
+            *xp = yp;
+            *up = up_prop;
             result
         }
         TWalkKernal::Blow => {
             let (yp, phi) = sim_blow(xp, x, rng, param);
-            let nphi=phi.iter().filter(|&&b|{b}).count();
-            
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi>0 {
+            let nphi = phi.iter().filter(|&&b| b).count();
+
+            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 let w1 = g_blow_u(&yp, xp, x, &phi);
                 let w2 = g_blow_u(xp, &yp, x, &phi);
@@ -472,15 +481,24 @@ where
             } else {
                 (-T::infinity(), T::zero())
             };
-            let result=TWalkResult{a, original: xp.clone(), proposed: yp.clone(), u: *up, u_proposed: up_prop, accepted: false, last_kernel: kernel, update_flags: phi};
-                *xp=yp;
-                *up=up_prop;
+            let result = TWalkResult {
+                a,
+                original: xp.clone(),
+                proposed: yp.clone(),
+                u: *up,
+                u_proposed: up_prop,
+                accepted: false,
+                last_kernel: kernel,
+                update_flags: phi,
+            };
+            *xp = yp;
+            *up = up_prop;
             result
         }
         TWalkKernal::Hop => {
             let (yp, phi) = sim_hop(xp, &x, rng, param);
-            let nphi=phi.iter().filter(|&&b|{b}).count();
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi >0 {
+            let nphi = phi.iter().filter(|&&b| b).count();
+            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 let w1 = g_hop_u(&yp, xp, x, &phi);
                 let w2 = g_hop_u(xp, &yp, x, &phi);
@@ -489,16 +507,25 @@ where
             } else {
                 (-T::infinity(), T::zero())
             };
-            let result=TWalkResult{a, original: xp.clone(), proposed: yp.clone(), u: *up, u_proposed: up_prop, accepted: false, last_kernel: kernel, update_flags: phi};
-            *xp=yp;
-            *up=up_prop;
+            let result = TWalkResult {
+                a,
+                original: xp.clone(),
+                proposed: yp.clone(),
+                u: *up,
+                u_proposed: up_prop,
+                accepted: false,
+                last_kernel: kernel,
+                update_flags: phi,
+            };
+            *xp = yp;
+            *up = up_prop;
             result
         }
     };
 
-    if rng.gen_range(T::zero(), T::one()) < result.a{
-        *state=proposed;
-        result.accepted=true;
+    if rng.gen_range(T::zero(), T::one()) < result.a {
+        *state = proposed;
+        result.accepted = true;
     }
     result
 }

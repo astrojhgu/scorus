@@ -6,16 +6,16 @@ use std;
 use std::ops::{Add, Mul, Sub};
 
 use num_traits::float::Float;
-use num_traits::NumCast;
 use num_traits::identities::one;
 use num_traits::identities::zero;
+use num_traits::NumCast;
 //use num_traits::NumCast;
 //use super::mcmc_errors::McmcErr;
+use super::mcmc_errors::McmcErr;
 use crate::linear_space::LinearSpace;
 use crate::utils::{HasLen, InitFromLen, ItemSwapable};
-use std::ops::IndexMut;
-use super::mcmc_errors::McmcErr;
 use rand::seq::SliceRandom;
+use std::ops::IndexMut;
 
 //use super::super::utils::ItemSwapable;
 //use super::super::utils::Resizeable;
@@ -49,8 +49,6 @@ where
         x
     }
 }
-
-
 
 pub fn swap_walkers<T, U, V, W, X>(
     ensemble_logprob: &mut (W, X),
@@ -91,6 +89,7 @@ where
             //rng.shuffle(&mut jvec);
             jvec.shuffle(rng);
             //let jvec=shuffle(&jvec, &mut rng);
+            #[allow(clippy::needless_range_loop)]
             for j in 0..nwalker_per_beta {
                 let j1 = jvec[j];
                 let j2 = j;
@@ -112,7 +111,6 @@ where
 
     Ok(())
 }
-
 
 pub fn draw_z<T, U>(rng: &mut U, a: T) -> T
 where
