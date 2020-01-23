@@ -157,7 +157,7 @@ where
     }
 }
 
-pub fn no_zero<T, V>(x: &V) -> bool
+fn all_different<T, V>(x1: &V, x2: &V) -> bool
 where
     T: Float + NumCast + std::cmp::PartialOrd + std::fmt::Debug,
     V: Clone + FiniteLinearSpace<T> + Sized,
@@ -165,15 +165,15 @@ where
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
 {
-    for i in 0..x.dimension() {
-        if x[i].abs() <= T::zero() {
+    for i in 0..x1.dimension() {
+        if x1[i] == x2[i]{
             return false;
         }
     }
     true
 }
 
-pub fn sqr_norm<T, V>(x: &V) -> T
+fn sqr_norm<T, V>(x: &V) -> T
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -421,7 +421,7 @@ where
         TWalkKernal::Walk => {
             let (yp, phi) = sim_walk(xp, x, rng, param);
             let nphi = phi.iter().filter(|&&b| b).count();
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
+            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 (up_prop, (up_prop - *up).exp())
             } else {
@@ -447,7 +447,7 @@ where
             let (yp, phi) = sim_traverse(xp, x, beta, rng, param);
             let nphi = phi.iter().filter(|&&b| b).count();
 
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
+            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 let a = ((up_prop - *up) - T::from(nphi as isize - 2).unwrap() * beta.ln()).exp();
                 (up_prop, a)
@@ -472,7 +472,7 @@ where
             let (yp, phi) = sim_blow(xp, x, rng, param);
             let nphi = phi.iter().filter(|&&b| b).count();
 
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
+            let (up_prop, a) = if all_different(&yp , x) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 let w1 = g_blow_u(&yp, xp, x, &phi);
                 let w2 = g_blow_u(xp, &yp, x, &phi);
@@ -498,7 +498,7 @@ where
         TWalkKernal::Hop => {
             let (yp, phi) = sim_hop(xp, &x, rng, param);
             let nphi = phi.iter().filter(|&&b| b).count();
-            let (up_prop, a) = if no_zero(&(&yp - x)) && nphi > 0 {
+            let (up_prop, a) = if all_different(&yp , x) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 let w1 = g_hop_u(&yp, xp, x, &phi);
                 let w2 = g_hop_u(xp, &yp, x, &phi);
