@@ -37,7 +37,7 @@ impl Copy for NodeHandle {}
 #[derive(Default)]
 pub struct Graph<K, T>
 where
-    K: std::hash::Hash + Eq + Clone,
+    K: std::hash::Hash + Eq + Clone + Debug,
     T: Float + Sync + Send + Display,
 {
     key_node_map: HashMap<K, usize>,
@@ -50,7 +50,7 @@ where
 
 impl<K, T> Display for Graph<K, T>
 where
-    K: std::hash::Hash + Eq + Clone + Display,
+    K: std::hash::Hash + Eq + Clone + Display + Debug,
     T: Float + Sync + Send + Display,
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
@@ -148,7 +148,7 @@ where
         self
     }
 
-    pub fn add_to<K>(mut self, g: &mut Graph<K, T>, k: &K) -> NodeHandle
+    pub fn add_to<K: Debug>(mut self, g: &mut Graph<K, T>, k: &K) -> NodeHandle
     where
         K: std::hash::Hash + Eq + Clone,
     {
@@ -235,7 +235,7 @@ where
 
 impl<K, T> Graph<K, T>
 where
-    K: std::hash::Hash + Eq + Clone,
+    K: std::hash::Hash + Eq + Clone + Debug,
     T: Float + Sync + SampleUniform + Send + Display + Debug,
     Standard: Distribution<T>,
 {
@@ -288,6 +288,24 @@ where
             }
         }
     }
+
+    pub fn get_node(&self, k: &K)->&Node<T>{
+        &self.nodes[self.key_node_map[k]]
+    }
+
+    pub fn topology(&self)->HashMap<K, Vec<(K, usize)>>{
+        let mut result=HashMap::new();
+        for (tag, &node_idx) in self.key_node_map.iter(){
+            let mut parent_list=Vec::new();
+            for &(p, i) in self.nodes[node_idx].info.parents.iter(){
+                let p_tag=self.node_key_map[&p].clone();
+                parent_list.push((p_tag, i));
+            }
+            result.insert(tag.clone(), parent_list);
+        }
+        result
+    }
+
 
     pub fn init_gv(&self) -> GraphVar<T> {
         let mut gv = GraphVar {
@@ -427,6 +445,7 @@ where
         let range = self.range(i, gv).unwrap();
         let x0 = self.cached_value_of(i, j, &gv);
         let (x1, x2) = range[j];
+        assert!(x2>x1);
         //let initx=vec![x1+(x2-x1)*(T::from(0.3).unwrap()), (x1+x2)*(T::from(0.5).unwrap()), x1+(x2-x1)*T::from(0.6).unwrap()];
         let mut initx = Vec::new();
         for k in 0..n {
@@ -445,8 +464,7 @@ where
             10,
             rng,
             nchanged,
-        )
-        .unwrap();
+        ).expect(&format!("error when sampling {:?}", self.node_key_map[&i]));
         self.set_value_then_update(i, j, x, &mut gv);
     }
 
@@ -595,14 +613,14 @@ where
 
 unsafe impl<K, T> std::marker::Sync for Graph<K, T>
 where
-    K: std::hash::Hash + Eq + Clone,
+    K: std::hash::Hash + Eq + Clone + Debug,
     T: Float + Sync + Send + std::fmt::Display,
 {
 }
 
 unsafe impl<K, T> std::marker::Send for Graph<K, T>
 where
-    K: std::hash::Hash + Eq + Clone,
+    K: std::hash::Hash + Eq + Clone + Debug,
     T: Float + Sync + Send + std::fmt::Display,
 {
 }

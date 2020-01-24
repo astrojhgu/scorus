@@ -12,7 +12,7 @@ use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
-
+use std::fmt::Debug;
 use crate::utils::HasLen;
 //use utils::Resizeable;
 //use utils::ItemSwapable;
@@ -450,7 +450,7 @@ where
             return Ok(i.eval_y(x));
         }
     }
-    Err(ArmsErr::VarOutOfRange(format!("Error@{}", line!()), x))
+    Err(ArmsErr::VarOutOfRange(format!("Error@{} xmin={} xmax={}", line!(), section_list[0].x_l(), section_list[section_list.len()-1].x_u()), x))
 }
 
 pub fn eval_ey<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErr<T>>
@@ -809,14 +809,15 @@ where
         + std::fmt::Debug,
     Standard: Distribution<T>,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
-    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send + Debug,
 {
     if init_x1.len() < 3 {
         return Err(ArmsErr::TooFewInitPoints(format!("Error@{}", line!())));
     }
     for i in 0..(init_x1.len() - 1) {
         if init_x1[i] >= init_x1[i + 1] {
-            return Err(ArmsErr::DataNotInOrder(format!("Error@{}", line!())));
+            //panic!(format!("Error@{} {:?}", line!(), init_x1));
+            return Err(ArmsErr::DataNotInOrder(format!("Error@{} {:?}", line!(), init_x1)));
         }
     }
     let mut init_x = vec![xrange.0];
@@ -1113,11 +1114,13 @@ where
     Standard: Distribution<T>,
     R: Rng,
     F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
-    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + std::marker::Sync + std::marker::Send + Debug,
 {
     //let two = one::<T>() + one::<T>();
     let mut xcur = xcur;
     let mut scale = zero();
+    //assert!(xrange.0<=xcur);
+    //assert!(xrange.1>=xcur);
     let mut section_list = init(pd, xrange, init_x, &mut scale)?;
     let mut x: T;
     let mut xm = xcur;
