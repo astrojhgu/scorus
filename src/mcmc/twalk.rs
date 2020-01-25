@@ -115,21 +115,6 @@ where
     //pub kernel: TWalkKernal,
 }
 
-#[derive(Clone)]
-pub struct TWalkResult<T, V>
-where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
-    V: Clone,
-{
-    pub a: T,
-    pub original: V,
-    pub proposed: V,
-    pub u: T,
-    pub u_proposed: T,
-    pub accepted: bool,
-    pub update_flags: Vec<bool>,
-    pub last_kernel: TWalkKernal,
-}
 
 impl<T, V> TWalkState<T, V>
 where
@@ -155,6 +140,45 @@ where
     pub fn dimension(&self) -> usize {
         self.x.dimension()
     }
+
+    pub fn diff_count(&self, rhs: &Self)->(usize, usize){
+        let mut result=(0,0);
+        for i in 0..self.dimension(){
+            if self.x[i]!=rhs.x[i]{
+                result.0+=1;
+            }
+            if self.xp[i]!=rhs.xp[i]{
+                result.1+=1;
+            }
+        }
+        result
+    }
+
+    pub fn elements_changed(&self, rhs: &Self)->(Vec<bool>, Vec<bool>){
+        let mut result=(vec![false; self.dimension()],vec![false; self.dimension()]);
+        for i in 0..self.dimension(){
+            result.0[i]=self.x[i]!=rhs.x[i];
+            result.1[i]=self.xp[i]!=rhs.xp[i];
+        }
+        result
+    }
+}
+
+
+#[derive(Clone)]
+pub struct TWalkResult<T, V>
+where
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+    V: Clone,
+{
+    pub a: T,
+    pub original: V,
+    pub proposed: V,
+    pub u: T,
+    pub u_proposed: T,
+    pub accepted: bool,
+    pub update_flags: Vec<bool>,
+    pub last_kernel: TWalkKernal,
 }
 
 fn all_different<T, V>(x1: &V, x2: &V) -> bool
