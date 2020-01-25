@@ -7,6 +7,7 @@ use std::cell::RefCell;
 use std::fmt::{Display, Error, Formatter};
 use std::ops::{Add, Mul, Sub};
 
+#[derive(Clone)]
 pub struct GraphVar<T>
 where
     T: Float + Sync + Send + std::fmt::Display,
@@ -14,19 +15,9 @@ where
     pub fixed_values: RefCell<Vec<T>>,
     pub deterministic_values: RefCell<Vec<T>>,
     pub sampleable_values: Vec<T>,
-}
-
-impl<T> Clone for GraphVar<T>
-where
-    T: Float + Sync + Send + std::fmt::Display,
-{
-    fn clone(&self) -> GraphVar<T> {
-        GraphVar {
-            fixed_values: self.fixed_values.clone(),
-            deterministic_values: self.deterministic_values.clone(),
-            sampleable_values: self.sampleable_values.clone(),
-        }
-    }
+    pub old_fixed_values: RefCell<Vec<Option<T>>>,
+    pub old_deterministic_values: RefCell<Vec<Option<T>>>,
+    pub old_sampleable_values: RefCell<Vec<Option<T>>>,
 }
 
 unsafe impl<T> std::marker::Sync for GraphVar<T> where T: Float + Sync + Send + std::fmt::Display {}

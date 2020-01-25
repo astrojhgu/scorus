@@ -232,7 +232,7 @@ where
     NodeAdder::new(n, &[x])
 }
 
-pub fn scalar_func_node<T>(x: &[(NodeHandle, usize)], func: Box<dyn Fn(&[T])->T>) -> NodeAdder<T>
+pub fn scalar_func_node<T>(x: &[(NodeHandle, usize)], func: Box<dyn Fn(&[T]) -> T>) -> NodeAdder<T>
 where
     T: 'static + Float + Error + Sync + Send + Display,
 {
@@ -251,7 +251,6 @@ where
     };
     NodeAdder::new(n, x)
 }
-
 
 pub fn ln_node<T>(x: (NodeHandle, usize)) -> NodeAdder<T>
 where
@@ -293,32 +292,35 @@ where
     NodeAdder::new(n, &[x])
 }
 
-
-pub fn t_node<T>(mu: (NodeHandle, usize), sigma:(NodeHandle, usize), dof: usize)-> NodeAdder<T>
-where T: 'static+Float+FloatConst+Error+Gamma+Sync+Send+Display{
-    let n=Node{
-        info: BasicNode{
+pub fn t_node<T>(mu: (NodeHandle, usize), sigma: (NodeHandle, usize), dof: usize) -> NodeAdder<T>
+where
+    T: 'static + Float + FloatConst + Error + Gamma + Sync + Send + Display,
+{
+    let n = Node {
+        info: BasicNode {
             parents: Vec::new(),
             children: Vec::new(),
             idx_in_var: Vec::new(),
             value_type: Vec::new(),
-            ndim_input: 2, 
+            ndim_input: 2,
             ndim_output: 1,
         },
-        content: NodeContent::StochasticNode{
+        content: NodeContent::StochasticNode {
             all_stochastic_children: Vec::new(),
             all_deterministic_children: Vec::new(),
             is_observed: vec![false],
             values: vec![zero()],
-            logprob: Box::new(move |x, p|{
-                let x:T=x[0];
-                let m=p[0];
-                let s=p[1];
+            logprob: Box::new(move |x, p| {
+                let x: T = x[0];
+                let m = p[0];
+                let s = p[1];
 
-                let tau=T::one()/s.powi(2);
-                let k=T::from(dof).unwrap();
-                let two=T::one()+T::one();
-                T::ln_gamma((k+T::one())/two).0-T::ln_gamma(k/two).0+T::ln(tau/k/T::PI())/two - (k+T::one())/two*T::ln(T::one()+tau*(x-m).powi(2)/k)
+                let tau = T::one() / s.powi(2);
+                let k = T::from(dof).unwrap();
+                let two = T::one() + T::one();
+                T::ln_gamma((k + T::one()) / two).0 - T::ln_gamma(k / two).0
+                    + T::ln(tau / k / T::PI()) / two
+                    - (k + T::one()) / two * T::ln(T::one() + tau * (x - m).powi(2) / k)
             }),
             range: Box::new(move |p| {
                 let m = p[0];
@@ -326,38 +328,40 @@ where T: 'static+Float+FloatConst+Error+Gamma+Sync+Send+Display{
                 let x1 = m - T::from(5).unwrap() * s;
                 let x2 = m + T::from(5).unwrap() * s;
                 vec![(x1, x2)]
-            })
-        }
+            }),
+        },
     };
     NodeAdder::new(n, &[mu, sigma])
 }
 
-pub fn pareto_node<T>(a: (NodeHandle, usize), c: (NodeHandle, usize))->NodeAdder<T>
-where T: 'static+Float+FloatConst+Error+Gamma+Sync+Send+Display{
-    let n=Node{
-        info: BasicNode{
+pub fn pareto_node<T>(a: (NodeHandle, usize), c: (NodeHandle, usize)) -> NodeAdder<T>
+where
+    T: 'static + Float + FloatConst + Error + Gamma + Sync + Send + Display,
+{
+    let n = Node {
+        info: BasicNode {
             parents: Vec::new(),
             children: Vec::new(),
             idx_in_var: Vec::new(),
             value_type: Vec::new(),
-            ndim_input: 2, 
+            ndim_input: 2,
             ndim_output: 1,
         },
-        content: NodeContent::StochasticNode{
+        content: NodeContent::StochasticNode {
             all_stochastic_children: Vec::new(),
             all_deterministic_children: Vec::new(),
             is_observed: vec![false],
             values: vec![zero()],
-            logprob: Box::new(move |x, p|{
-                let x:T=x[0];
-                let a=p[0];
-                let c=p[1];
+            logprob: Box::new(move |x, p| {
+                let x: T = x[0];
+                let a = p[0];
+                let c = p[1];
 
-                if x<c{
+                if x < c {
                     panic!();
                     -T::infinity()
-                }else{
-                    let result=a.ln()+a*c.ln()-(a+T::one())*x.ln();
+                } else {
+                    let result = a.ln() + a * c.ln() - (a + T::one()) * x.ln();
                     assert!(result.is_finite());
                     result
                 }
@@ -365,43 +369,50 @@ where T: 'static+Float+FloatConst+Error+Gamma+Sync+Send+Display{
             range: Box::new(move |p| {
                 let a = p[0];
                 let c = p[1];
-                let eta=T::from(1e-4).unwrap();
-                let x1 = c+T::from(1e-19).unwrap();
-                let x2 = c*eta.powf(-T::one()/a);
-                assert!(x2>x1);
+                let eta = T::from(1e-4).unwrap();
+                let x1 = c + T::from(1e-19).unwrap();
+                let x2 = c * eta.powf(-T::one() / a);
+                assert!(x2 > x1);
                 vec![(x1, x2)]
-            })
-        }
+            }),
+        },
     };
     NodeAdder::new(n, &[a, c])
 }
 
-pub fn trunc_pareto_node<T>(a: (NodeHandle, usize), c: (NodeHandle, usize), xmin: T, xmax: T) ->NodeAdder<T>
-where T: 'static+Float+FloatConst+Error+Gamma+Sync+Send+Display{
-    let n=Node{
-        info: BasicNode{
+pub fn trunc_pareto_node<T>(
+    a: (NodeHandle, usize),
+    c: (NodeHandle, usize),
+    xmin: T,
+    xmax: T,
+) -> NodeAdder<T>
+where
+    T: 'static + Float + FloatConst + Error + Gamma + Sync + Send + Display,
+{
+    let n = Node {
+        info: BasicNode {
             parents: Vec::new(),
             children: Vec::new(),
             idx_in_var: Vec::new(),
             value_type: Vec::new(),
-            ndim_input: 2, 
+            ndim_input: 2,
             ndim_output: 1,
         },
-        content: NodeContent::StochasticNode{
+        content: NodeContent::StochasticNode {
             all_stochastic_children: Vec::new(),
             all_deterministic_children: Vec::new(),
             is_observed: vec![false],
             values: vec![zero()],
-            logprob: Box::new(move |x, p|{
-                let x:T=x[0];
-                let a=p[0];
-                let c=p[1];
+            logprob: Box::new(move |x, p| {
+                let x: T = x[0];
+                let a = p[0];
+                let c = p[1];
 
-                if x<c{
+                if x < c {
                     panic!();
                     -T::infinity()
-                }else{
-                    let result=a.ln()+a*c.ln()-(a+T::one())*x.ln();
+                } else {
+                    let result = a.ln() + a * c.ln() - (a + T::one()) * x.ln();
                     assert!(result.is_finite());
                     result
                 }
@@ -409,13 +420,13 @@ where T: 'static+Float+FloatConst+Error+Gamma+Sync+Send+Display{
             range: Box::new(move |p| {
                 let a = p[0];
                 let c = p[1];
-                let eta=T::from(1e-4).unwrap();
-                let x1 = c+T::from(1e-19).unwrap();
-                let x2 = c*eta.powf(-T::one()/a);
-                assert!(x2>x1);
+                let eta = T::from(1e-4).unwrap();
+                let x1 = c + T::from(1e-19).unwrap();
+                let x2 = c * eta.powf(-T::one() / a);
+                assert!(x2 > x1);
                 vec![(x1.max(xmin), xmax)]
-            })
-        }
+            }),
+        },
     };
     NodeAdder::new(n, &[a, c])
 }

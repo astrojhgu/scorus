@@ -289,16 +289,16 @@ where
         }
     }
 
-    pub fn get_node(&self, k: &K)->&Node<T>{
+    pub fn get_node(&self, k: &K) -> &Node<T> {
         &self.nodes[self.key_node_map[k]]
     }
 
-    pub fn topology(&self)->HashMap<K, Vec<(K, usize)>>{
-        let mut result=HashMap::new();
-        for (tag, &node_idx) in self.key_node_map.iter(){
-            let mut parent_list=Vec::new();
-            for &(p, i) in self.nodes[node_idx].info.parents.iter(){
-                let p_tag=self.node_key_map[&p].clone();
+    pub fn topology(&self) -> HashMap<K, Vec<(K, usize)>> {
+        let mut result = HashMap::new();
+        for (tag, &node_idx) in self.key_node_map.iter() {
+            let mut parent_list = Vec::new();
+            for &(p, i) in self.nodes[node_idx].info.parents.iter() {
+                let p_tag = self.node_key_map[&p].clone();
                 parent_list.push((p_tag, i));
             }
             result.insert(tag.clone(), parent_list);
@@ -306,22 +306,33 @@ where
         result
     }
 
-
     pub fn init_gv(&self) -> GraphVar<T> {
         let mut gv = GraphVar {
             fixed_values: RefCell::new(Vec::new()),
             deterministic_values: RefCell::new(Vec::new()),
             sampleable_values: Vec::new(),
+            old_fixed_values: RefCell::new(Vec::new()),
+            old_deterministic_values: RefCell::new(Vec::new()),
+            old_sampleable_values: RefCell::new(Vec::new()),
         };
 
         gv.fixed_values
             .borrow_mut()
             .resize(self.num_of_fixed_vars, zero());
+        gv.old_fixed_values
+            .borrow_mut()
+            .resize(self.num_of_fixed_vars, None);
         gv.deterministic_values
             .borrow_mut()
             .resize(self.num_of_deterministic_vars, zero());
+        gv.old_deterministic_values
+            .borrow_mut()
+            .resize(self.num_of_deterministic_vars, None);
         gv.sampleable_values
             .resize(self.num_of_sampleable_vars, zero());
+        gv.old_sampleable_values
+            .borrow_mut()
+            .resize(self.num_of_sampleable_vars, None);
 
         for (i, n) in self.nodes.iter().enumerate() {
             match n.content {
@@ -349,11 +360,26 @@ where
     pub fn cached_value_of(&self, i: usize, j: usize, gv: &GraphVar<T>) -> T {
         match self.nodes[i].info.value_type[j] {
             ValueType::DETERMINISTIC => {
-                gv.deterministic_values.borrow_mut()[self.nodes[i].info.idx_in_var[j]]
+                gv.deterministic_values.borrow()[self.nodes[i].info.idx_in_var[j]]
             }
-            ValueType::FIXED => gv.fixed_values.borrow_mut()[self.nodes[i].info.idx_in_var[j]],
+            ValueType::FIXED => gv.fixed_values.borrow()[self.nodes[i].info.idx_in_var[j]],
             ValueType::SAMPLEABLE => gv.sampleable_values[self.nodes[i].info.idx_in_var[j]],
         }
+    }
+
+    pub fn store_cache_value_of(&self, i: usize, j: usize, v: T, gv: &GraphVar<T>) {
+        match self.nodes[i].info.value_type[j] {
+            ValueType::DETERMINISTIC => {
+                gv.old_deterministic_values.borrow_mut()[self.nodes[i].info.idx_in_var[j]] =
+                    Some(v);
+            }
+            ValueType::FIXED => {
+                gv.old_fixed_values.borrow_mut()[self.nodes[i].info.idx_in_var[j]] = Some(v);
+            }
+            ValueType::SAMPLEABLE => {
+                gv.old_sampleable_values.borrow_mut()[self.nodes[i].info.idx_in_var[j]] = Some(v);
+            }
+        };
     }
 
     pub fn cached_values_of(&self, i: usize, gv: &GraphVar<T>) -> Vec<T> {
@@ -363,6 +389,18 @@ where
             result.push(self.cached_value_of(i, j, gv));
         }
         result
+    }
+
+    pub fn old_cached_value_of(&self, i: usize, j: usize, gv: &GraphVar<T>) -> Option<T> {
+        match self.nodes[i].info.value_type[j] {
+            ValueType::DETERMINISTIC => {
+                gv.old_deterministic_values.borrow()[self.nodes[i].info.idx_in_var[j]]
+            }
+            ValueType::FIXED => gv.old_fixed_values.borrow()[self.nodes[i].info.idx_in_var[j]],
+            ValueType::SAMPLEABLE => {
+                gv.old_sampleable_values.borrow()[self.nodes[i].info.idx_in_var[j]]
+            }
+        }
     }
 
     pub fn parent_values_of(&self, i: usize, gv: &GraphVar<T>) -> Vec<T> {
@@ -376,8 +414,29 @@ where
         result
     }
 
+    pub fn old_parent_values_of(&self, i: usize, gv: &GraphVar<T>) -> Vec<Option<T>> {
+        let mut result = Vec::new();
+        let node = &self.nodes[i];
+        result.reserve(node.info.ndim_input);
+        for j in 0..node.info.ndim_input {
+            let (p, k) = node.info.parents[j];
+            result.push(self.old_cached_value_of(p, k, gv));
+        }
+        result
+    }
+
+    pub fn store_parent_values_of(&self, i: usize, v: &[T], gv: &GraphVar<T>) {
+        let node = &self.nodes[i];
+        for j in 0..node.info.ndim_input {
+            let (p, k) = node.info.parents[j];
+            //result.push(self.cached_value_of(p, k, gv));
+            self.store_cache_value_of(p, k, v[j], gv);
+        }
+    }
+
     pub fn update_deterministic_value_of(&self, i: usize, gv: &GraphVar<T>) {
         let pv = self.parent_values_of(i, gv);
+
         let node = &self.nodes[i];
         match node.content {
             NodeContent::DeterministicNode { ref calc, .. } => {
@@ -386,14 +445,17 @@ where
                     match node.info.value_type[m] {
                         ValueType::FIXED => {
                             gv.fixed_values.borrow_mut()[*k] = v[m];
+                            gv.old_fixed_values.borrow_mut()[*k] = Some(v[m]);
                             //panic!("Impossible")
                         }
                         ValueType::DETERMINISTIC => {
                             gv.deterministic_values.borrow_mut()[*k] = v[m];
+                            gv.old_deterministic_values.borrow_mut()[*k] = Some(v[m]);
                         }
                         ValueType::SAMPLEABLE => panic!("Impossible"),
                     }
                 }
+                //let v = calc(&pv);
             }
             NodeContent::StochasticNode { ref values, .. } => {
                 for (m, k) in node.info.idx_in_var.iter().enumerate() {
@@ -445,7 +507,7 @@ where
         let range = self.range(i, gv).unwrap();
         let x0 = self.cached_value_of(i, j, &gv);
         let (x1, x2) = range[j];
-        assert!(x2>x1);
+        assert!(x2 > x1);
         //let initx=vec![x1+(x2-x1)*(T::from(0.3).unwrap()), (x1+x2)*(T::from(0.5).unwrap()), x1+(x2-x1)*T::from(0.6).unwrap()];
         let mut initx = Vec::new();
         for k in 0..n {
@@ -464,7 +526,8 @@ where
             10,
             rng,
             nchanged,
-        ).expect(&format!("error when sampling {:?}", self.node_key_map[&i]));
+        )
+        .expect(&format!("error when sampling {:?}", self.node_key_map[&i]));
         self.set_value_then_update(i, j, x, &mut gv);
     }
 

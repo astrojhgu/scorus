@@ -166,7 +166,7 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     for i in 0..x1.dimension() {
-        if x1[i] == x2[i]{
+        if x1[i] == x2[i] {
             return false;
         }
     }
@@ -472,7 +472,7 @@ where
             let (yp, phi) = sim_blow(xp, x, rng, param);
             let nphi = phi.iter().filter(|&&b| b).count();
 
-            let (up_prop, a) = if all_different(&yp , x) && nphi > 0 {
+            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 let w1 = g_blow_u(&yp, xp, x, &phi);
                 let w2 = g_blow_u(xp, &yp, x, &phi);
@@ -498,7 +498,7 @@ where
         TWalkKernal::Hop => {
             let (yp, phi) = sim_hop(xp, &x, rng, param);
             let nphi = phi.iter().filter(|&&b| b).count();
-            let (up_prop, a) = if all_different(&yp , x) && nphi > 0 {
+            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
                 let up_prop = flogprob(&yp);
                 let w1 = g_hop_u(&yp, xp, x, &phi);
                 let w2 = g_hop_u(xp, &yp, x, &phi);

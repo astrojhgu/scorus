@@ -8,12 +8,12 @@ use num_traits::identities::zero;
 use num_traits::NumCast;
 use std::collections::VecDeque;
 
+use crate::utils::HasLen;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
 use std::fmt::Debug;
-use crate::utils::HasLen;
 //use utils::Resizeable;
 //use utils::ItemSwapable;
 
@@ -450,7 +450,15 @@ where
             return Ok(i.eval_y(x));
         }
     }
-    Err(ArmsErr::VarOutOfRange(format!("Error@{} xmin={} xmax={}", line!(), section_list[0].x_l(), section_list[section_list.len()-1].x_u()), x))
+    Err(ArmsErr::VarOutOfRange(
+        format!(
+            "Error@{} xmin={} xmax={}",
+            line!(),
+            section_list[0].x_l(),
+            section_list[section_list.len() - 1].x_u()
+        ),
+        x,
+    ))
 }
 
 pub fn eval_ey<T>(x: T, section_list: &VecDeque<Section<T>>) -> Result<T, ArmsErr<T>>
@@ -817,7 +825,11 @@ where
     for i in 0..(init_x1.len() - 1) {
         if init_x1[i] >= init_x1[i + 1] {
             //panic!(format!("Error@{} {:?}", line!(), init_x1));
-            return Err(ArmsErr::DataNotInOrder(format!("Error@{} {:?}", line!(), init_x1)));
+            return Err(ArmsErr::DataNotInOrder(format!(
+                "Error@{} {:?}",
+                line!(),
+                init_x1
+            )));
         }
     }
     let mut init_x = vec![xrange.0];
