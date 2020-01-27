@@ -527,7 +527,7 @@ where
             rng,
             nchanged,
         )
-        .expect(&format!("error when sampling {:?}", self.node_key_map[&i]));
+        .unwrap_or_else(|_| panic!("error when sampling {:?}", self.node_key_map[&i]));
         self.set_value_then_update(i, j, x, &mut gv);
     }
 

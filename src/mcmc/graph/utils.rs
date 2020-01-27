@@ -2,9 +2,8 @@ use super::graph::Graph;
 use super::node::NodeContent::{DeterministicNode, StochasticNode};
 use num_traits::Float;
 use rand::distributions::uniform::SampleUniform;
-use rand::distributions::StandardNormal;
 use rand::distributions::{Distribution, Standard};
-use std::collections::HashMap;
+
 use std::fmt::Debug;
 use std::fmt::Display;
 impl<K, T> Graph<K, T>
@@ -13,7 +12,7 @@ where
     T: Float + Sync + SampleUniform + Send + Display + Debug,
     Standard: Distribution<T>,
 {
-    pub fn dump_topology(&self, w: &mut std::io::Write) {
+    pub fn dump_topology(&self, w: &mut dyn std::io::Write) {
         let topology = self.topology();
         let mut edges = std::collections::HashMap::<String, Vec<String>>::new();
         let mut nodes = std::collections::HashSet::<String>::new();
@@ -42,19 +41,19 @@ where
             edges.insert(kname, plist);
         }
 
-        writeln!(w, "digraph G");
-        writeln!(w, "{{");
+        writeln!(w, "digraph G").unwrap();
+        writeln!(w, "{{").unwrap();
         for n in nodes {
-            writeln!(w, "{}", n);
+            writeln!(w, "{}", n).unwrap();
         }
         for (k, v) in edges {
             if !v.is_empty() {
                 for j in v {
-                    writeln!(w, "{} -> {}", j, k);
+                    writeln!(w, "{} -> {}", j, k).unwrap();
                 }
             }
         }
 
-        writeln!(w, "}}");
+        writeln!(w, "}}").unwrap();
     }
 }

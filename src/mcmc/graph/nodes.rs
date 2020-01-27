@@ -358,7 +358,7 @@ where
                 let c = p[1];
 
                 if x < c {
-                    panic!();
+                    //panic!();
                     -T::infinity()
                 } else {
                     let result = a.ln() + a * c.ln() - (a + T::one()) * x.ln();
@@ -409,7 +409,7 @@ where
                 let c = p[1];
 
                 if x < c {
-                    panic!();
+                    //panic!();
                     -T::infinity()
                 } else {
                     let result = a.ln() + a * c.ln() - (a + T::one()) * x.ln();
