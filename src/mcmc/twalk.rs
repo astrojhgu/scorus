@@ -1,9 +1,9 @@
 #![allow(clippy::many_single_char_names)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::mutex_atomic)]
-//use rayon::scope;
+use rayon::scope;
 use std;
-
+use std::sync::Mutex;
 use num_traits::float::{Float, FloatConst};
 //use num_traits::identities::{one, zero};
 use num_traits::NumCast;
@@ -511,55 +511,20 @@ where
     }
 }
 
-pub fn sample1<T, U, V, F>(
-    flogprob: &F,
-    state: &mut (&mut [V], &mut [T]),
-    param: &TWalkParams<T>,
-    rng: &mut U,
-) 
-where
-    T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
-    Standard: Distribution<T>,
-    StandardNormal: Distribution<T>,
-    U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
-    for<'b> &'b V: Add<Output = V>,
-    for<'b> &'b V: Sub<Output = V>,
-    for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> T + ?Sized,
-{
-    let (i1, i2)=(0,1);
-    let (yp1, phi1, kernel1)=propose_move(&state.0[i1], &state.0[i2], rng, param);
-    let (yp2, phi2, kernel2)=propose_move(&state.0[i2], &state.0[i1], rng, param);
-    let up_prop1=flogprob(&yp1);
-    let up_prop2=flogprob(&yp2);
-    let a1=calc_a(&state.0[i2], (&state.0[i1], state.1[i1]), (&yp1, up_prop1), &phi1, kernel1, Some(sim_beta(rng, param)));
-    let a2=calc_a(&state.0[i1], (&state.0[i2], state.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
-    
-    
-    if rng.gen_range(T::zero(), T::one()) < a1 {
-        state.0[i1]=yp1;
-        state.1[i1]=up_prop1;
-    }
-
-    if rng.gen_range(T::zero(), T::one()) < a2 {
-        state.0[i2] = yp2;
-        state.1[i2] = up_prop2;
-    }
-}
 
 pub fn sample<T, U, V, W, X, F>(
     flogprob: &F,
     ensemble_logprob: &mut (W, X),
     param: &TWalkParams<T>,
     rng: &mut U,
-) 
+    nthreads: usize,
+)
 where
-    T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+    T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug + std::marker::Send,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + FiniteLinearSpace<T> + Sized + std::marker::Sync,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -576,14 +541,58 @@ where
     };
     assert!(pair_id.len()*2==nwalkers);
 
-    for (i1, i2) in pair_id{
-        let (yp1, phi1, kernel1)=propose_move(&ensemble_logprob.0[i1], &ensemble_logprob.0[i2], rng, param);
-        //let (yp2, phi2, kernel2)=propose_move(&ensemble_logprob.0[i2], &ensemble_logprob.0[i1], rng, param);
-        let up_prop1=flogprob(&yp1);
+    
+    let proposed_points:Vec<_>=pair_id.iter().map(|&(i1, i2)|{
+        propose_move(&ensemble_logprob.0[i1], &ensemble_logprob.0[i2], rng, param)
+    }).collect();
+
+    let logprobs=Mutex::new(vec![T::zero(); proposed_points.len()]);
+    let atomic_k=Mutex::new(0);
+
+    let create_task=||{
+        let atomic_k=&atomic_k;
+        let logprobs=&logprobs;
+        let proposed_points=&proposed_points;
+        move ||{
+            loop{
+                let k:usize;
+                {
+                    let mut k1=atomic_k.lock().unwrap();
+                    k=*k1;
+                    *k1+=1;
+                }
+                if k*2>=nwalkers{
+                    break;
+                }
+                let lp=flogprob(&proposed_points[k].0);
+                {
+                    let mut lps=logprobs.lock().unwrap();
+                    lps[k]=lp;
+                }
+            }
+        }
+    };
+
+    if nthreads==1{
+        let task=create_task();
+        task();    
+    }else{
+        scope(|s| {
+            for _ in 0..nthreads {
+                s.spawn(|_| create_task()());
+            }
+        });
+    }
+
+    let logprobs:Vec<_>=proposed_points.iter().map(|x|{
+        flogprob(&x.0)
+    }).collect();
+
+
+    for ((&(i1, i2), &up_prop1), (yp1, phi, k)) in pair_id.iter().zip(logprobs.iter()).zip(proposed_points.into_iter()){
         //let up_prop2=flogprob(&yp2);
-        let a1=calc_a(&ensemble_logprob.0[i2], (&ensemble_logprob.0[i1], ensemble_logprob.1[i1]), (&yp1, up_prop1), &phi1, kernel1, Some(sim_beta(rng, param)));
+        let a1=calc_a(&ensemble_logprob.0[i2], (&ensemble_logprob.0[i1], ensemble_logprob.1[i1]), (&yp1, up_prop1), &phi, k, Some(sim_beta(rng, param)));
         //let a2=calc_a(&ensemble_logprob.0[i1], (&ensemble_logprob.0[i2], ensemble_logprob.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
-        
         
         if rng.gen_range(T::zero(), T::one()) < a1 {
             ensemble_logprob.0[i1]=yp1;
@@ -596,4 +605,3 @@ where
         }*/
     }
 }
-
