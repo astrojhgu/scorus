@@ -460,6 +460,10 @@ where
             TWalkKernal::Blow => {
                 let w1 = g_blow_u(&yp, xp, x, phi);
                 let w2 = g_blow_u(xp, &yp, x, phi);
+                if up_prop-up < T::from(-100.0).unwrap() && w2-w1 > T::from(100.0).unwrap(){
+                    println!("{:?} {:?} {:?} {:?}", up_prop, up, w2, w1);
+                }
+                
                 ((up_prop - up) + (w2 - w1)).exp()
             }
             TWalkKernal::Hop => {
@@ -643,10 +647,6 @@ pub fn sample<T, U, V, W, X, F>(
         //let a2=calc_a(&ensemble_logprob.0[i1], (&ensemble_logprob.0[i2], ensemble_logprob.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
 
         if rng.gen_range(T::zero(), T::one()) < a1 {
-            if up_prop1  - ensemble_logprob.1[i1] < T::from(-100.0).unwrap(){
-                println!("***{:?} {:?}", k, a1);
-            }
-
             ensemble_logprob.0[i1] = yp1;
             ensemble_logprob.1[i1] = up_prop1;
         }
