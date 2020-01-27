@@ -15,7 +15,9 @@ use rand_distr::StandardNormal;
 //use std::marker::{Send, Sync};
 use std::ops::{Add, Mul, Sub};
 //use std::sync::Arc;
-
+use std::ops::IndexMut;
+use rand::seq::SliceRandom;
+use crate::utils::{HasLen, InitFromLen};
 //use super::mcmc_errors::McmcErr;
 //use super::utils::{draw_z, scale_vec};
 
@@ -414,12 +416,69 @@ where
     g_blow_u(h, x, xp, phi)
 }
 
+//pub fn calc_a<T, V>(yp: &V, xp: &V, up_prop: T, up: T, phi: &[bool], kernel: TWalkKernal, beta: Option<T>)->T
+pub fn calc_a<T, V>(x: &V, (xp, up): (&V, T), (yp, up_prop): (&V, T), phi: &[bool], kernel: TWalkKernal, beta: Option<T>)->T
+where T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+Standard: Distribution<T>,
+StandardNormal: Distribution<T>,
+V: Clone + FiniteLinearSpace<T> + Sized,
+for<'b> &'b V: Add<Output = V>,
+for<'b> &'b V: Sub<Output = V>,
+for<'b> &'b V: Mul<T, Output = V>,
+{
+    let nphi = phi.iter().filter(|&&b| b).count();
+
+    if nphi == 0 || !all_different(yp, x){
+        T::zero()
+    }else{
+        match kernel{
+            TWalkKernal::Walk=>(up_prop - up).exp(),
+            TWalkKernal::Traverse=>{
+                ((up_prop - up) - T::from(nphi as isize - 2).unwrap() * beta.unwrap().ln()).exp()
+            }
+            TWalkKernal::Blow=>{
+                let w1 = g_blow_u(&yp, xp, x, phi);
+                let w2 = g_blow_u(xp, &yp, x, phi);
+                ((up_prop - up) + (w2 - w1)).exp()
+            }
+            TWalkKernal::Hop=>{
+                let w1 = g_hop_u(&yp, xp, x, &phi);
+                let w2 = g_hop_u(xp, &yp, x, &phi);
+                ((up_prop - up) + (w2 - w1)).exp()
+            }
+        }
+    }
+}
+
+pub fn propose_move<T, V, U>(xp: &V, x: &V, rng: &mut U, param: &TWalkParams<T>)->(V, Vec<bool>, TWalkKernal)
+where T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+    Standard: Distribution<T>,
+    StandardNormal: Distribution<T>,
+    U: Rng,
+    V: Clone + FiniteLinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
+{
+    let kernel=TWalkKernal::random(&param.fw, rng);
+    let (proposed, phi)=match kernel{
+        TWalkKernal::Walk=>sim_walk(xp, x, rng, param),
+        TWalkKernal::Traverse=>{
+            let beta = sim_beta(rng, param);
+            sim_traverse(xp, x, beta, rng, param)
+        }
+        TWalkKernal::Blow=>sim_blow(xp, x, rng, param),
+        TWalkKernal::Hop=>sim_hop(xp, &x, rng, param),
+    };
+    (proposed, phi, kernel)
+}
+
 pub fn sample_st<T, U, V, F>(
     flogprob: &F,
     state: &mut TWalkState<T, V>,
     param: &TWalkParams<T>,
     rng: &mut U,
-) -> TWalkResult<T, V>
+) 
 where
     T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -431,125 +490,110 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T + ?Sized,
 {
-    let two = T::one() + T::one();
-    let kernel = TWalkKernal::random(&param.fw, rng);
-    //println!("{:?}", kernel);
-    let mut proposed = state.clone();
-    let (x, xp, up) = if rng.gen_range(T::zero(), two) < T::one() {
-        (&proposed.x, &mut proposed.xp, &mut proposed.up)
-    } else {
-        (&proposed.xp, &mut proposed.x, &mut proposed.u)
-    };
-
-    let mut result = match kernel {
-        TWalkKernal::Walk => {
-            let (yp, phi) = sim_walk(xp, x, rng, param);
-            let nphi = phi.iter().filter(|&&b| b).count();
-            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
-                let up_prop = flogprob(&yp);
-                (up_prop, (up_prop - *up).exp())
-            } else {
-                (-T::infinity(), T::zero())
-            };
-            let result = TWalkResult {
-                a,
-                original: xp.clone(),
-                proposed: yp.clone(),
-                u: *up,
-                u_proposed: up_prop,
-                accepted: false,
-                last_kernel: kernel,
-                update_flags: phi,
-            };
-            *xp = yp;
-            *up = up_prop;
-            result
-        }
-        TWalkKernal::Traverse => {
-            let beta = sim_beta(rng, param);
-            //println!("beta={:?}", beta);
-            let (yp, phi) = sim_traverse(xp, x, beta, rng, param);
-            let nphi = phi.iter().filter(|&&b| b).count();
-
-            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
-                let up_prop = flogprob(&yp);
-                let a = ((up_prop - *up) - T::from(nphi as isize - 2).unwrap() * beta.ln()).exp();
-                (up_prop, a)
-            } else {
-                (-T::infinity(), T::zero())
-            };
-            let result = TWalkResult {
-                a,
-                original: xp.clone(),
-                proposed: yp.clone(),
-                u: *up,
-                u_proposed: up_prop,
-                accepted: false,
-                last_kernel: kernel,
-                update_flags: phi,
-            };
-            *xp = yp;
-            *up = up_prop;
-            result
-        }
-        TWalkKernal::Blow => {
-            let (yp, phi) = sim_blow(xp, x, rng, param);
-            let nphi = phi.iter().filter(|&&b| b).count();
-
-            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
-                let up_prop = flogprob(&yp);
-                let w1 = g_blow_u(&yp, xp, x, &phi);
-                let w2 = g_blow_u(xp, &yp, x, &phi);
-                let a = ((up_prop - *up) + (w2 - w1)).exp();
-                (up_prop, a)
-            } else {
-                (-T::infinity(), T::zero())
-            };
-            let result = TWalkResult {
-                a,
-                original: xp.clone(),
-                proposed: yp.clone(),
-                u: *up,
-                u_proposed: up_prop,
-                accepted: false,
-                last_kernel: kernel,
-                update_flags: phi,
-            };
-            *xp = yp;
-            *up = up_prop;
-            result
-        }
-        TWalkKernal::Hop => {
-            let (yp, phi) = sim_hop(xp, &x, rng, param);
-            let nphi = phi.iter().filter(|&&b| b).count();
-            let (up_prop, a) = if all_different(&yp, x) && nphi > 0 {
-                let up_prop = flogprob(&yp);
-                let w1 = g_hop_u(&yp, xp, x, &phi);
-                let w2 = g_hop_u(xp, &yp, x, &phi);
-                let a = ((up_prop - *up) + (w2 - w1)).exp();
-                (up_prop, a)
-            } else {
-                (-T::infinity(), T::zero())
-            };
-            let result = TWalkResult {
-                a,
-                original: xp.clone(),
-                proposed: yp.clone(),
-                u: *up,
-                u_proposed: up_prop,
-                accepted: false,
-                last_kernel: kernel,
-                update_flags: phi,
-            };
-            *xp = yp;
-            *up = up_prop;
-            result
-        }
-    };
-
-    if rng.gen_range(T::zero(), T::one()) < result.a {
-        *state = proposed;
-        result.accepted = true;
+       
+    let (yp1, phi1, kernel1)=propose_move(&state.xp, &state.x, rng, param);
+    let (yp2, phi2, kernel2)=propose_move(&state.x, &state.xp, rng, param);
+    
+    let up_prop1=flogprob(&yp1);
+    let up_prop2=flogprob(&yp2);
+    let a1=calc_a(&state.x, (&state.xp, state.up), (&yp1, up_prop1), &phi1, kernel1, Some(sim_beta(rng, param)));
+    let a2=calc_a(&state.xp, (&state.x, state.u), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
+    
+    
+    if rng.gen_range(T::zero(), T::one()) < a1 {
+        state.xp = yp1;
+        state.up = up_prop1;
     }
-    result
+
+    if rng.gen_range(T::zero(), T::one()) < a2 {
+        state.x = yp2;
+        state.u = up_prop2;
+    }
 }
+
+pub fn sample1<T, U, V, F>(
+    flogprob: &F,
+    state: &mut (&mut [V], &mut [T]),
+    param: &TWalkParams<T>,
+    rng: &mut U,
+) 
+where
+    T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+    Standard: Distribution<T>,
+    StandardNormal: Distribution<T>,
+    U: Rng,
+    V: Clone + FiniteLinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
+    F: Fn(&V) -> T + ?Sized,
+{
+    let (i1, i2)=(0,1);
+    let (yp1, phi1, kernel1)=propose_move(&state.0[i1], &state.0[i2], rng, param);
+    let (yp2, phi2, kernel2)=propose_move(&state.0[i2], &state.0[i1], rng, param);
+    let up_prop1=flogprob(&yp1);
+    let up_prop2=flogprob(&yp2);
+    let a1=calc_a(&state.0[i2], (&state.0[i1], state.1[i1]), (&yp1, up_prop1), &phi1, kernel1, Some(sim_beta(rng, param)));
+    let a2=calc_a(&state.0[i1], (&state.0[i2], state.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
+    
+    
+    if rng.gen_range(T::zero(), T::one()) < a1 {
+        state.0[i1]=yp1;
+        state.1[i1]=up_prop1;
+    }
+
+    if rng.gen_range(T::zero(), T::one()) < a2 {
+        state.0[i2] = yp2;
+        state.1[i2] = up_prop2;
+    }
+}
+
+pub fn sample<T, U, V, W, X, F>(
+    flogprob: &F,
+    ensemble_logprob: &mut (W, X),
+    param: &TWalkParams<T>,
+    rng: &mut U,
+) 
+where
+    T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
+    Standard: Distribution<T>,
+    StandardNormal: Distribution<T>,
+    U: Rng,
+    V: Clone + FiniteLinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
+    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
+    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send,
+    F: Fn(&V) -> T + Send + Sync + ?Sized,
+{
+    let nwalkers=ensemble_logprob.0.len();
+
+    let pair_id:Vec<_>={
+        let mut a:Vec<_>=(0..nwalkers).collect();
+        a.shuffle(rng);
+        a.chunks(2).map(|a|{(a[0], a[1])}).collect()
+    };
+    assert!(pair_id.len()*2==nwalkers);
+
+    for (i1, i2) in pair_id{
+        let (yp1, phi1, kernel1)=propose_move(&ensemble_logprob.0[i1], &ensemble_logprob.0[i2], rng, param);
+        //let (yp2, phi2, kernel2)=propose_move(&ensemble_logprob.0[i2], &ensemble_logprob.0[i1], rng, param);
+        let up_prop1=flogprob(&yp1);
+        //let up_prop2=flogprob(&yp2);
+        let a1=calc_a(&ensemble_logprob.0[i2], (&ensemble_logprob.0[i1], ensemble_logprob.1[i1]), (&yp1, up_prop1), &phi1, kernel1, Some(sim_beta(rng, param)));
+        //let a2=calc_a(&ensemble_logprob.0[i1], (&ensemble_logprob.0[i2], ensemble_logprob.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
+        
+        
+        if rng.gen_range(T::zero(), T::one()) < a1 {
+            ensemble_logprob.0[i1]=yp1;
+            ensemble_logprob.1[i1]=up_prop1;
+        }
+        /*
+        if rng.gen_range(T::zero(), T::one()) < a2 {
+            ensemble_logprob.0[i2] = yp2;
+            ensemble_logprob.1[i2] = up_prop2;
+        }*/
+    }
+}
+
