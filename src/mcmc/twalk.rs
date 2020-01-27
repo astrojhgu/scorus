@@ -460,10 +460,6 @@ where
             TWalkKernal::Blow => {
                 let w1 = g_blow_u(&yp, xp, x, phi);
                 let w2 = g_blow_u(xp, &yp, x, phi);
-                if up_prop-up < T::from(-100.0).unwrap() && w2-w1 > T::from(100.0).unwrap(){
-                    println!("{:?} {:?} {:?} {:?}", up_prop, up, w2, w1);
-                }
-                
                 ((up_prop - up) + (w2 - w1)).exp()
             }
             TWalkKernal::Hop => {
