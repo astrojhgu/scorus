@@ -499,7 +499,7 @@ where
             sim_traverse(xp, x, beta, rng, param)
         }
         TWalkKernal::Blow => sim_blow(xp, x, rng, param),
-        TWalkKernal::Hop => sim_hop(xp, &x, rng, param),
+        TWalkKernal::Hop => sim_hop(xp, x, rng, param),
     };
     (proposed, phi, kernel)
 }
