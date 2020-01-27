@@ -181,6 +181,21 @@ where
     pub last_kernel: TWalkKernal,
 }
 
+pub fn elements_changed<T, V>(x1: &V, x2: &V) -> Vec<bool>
+where
+    T: Float + NumCast + std::cmp::PartialOrd + std::fmt::Debug,
+    V: Clone + FiniteLinearSpace<T> + Sized,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
+{
+    let mut result = vec![false; x1.dimension()];
+    for i in 0..x1.dimension() {
+        result[i] = x1[i] != x2[i]
+    }
+    result
+}
+
 fn all_different<T, V>(x1: &V, x2: &V) -> bool
 where
     T: Float + NumCast + std::cmp::PartialOrd + std::fmt::Debug,
