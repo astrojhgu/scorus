@@ -45,11 +45,11 @@ fn main() {
         &normal_dist,
     );
 
-    let thin = 100;
+    let thin = 10000;
     let mut kernel_cnt = vec![0; 4];
     let mut accept_cnt = vec![0; 4];
-    for i in 0..100000 {
-        let result = sample_st(&rosenbrock, &mut state, &param, &mut rng);
+    for i in 0..100000000 {
+        let result = sample_st(&normal_dist, &mut state, &param, &mut rng);
         kernel_cnt[result.last_kernel.to_usize()] += 1;
         if result.accepted {
             accept_cnt[result.last_kernel.to_usize()] += 1;
