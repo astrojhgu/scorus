@@ -297,7 +297,7 @@ where
     (result, update_flags)
 }
 
-pub fn sim_beta<T, U>(rng: &mut U, param: &TWalkParams<T>) -> T
+pub fn sim_b<T, U>(rng: &mut U, param: &TWalkParams<T>) -> T
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -318,7 +318,7 @@ where
 pub fn sim_traverse<T, U, V>(
     x: &V,
     xp: &V,
-    beta: T,
+    b: T,
     rng: &mut U,
     param: &TWalkParams<T>,
 ) -> (V, Vec<bool>)
@@ -338,7 +338,7 @@ where
     //println!("{:?}", update_flags.iter().enumerate().filter(|(i, &f)| f).collect::<Vec<_>>());
     for i in 0..n {
         if update_flags[i] {
-            result[i] = xp[i] + beta * (xp[i] - x[i]);
+            result[i] = xp[i] + b * (xp[i] - x[i]);
         }
         //print!("{:?} ", result[i]);
     }
@@ -453,14 +453,15 @@ where
     g_blow_u(h, x, xp, phi)
 }
 
-//pub fn calc_a<T, V>(yp: &V, xp: &V, up_prop: T, up: T, phi: &[bool], kernel: TWalkKernal, beta: Option<T>)->T
+//pub fn calc_a<T, V>(yp: &V, xp: &V, up_prop: T, up: T, phi: &[bool], kernel: TWalkKernal, b: Option<T>)->T
 pub fn calc_a<T, V>(
     x: &V,
     (xp, up): (&V, T),
     (yp, up_prop): (&V, T),
     phi: &[bool],
     kernel: TWalkKernal,
-    beta: Option<T>,
+    b: Option<T>,
+    beta: T
 ) -> T
 where
     T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
@@ -477,19 +478,19 @@ where
         T::zero()
     } else {
         match kernel {
-            TWalkKernal::Walk => (up_prop - up).exp(),
+            TWalkKernal::Walk => ((up_prop - up)*beta).exp(),
             TWalkKernal::Traverse => {
-                ((up_prop - up) + T::from(nphi as isize - 2).unwrap() * beta.unwrap().ln()).exp()
+                ((up_prop - up)*beta + T::from(nphi as isize - 2).unwrap() * b.unwrap().ln()).exp()
             }
             TWalkKernal::Blow => {
                 let w1 = g_blow_u(&yp, xp, x, phi);
                 let w2 = g_blow_u(xp, &yp, x, phi);
-                ((up_prop - up) + (w1 - w2)).exp()
+                ((up_prop - up)*beta + (w1 - w2)).exp()
             }
             TWalkKernal::Hop => {
                 let w1 = g_hop_u(&yp, xp, x, &phi);
                 let w2 = g_hop_u(xp, &yp, x, &phi);
-                ((up_prop - up) + (w1 - w2)).exp()
+                ((up_prop - up)*beta + (w1 - w2)).exp()
             }
         }
     }
@@ -512,16 +513,16 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     let kernel = TWalkKernal::random(&param.fw, rng);
-    let ((proposed, phi), beta) = match kernel {
+    let ((proposed, phi), b) = match kernel {
         TWalkKernal::Walk => (sim_walk(x, xp, rng, param), None),
         TWalkKernal::Traverse => {
-            let beta = sim_beta(rng, param);
-            (sim_traverse(x, xp, beta, rng, param), Some(beta))
+            let b = sim_b(rng, param);
+            (sim_traverse(x, xp, b, rng, param), Some(b))
         }
         TWalkKernal::Blow => (sim_blow(x, xp, rng, param), None),
         TWalkKernal::Hop => (sim_hop(x, xp, rng, param), None),
     };
-    (proposed, phi, kernel, beta)
+    (proposed, phi, kernel, b)
 }
 
 pub fn sample_st<T, U, V, F>(
@@ -540,8 +541,8 @@ pub fn sample_st<T, U, V, F>(
     for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T + ?Sized,
 {
-    let (yp1, phi1, kernel1, beta1) = propose_move(&state.xp, &state.x, rng, param);
-    let (yp2, phi2, kernel2, beta2) = propose_move(&state.x, &state.xp, rng, param);
+    let (yp1, phi1, kernel1, b1) = propose_move(&state.xp, &state.x, rng, param);
+    let (yp2, phi2, kernel2, b2) = propose_move(&state.x, &state.xp, rng, param);
 
     let up_prop1 = flogprob(&yp1);
     let up_prop2 = flogprob(&yp2);
@@ -551,7 +552,8 @@ pub fn sample_st<T, U, V, F>(
         (&yp1, up_prop1),
         &phi1,
         kernel1,
-        beta1,
+        b1,
+        T::one()
     );
     let a2 = calc_a(
         &state.xp,
@@ -559,7 +561,8 @@ pub fn sample_st<T, U, V, F>(
         (&yp2, up_prop2),
         &phi2,
         kernel2,
-        beta2,
+        b2,
+        T::one()
     );
 
     if rng.gen_range(T::zero(), T::one()) < a1 {
@@ -578,6 +581,7 @@ pub fn sample<T, U, V, W, X, F>(
     ensemble_logprob: &mut (W, X),
     param: &TWalkParams<T>,
     rng: &mut U,
+    beta_list: &[T],
     nthreads: usize,
 ) where
     T: Float
@@ -599,21 +603,23 @@ pub fn sample<T, U, V, W, X, F>(
     X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
+    let nbetas=beta_list.len();
     let nwalkers = ensemble_logprob.0.len();
-
-    let pair_id: Vec<_> = {
-        let mut a: Vec<_> = (0..nwalkers).collect();
+    let nwalkers_per_beta=nwalkers/nbetas;
+    assert!(nwalkers_per_beta*nbetas==nwalkers);
+    let pair_id: Vec<Vec<_>> = (0..nbetas).map(|_|{
+        let mut a: Vec<_> = (0..nwalkers_per_beta).collect();
         a.shuffle(rng);
         a.chunks(2).map(|a| (a[0], a[1])).collect()
-    };
-    assert!(pair_id.len() * 2 == nwalkers);
-
-    let proposed_points: Vec<_> = pair_id
-        .iter()
+    }).collect();
+    
+    let proposed_points: Vec<Vec<_>> = pair_id.iter().map(|pair_id1|{
+        pair_id1.iter()
         .map(|&(i1, i2)| propose_move(&ensemble_logprob.0[i1], &ensemble_logprob.0[i2], rng, param))
-        .collect();
+        .collect()
+    }).collect();
 
-    let logprobs = Mutex::new(vec![T::zero(); proposed_points.len()]);
+    let logprobs = Mutex::new(vec![vec![T::zero(); nwalkers_per_beta/2]; nbetas]);
     let atomic_k = Mutex::new(0);
 
     let create_task = || {
@@ -630,10 +636,14 @@ pub fn sample<T, U, V, W, X, F>(
             if k * 2 >= nwalkers {
                 break;
             }
-            let lp = flogprob(&proposed_points[k].0);
+            let ibeta=2*k/nwalkers_per_beta;
+            let jbeta=k-ibeta*nwalkers_per_beta/2;
+            //println!("{} {} {} {}",k, ibeta, jbeta, nwalkers_per_beta);
+            let lp = flogprob(&proposed_points[ibeta][jbeta].0);
             {
                 let mut lps = logprobs.lock().unwrap();
-                lps[k] = lp;
+                //println!("{} {} {} {}",k, ibeta, jbeta, nwalkers_per_beta);
+                lps[ibeta][jbeta] = lp;
             }
         }
     };
@@ -649,32 +659,36 @@ pub fn sample<T, U, V, W, X, F>(
         });
     }
 
-    let logprobs: Vec<_> = proposed_points.iter().map(|x| flogprob(&x.0)).collect();
+    let logprobs=logprobs.into_inner().unwrap();
 
-    for ((&(i1, i2), &up_prop1), (yp1, phi, k, beta)) in pair_id
-        .iter()
-        .zip(logprobs.iter())
-        .zip(proposed_points.into_iter())
-    {
-        //let up_prop2=flogprob(&yp2);
-        let a1 = calc_a(
-            &ensemble_logprob.0[i2],
-            (&ensemble_logprob.0[i1], ensemble_logprob.1[i1]),
-            (&yp1, up_prop1),
-            &phi,
-            k,
-            beta,
-        );
-        //let a2=calc_a(&ensemble_logprob.0[i1], (&ensemble_logprob.0[i2], ensemble_logprob.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
+    for (ibeta, (pair_id1, (logprobs1, proposed_points1))) in pair_id.into_iter().zip(logprobs.into_iter().zip(proposed_points.into_iter())).enumerate(){
+        for ((&(i1, i2), &up_prop1), (yp1, phi, k, b)) in pair_id1.iter()
+        .zip(logprobs1.iter())
+        .zip(proposed_points1.into_iter())
+        {
+            //let up_prop2=flogprob(&yp2);
+            
+            let a1 = calc_a(
+                &ensemble_logprob.0[i2],
+                (&ensemble_logprob.0[i1], ensemble_logprob.1[i1]),
+                (&yp1, up_prop1),
+                &phi,
+                k,
+                b,
+                beta_list[ibeta],
+            );
+            //let a2=calc_a(&ensemble_logprob.0[i1], (&ensemble_logprob.0[i2], ensemble_logprob.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_b(rng, param)));
 
-        if rng.gen_range(T::zero(), T::one()) < a1 {
-            ensemble_logprob.0[i1] = yp1;
-            ensemble_logprob.1[i1] = up_prop1;
+            if rng.gen_range(T::zero(), T::one()) < a1 {
+                ensemble_logprob.0[ibeta*nwalkers_per_beta+i1] = yp1;
+                ensemble_logprob.1[ibeta * nwalkers_per_beta+ i1] = up_prop1;
+            }
+            /*
+            if rng.gen_range(T::zero(), T::one()) < a2 {
+                ensemble_logprob.0[i2] = yp2;
+                ensemble_logprob.1[i2] = up_prop2;
+            }*/
         }
-        /*
-        if rng.gen_range(T::zero(), T::one()) < a2 {
-            ensemble_logprob.0[i2] = yp2;
-            ensemble_logprob.1[i2] = up_prop2;
-        }*/
+
     }
 }

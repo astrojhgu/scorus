@@ -13,6 +13,7 @@ use quickersort::sort_by;
 use rand::Rng;
 use scorus::linear_space::type_wrapper::LsVec;
 use scorus::mcmc::twalk::{sample, sample_st, TWalkKernal, TWalkParams, TWalkState};
+use scorus::mcmc::utils::swap_walkers;
 use std::fs::File;
 use std::io::Write;
 fn normal_dist(x: &LsVec<f64, Vec<f64>>) -> f64 {
@@ -32,10 +33,12 @@ fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
 }
 
 fn main() {
+    let nbeta=1;
+    let beta_list:Vec<_>=(0..nbeta).map(|x| 2_f64.powi(-x)).collect();
     let ndim = 2;
-    let nwalkers = 2;
+    let nwalkers_per_beta = 8;
     let param = TWalkParams::<f64>::new(ndim)
-        .with_pphi(0.01)
+        .with_pphi(0.5)
         .with_fw([0.5, 0.5]);
     //println!("{:?}", param.fw);
     //std::process::exit(0);
@@ -49,7 +52,7 @@ fn main() {
     let mut state = TWalkState::new(&LsVec(vec![0.0; ndim]), &LsVec(vec![1.0; ndim]), lp);
     //let mut walkers=vec![LsVec(vec![-1.0; ndim]), LsVec(vec![1.0; ndim])];
 
-    let walkers: Vec<_> = (0..nwalkers)
+    let walkers: Vec<_> = (0..nwalkers_per_beta*nbeta)
         .map(|_| {
             LsVec(
                 (0..ndim)
@@ -64,12 +67,16 @@ fn main() {
     let thin = 100;
     for i in 0..10000000 {
         //sample_st(&normal_dist, &mut state, &param, &mut rng);
-        sample(lp, &mut ensemble_logprob, &param, &mut rng, 4);
+        sample(lp, &mut ensemble_logprob, &param, &mut rng, &beta_list, 4);
+        //sample(lp, &mut ensemble_logprob, &param, &mut rng, 4);
         //sample1(&normal_dist, &mut (&mut walkers, &mut logprob), &param, &mut rng);
+        if i%1000==0{
+            //swap_walkers(&mut ensemble_logprob, &mut rng, &beta_list).unwrap();
+        }
         if i % thin == 0 {
             println!(
                 "{:?} {:?}",
-                ensemble_logprob.0[0][0], ensemble_logprob.0[0][1]
+                ensemble_logprob.0[1][0], ensemble_logprob.0[1][1]
             );
             //println!("{:?} {:?}", walkers[0][0], walkers[0][1]);
             //println!("{:?} {:?}", state.x[0], state.x[1]);
