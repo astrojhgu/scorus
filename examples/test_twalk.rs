@@ -32,9 +32,9 @@ fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
 }
 
 fn main() {
-    let ndim = 100;
+    let ndim = 2;
     let nwalkers = 32;
-    let param = TWalkParams::<f64>::new(ndim).with_pphi(0.01);
+    let param = TWalkParams::<f64>::new(ndim).with_pphi(0.5);
     //println!("{:?}", param.fw);
     //std::process::exit(0);
     let mut rng = rand::thread_rng();
@@ -45,7 +45,7 @@ fn main() {
     let mut state = TWalkState::new(
         &LsVec(vec![0.0; ndim]),
         &LsVec(vec![1.0; ndim]),
-        &normal_dist,
+        &rosenbrock,
     );
     //let mut walkers=vec![LsVec(vec![-1.0; ndim]), LsVec(vec![1.0; ndim])];
 
@@ -58,13 +58,13 @@ fn main() {
             )
         })
         .collect();
-    let logprob: Vec<_> = walkers.iter().map(|x| normal_dist(x)).collect();
+    let logprob: Vec<_> = walkers.iter().map(|x| rosenbrock(x)).collect();
     let mut ensemble_logprob = (walkers, logprob);
 
-    let thin = 100;
+    let thin = 10;
     for i in 0..1000000 {
         //sample_st(&normal_dist, &mut state, &param, &mut rng);
-        sample(&normal_dist, &mut ensemble_logprob, &param, &mut rng, 4);
+        sample(&rosenbrock, &mut ensemble_logprob, &param, &mut rng, 4);
         //sample1(&normal_dist, &mut (&mut walkers, &mut logprob), &param, &mut rng);
         if i % thin == 0 {
             println!(

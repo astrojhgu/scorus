@@ -98,9 +98,9 @@ where
     }
 
     pub fn with_fw(mut self, fw: [T; 4]) -> Self {
-        let fw: Vec<T> = vec![fw[0], fw[1], fw[2], fw[3]]
-            .into_iter()
-            .map(|x| T::from(x).unwrap())
+        let fw: Vec<T> = [fw[0], fw[1], fw[2], fw[3]]
+            .iter()
+            .map(|&x| T::from(x).unwrap())
             .scan(T::zero(), |st, x| {
                 *st = *st + x;
                 Some(*st)
@@ -470,28 +470,28 @@ where
         match kernel {
             TWalkKernal::Walk => (up_prop - up).exp(),
             TWalkKernal::Traverse => {
-                ((up_prop - up) - T::from(nphi as isize - 2).unwrap() * beta.unwrap().ln()).exp()
+                ((up_prop - up) + T::from(nphi as isize - 2).unwrap() * beta.unwrap().ln()).exp()
             }
             TWalkKernal::Blow => {
                 let w1 = g_blow_u(&yp, xp, x, phi);
                 let w2 = g_blow_u(xp, &yp, x, phi);
-                ((up_prop - up) + (w2 - w1)).exp()
+                ((up_prop - up) + (w1 - w2)).exp()
             }
             TWalkKernal::Hop => {
                 let w1 = g_hop_u(&yp, xp, x, &phi);
                 let w2 = g_hop_u(xp, &yp, x, &phi);
-                ((up_prop - up) + (w2 - w1)).exp()
+                ((up_prop - up) + (w1 - w2)).exp()
             }
         }
     }
 }
 
 pub fn propose_move<T, V, U>(
-    xp: &V,
     x: &V,
+    xp: &V,
     rng: &mut U,
     param: &TWalkParams<T>,
-) -> (V, Vec<bool>, TWalkKernal)
+) -> (V, Vec<bool>, TWalkKernal, Option<T>)
 where
     T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -503,16 +503,16 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     let kernel = TWalkKernal::random(&param.fw, rng);
-    let (proposed, phi) = match kernel {
-        TWalkKernal::Walk => sim_walk(xp, x, rng, param),
+    let ((proposed, phi), beta) = match kernel {
+        TWalkKernal::Walk => (sim_walk(x, xp, rng, param), None),
         TWalkKernal::Traverse => {
             let beta = sim_beta(rng, param);
-            sim_traverse(xp, x, beta, rng, param)
+            (sim_traverse(x, xp, beta, rng, param), Some(beta))
         }
-        TWalkKernal::Blow => sim_blow(xp, x, rng, param),
-        TWalkKernal::Hop => sim_hop(xp, x, rng, param),
+        TWalkKernal::Blow => (sim_blow(x, xp, rng, param), None),
+        TWalkKernal::Hop => (sim_hop(x, xp, rng, param), None),
     };
-    (proposed, phi, kernel)
+    (proposed, phi, kernel, beta)
 }
 
 pub fn sample_st<T, U, V, F>(
@@ -531,8 +531,8 @@ pub fn sample_st<T, U, V, F>(
     for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T + ?Sized,
 {
-    let (yp1, phi1, kernel1) = propose_move(&state.xp, &state.x, rng, param);
-    let (yp2, phi2, kernel2) = propose_move(&state.x, &state.xp, rng, param);
+    let (yp1, phi1, kernel1, beta1) = propose_move(&state.xp, &state.x, rng, param);
+    let (yp2, phi2, kernel2, beta2) = propose_move(&state.x, &state.xp, rng, param);
 
     let up_prop1 = flogprob(&yp1);
     let up_prop2 = flogprob(&yp2);
@@ -542,7 +542,7 @@ pub fn sample_st<T, U, V, F>(
         (&yp1, up_prop1),
         &phi1,
         kernel1,
-        Some(sim_beta(rng, param)),
+        beta1,
     );
     let a2 = calc_a(
         &state.xp,
@@ -550,7 +550,7 @@ pub fn sample_st<T, U, V, F>(
         (&yp2, up_prop2),
         &phi2,
         kernel2,
-        Some(sim_beta(rng, param)),
+        beta2,
     );
 
     if rng.gen_range(T::zero(), T::one()) < a1 {
@@ -577,7 +577,8 @@ pub fn sample<T, U, V, W, X, F>(
         + std::cmp::PartialOrd
         + SampleUniform
         + std::fmt::Debug
-        + std::marker::Send,
+        + std::marker::Send
+        + std::marker::Sync,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
@@ -641,7 +642,7 @@ pub fn sample<T, U, V, W, X, F>(
 
     let logprobs: Vec<_> = proposed_points.iter().map(|x| flogprob(&x.0)).collect();
 
-    for ((&(i1, i2), &up_prop1), (yp1, phi, k)) in pair_id
+    for ((&(i1, i2), &up_prop1), (yp1, phi, k, beta)) in pair_id
         .iter()
         .zip(logprobs.iter())
         .zip(proposed_points.into_iter())
@@ -653,7 +654,7 @@ pub fn sample<T, U, V, W, X, F>(
             (&yp1, up_prop1),
             &phi,
             k,
-            Some(sim_beta(rng, param)),
+            beta,
         );
         //let a2=calc_a(&ensemble_logprob.0[i1], (&ensemble_logprob.0[i2], ensemble_logprob.1[i2]), (&yp2, up_prop2), &phi2, kernel2, Some(sim_beta(rng, param)));
 
