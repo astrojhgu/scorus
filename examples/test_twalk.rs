@@ -33,8 +33,10 @@ fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
 
 fn main() {
     let ndim = 2;
-    let nwalkers = 32;
-    let param = TWalkParams::<f64>::new(ndim).with_pphi(0.5);
+    let nwalkers = 2;
+    let param = TWalkParams::<f64>::new(ndim)
+        .with_pphi(0.01)
+        .with_fw([0.5, 0.5]);
     //println!("{:?}", param.fw);
     //std::process::exit(0);
     let mut rng = rand::thread_rng();
@@ -42,11 +44,9 @@ fn main() {
 
     //let aa=(x,y);
     //let mut x=shuffle(&x, &mut rng);
-    let mut state = TWalkState::new(
-        &LsVec(vec![0.0; ndim]),
-        &LsVec(vec![1.0; ndim]),
-        &rosenbrock,
-    );
+    //let lp = &rosenbrock;
+    let lp = &normal_dist;
+    let mut state = TWalkState::new(&LsVec(vec![0.0; ndim]), &LsVec(vec![1.0; ndim]), lp);
     //let mut walkers=vec![LsVec(vec![-1.0; ndim]), LsVec(vec![1.0; ndim])];
 
     let walkers: Vec<_> = (0..nwalkers)
@@ -58,13 +58,13 @@ fn main() {
             )
         })
         .collect();
-    let logprob: Vec<_> = walkers.iter().map(|x| rosenbrock(x)).collect();
+    let logprob: Vec<_> = walkers.iter().map(|x| lp(x)).collect();
     let mut ensemble_logprob = (walkers, logprob);
 
-    let thin = 10;
-    for i in 0..1000000 {
+    let thin = 100;
+    for i in 0..10000000 {
         //sample_st(&normal_dist, &mut state, &param, &mut rng);
-        sample(&rosenbrock, &mut ensemble_logprob, &param, &mut rng, 4);
+        sample(lp, &mut ensemble_logprob, &param, &mut rng, 4);
         //sample1(&normal_dist, &mut (&mut walkers, &mut logprob), &param, &mut rng);
         if i % thin == 0 {
             println!(

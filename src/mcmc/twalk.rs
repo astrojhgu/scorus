@@ -34,12 +34,13 @@ pub enum TWalkKernal {
 }
 
 impl TWalkKernal {
-    pub fn random<T, U>(fw: &[T; 4], rng: &mut U) -> TWalkKernal
+    pub fn random<T, U>(fw: &[T; 2], rng: &mut U) -> TWalkKernal
     where
         T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
         Standard: Distribution<T>,
         U: Rng,
     {
+        /*
         let u = rng.gen_range(T::zero(), fw[fw.len() - 1]);
         if u < fw[0] {
             TWalkKernal::Walk
@@ -49,6 +50,12 @@ impl TWalkKernal {
             TWalkKernal::Blow
         } else {
             TWalkKernal::Hop
+        }*/
+        let u = rng.gen_range(T::zero(), fw[1]);
+        if u < fw[0] {
+            TWalkKernal::Walk
+        } else {
+            TWalkKernal::Traverse
         }
     }
 
@@ -69,7 +76,7 @@ where
     pub aw: T,
     pub at: T,
     pub pphi: T,
-    pub fw: [T; 4],
+    pub fw: [T; 2],
 }
 
 impl<T> TWalkParams<T>
@@ -79,7 +86,8 @@ where
     pub fn new(n: usize) -> Self {
         let n1phi = T::from(4.0).unwrap();
         let pphi = T::from(n).unwrap().min(n1phi) / T::from(n).unwrap();
-        let fw: Vec<_> = vec![0.4918, 0.4918, 0.0082 + 0.0082, 0.0]
+        //let fw: Vec<_> = vec![0.4918, 0.4918, 0.0082 + 0.0082, 0.0]
+        let fw: Vec<_> = vec![0.5, 0.5]
             .into_iter()
             .map(|x| T::from(x).unwrap())
             .scan(T::zero(), |st, x| {
@@ -87,7 +95,8 @@ where
                 Some(*st)
             })
             .collect();
-        let fw = [fw[0], fw[1], fw[2], fw[3]];
+        //let fw = [fw[0], fw[1], fw[2], fw[3]];
+        let fw = [fw[0], fw[1]];
         //println!("{:?}", fw);
         TWalkParams {
             aw: T::from(1.5).unwrap(),
@@ -97,8 +106,8 @@ where
         }
     }
 
-    pub fn with_fw(mut self, fw: [T; 4]) -> Self {
-        let fw: Vec<T> = [fw[0], fw[1], fw[2], fw[3]]
+    pub fn with_fw(mut self, fw: [T; 2]) -> Self {
+        let fw: Vec<T> = [fw[0], fw[1]]
             .iter()
             .map(|&x| T::from(x).unwrap())
             .scan(T::zero(), |st, x| {
@@ -106,7 +115,7 @@ where
                 Some(*st)
             })
             .collect();
-        let fw = [fw[0], fw[1], fw[2], fw[3]];
+        let fw = [fw[0], fw[1]];
         self.fw = fw;
         self
     }
