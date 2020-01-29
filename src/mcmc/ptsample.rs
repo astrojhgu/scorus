@@ -258,7 +258,7 @@ where
     Ok(())
 }
 
-fn only_sample<T, U, V, W, X, F>(
+pub fn only_sample<T, U, V, W, X, F>(
     flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,
@@ -459,7 +459,7 @@ where
     Ok((result_ensemble, result_logprob))
 }
 
-fn only_sample_st<T, U, V, W, X, F>(
+pub fn only_sample_st<T, U, V, W, X, F>(
     flogprob: &F,
     ensemble_logprob: &(W, X),
     rng: &mut U,

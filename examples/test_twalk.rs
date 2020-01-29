@@ -12,7 +12,7 @@ use num_traits::float::Float;
 use quickersort::sort_by;
 use rand::Rng;
 use scorus::linear_space::type_wrapper::LsVec;
-use scorus::mcmc::ptsample::sample as ptsample;
+use scorus::mcmc::ptsample::only_sample;
 use scorus::mcmc::twalk::{sample, sample_st, TWalkKernal, TWalkParams, TWalkState};
 use scorus::mcmc::utils::swap_walkers;
 use std::fs::File;
@@ -34,12 +34,12 @@ fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
 }
 
 fn main() {
-    let nbeta = 1;
+    let nbeta = 5;
     let beta_list: Vec<_> = (0..nbeta).map(|x| 2_f64.powi(-x)).collect();
-    let ndim = 1;
-    let nwalkers_per_beta = 8;
+    let ndim = 2;
+    let nwalkers_per_beta = 32;
     let param = TWalkParams::<f64>::new(ndim)
-        .with_pphi(0.5)
+        .with_pphi(1.0)
         .with_fw([0.1, 0.9]);
     //println!("{:?}", param.fw);
     //std::process::exit(0);
@@ -57,28 +57,35 @@ fn main() {
         .map(|_| {
             LsVec(
                 (0..ndim)
-                    .map(|_| rng.gen_range(-1.0, 1.0))
+                    .map(|_| rng.gen_range(-0.1, 0.1))
                     .collect::<Vec<_>>(),
             )
         })
         .collect();
     let logprob: Vec<_> = walkers.iter().map(|x| lp(x)).collect();
     let mut ensemble_logprob = (walkers, logprob);
-
-    let thin = 100;
+    let mut sq_sum=0.0;
+    let mut sum=0.0;
+    let thin = 1000;
     for i in 0..10000000 {
         //sample_st(&normal_dist, &mut state, &param, &mut rng);
-        sample(lp, &mut ensemble_logprob, &param, &mut rng, &beta_list, 4);
-        //let el=ptsample(lp, &ensemble_logprob, &mut rng, &beta_list, i%10==0, 2.0, 2).unwrap();
+        if i % 10 == 0 {
+            swap_walkers(&mut ensemble_logprob, &mut rng, &beta_list).unwrap();
+        }
+
+        sample(lp, &mut ensemble_logprob, &param, &mut rng, &beta_list, 12);
+        //let el=only_sample(lp, &ensemble_logprob, &mut rng, &beta_list, 2.0, 12).unwrap();
         //ensemble_logprob=el;
         //sample(lp, &mut ensemble_logprob, &param, &mut rng, 4);
         //sample1(&normal_dist, &mut (&mut walkers, &mut logprob), &param, &mut rng);
-        if i % 100 == 0 {
-            //swap_walkers(&mut ensemble_logprob, &mut rng, &beta_list).unwrap();
-        }
+        sq_sum+=ensemble_logprob.0[0][0].powi(2);
+        sum+=ensemble_logprob.0[0][0];
+        let stddev=(sq_sum/(i+1) as f64-(sum/(i+1) as f64).powi(2)).sqrt();
+
         if i % thin == 0 {
             //println!( "{:?} {:?}", ensemble_logprob.0[1][0], ensemble_logprob.0[1][1]);
-            println!("{:?}", ensemble_logprob.0[1][0]);
+            //println!("{:?}", ensemble_logprob.0[1][0]);
+            println!("{}", stddev);
             //println!("{:?} {:?}", walkers[0][0], walkers[0][1]);
             //println!("{:?} {:?}", state.x[0], state.x[1]);
             //println!("{} {:?}", result.accepted, state.x);
