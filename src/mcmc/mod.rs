@@ -5,7 +5,6 @@ pub mod graph;
 pub mod init_ensemble;
 pub mod mcmc_errors;
 //pub mod mcmc_vec;
-pub mod ptsample;
 pub mod twalk;
 pub mod utils;
 
