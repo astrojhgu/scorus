@@ -27,7 +27,7 @@ fn main() {
     let ndim = 200;
     let niter=3000000;
     let mut ensemble = Vec::new();
-    for i in 0..2 * ndim {
+    for i in 0..8 {
         ensemble.push(LsVec(
             (0..ndim)
                 .map(|_| rng.gen_range(-1.0, 1.0))
@@ -40,8 +40,8 @@ fn main() {
     let mut ensemble_logprob=(ensemble, logprob);
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        sample(&normal_dist, &mut ensemble_logprob, &mut rng, 2.0, 0.1, 4);
-        if k%100==0{
+        sample(&normal_dist, &mut ensemble_logprob, &mut rng, 2.0, 0.1, 12);
+        if k%10==0{
             println!("{} {}", ensemble_logprob.0[0][0], ensemble_logprob.0[0][1]);
         }
 
