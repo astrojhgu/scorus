@@ -22,27 +22,36 @@ fn normal_dist(x: &LsVec<f64, Vec<f64>>) -> f64 {
     result
 }
 
+fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
+    let mut result = 0.0;
+    for i in 0..x.0.len() - 1 {
+        result += 100.0 * (x[i + 1] - x[i].powi(2)).powi(2) + (1.0 - x[i]).powi(2);
+    }
+    -result
+}
+
+
 fn main() {
     let mut rng = rand::thread_rng();
     let ndim = 200;
     let niter=3000000;
     let mut ensemble = Vec::new();
-    for i in 0..8 {
+    for i in 0..4 {
         ensemble.push(LsVec(
             (0..ndim)
-                .map(|_| rng.gen_range(-1.0, 1.0))
+                .map(|_| rng.gen_range(0.9, 1.1))
                 .collect::<Vec<f64>>(),
         ));
     }
 
-    let mut logprob:Vec<_>=ensemble.iter().map(|x|{normal_dist(x)}).collect();
+    let lpf=&normal_dist;
+    let mut logprob:Vec<_>=ensemble.iter().map(|x|{lpf(x)}).collect();
 
-    let mut ensemble_logprob=(ensemble, logprob);
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        sample(&normal_dist, &mut ensemble_logprob, &mut rng, 2.0, 0.1, 12);
+        sample(lpf, &mut ensemble, &mut logprob, &mut rng, 2.0, 0.1, 12);
         if k%10==0{
-            println!("{} {}", ensemble_logprob.0[0][0], ensemble_logprob.0[0][1]);
+            println!("{} {}", ensemble[0][0], ensemble[0][1]);
         }
 
     }

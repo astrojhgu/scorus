@@ -61,9 +61,10 @@ where
 }
 
 
-pub fn sample<T, U, V, W, X, F>(
+pub fn sample<T, U, V, F>(
     flogprob: &F,
-    ensemble_logprob: &mut (W, X),
+    ensemble: &mut [V],
+    cached_logprob: &mut [T],
     rng: &mut U,
     a: T,
     pphi: T,
@@ -77,11 +78,8 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + Sync + Send,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
-    let (ref mut ensemble, ref mut cached_logprob) = *ensemble_logprob;
     //    let cached_logprob = &ensemble_logprob.1;
     //let pflogprob=Arc::new(&flogprob);
     let nwalkers = ensemble.len();
