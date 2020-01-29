@@ -1,18 +1,18 @@
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::Rng;
-use std;
-use std::ops::{Add, Mul, Sub, IndexMut};
-use rand::seq::SliceRandom;
+use super::mcmc_errors::McmcErr;
+use crate::linear_space::LinearSpace;
 use num_traits::float::Float;
 use num_traits::identities::one;
 use num_traits::identities::zero;
 use num_traits::NumCast;
-use super::mcmc_errors::McmcErr;
-use crate::linear_space::LinearSpace;
+use rand::distributions::uniform::SampleUniform;
+use rand::distributions::Distribution;
+use rand::distributions::Standard;
+use rand::seq::SliceRandom;
+use rand::Rng;
+use std;
+use std::ops::{Add, IndexMut, Mul, Sub};
 
-use super::super::utils::{HasLen, ItemSwapable, InitFromLen};
+use super::super::utils::{HasLen, InitFromLen, ItemSwapable};
 //use super::super::utils::Resizeable;
 
 /*
