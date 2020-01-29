@@ -5,7 +5,7 @@ use rayon::scope;
 use std;
 
 use num_traits::float::Float;
-use num_traits::identities::{one, zero};
+use num_traits::identities::{one};
 use num_traits::NumCast;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
@@ -13,18 +13,14 @@ use rand::distributions::Standard;
 use rand::Rng;
 use rand::seq::SliceRandom;
 use std::marker::{Send, Sync};
-use std::ops::IndexMut;
+
 use std::ops::{Add, Mul, Sub};
 use std::sync::Mutex;
 
 //use std::sync::Arc;
-
-use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
 
 use crate::linear_space::FiniteLinearSpace;
-use crate::utils::HasLen;
-use crate::utils::InitFromLen;
 
 pub fn gen_update_flags<T, U>(n: usize, pphi: T, rng: &mut U) -> Vec<bool>
 where
@@ -80,81 +76,7 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
-    //    let cached_logprob = &ensemble_logprob.1;
-    //let pflogprob=Arc::new(&flogprob);
-    let nwalkers = ensemble.len();
-
-    assert!(nwalkers>0);
-    assert!(nwalkers%2==0);
-
-    let ndims: T = NumCast::from(ensemble[0].dimension()).unwrap();
-    
-    let half_nwalkers = nwalkers / 2;
-
-    let pair_id:Vec<(usize, usize)>={
-        let mut a:Vec<usize>=(0..nwalkers).collect();
-        a.shuffle(rng);
-        a.chunks(2).map(|a| (a[0], a[1])).chain(a.chunks(2).map(|a| (a[1], a[0]))).collect()
-    };
-
-    let proposed_pt_z:Vec<_>=pair_id.iter().map(|(i1, i2)|{
-        let z=draw_z(rng, a);
-        let flags=gen_update_flags(ensemble[*i1].dimension(), pphi, rng);
-        (propose_move(&ensemble[*i1], &ensemble[*i2], z, &flags), z, flags)
-    }).collect();
-
-    let new_logprob=Mutex::new(vec![T::zero(); nwalkers]);
-
-    let atomic_k = Mutex::new(0);
-    
-    {
-        let create_task = || {
-            let atomic_k = &atomic_k;
-            let new_logprob=&new_logprob;
-            let proposed_pt_z=&proposed_pt_z;
-            let flogprob = flogprob;
-            //let rvec=Arc::clone(&rvec);
-            move || loop {
-                let k: usize;
-                {
-                    let mut k1 = atomic_k.lock().unwrap();
-                    k = *k1;
-                    *k1 += 1;
-                }
-                if k >= nwalkers {
-                    break;
-                }
-                
-                let lp_y = flogprob(&proposed_pt_z[k].0);
-
-                {
-                    let mut nlp=new_logprob.lock().unwrap();
-                    nlp[k]=lp_y;
-                }
-            }
-        };
-
-        if nthread > 1 {
-            scope(|s| {
-                for _ in 0..nthread {
-                    s.spawn(|_| create_task()());
-                }
-            });
-        } else {
-            let task = create_task();
-            task();
-        }
-    }
-
-    for (i, ((pt, z, flags), (&new_lp, (i1, i2)))) in proposed_pt_z.into_iter().zip(new_logprob.into_inner().unwrap().iter().zip(pair_id.into_iter())).enumerate(){
-        let nphi=T::from(flags.iter().filter(|&&x| x).count()).unwrap();
-        let lp_last_y=cached_logprob[i1];
-        let q = ((nphi - one::<T>()) * (z.ln()) + new_lp - lp_last_y).exp();
-        if rng.gen_range(T::zero(), T::one()) < q{
-            ensemble[i1]=pt;
-            cached_logprob[i1]=new_lp;
-        }
-    }
+    sample_pt(flogprob, ensemble, cached_logprob, rng, a, pphi, &[T::one()], nthread)
 }
 
 pub fn sample_pt<T, U, V, F>(
@@ -185,7 +107,7 @@ where
     assert!(nwalkers_per_beta*nbetas==nwalkers);
     assert!(nwalkers>0);
     assert!(nwalkers_per_beta%2==0);
-
+    assert!(ensemble.len()==cached_logprob.len());
 
     let pair_id:Vec<Vec<(usize, usize)>>=(0..nbetas).map(|_|{
         let mut a:Vec<usize>=(0..nwalkers_per_beta).collect();
