@@ -193,11 +193,12 @@ where
         a.chunks(2).map(|a| (a[0], a[1])).chain(a.chunks(2).map(|a| (a[1], a[0]))).collect()
     }).collect();
 
-    let proposed_pt_z:Vec<Vec<_>>=pair_id.iter().map(|pair_id1|{
+    let proposed_pt_z:Vec<Vec<_>>=pair_id.iter().enumerate().map(|(ibeta, pair_id1)|{
         pair_id1.iter().map(|(i1, i2)|{
         let z=draw_z(rng, a);
-        let flags=gen_update_flags(ensemble[*i1].dimension(), pphi, rng);
-        (propose_move(&ensemble[*i1], &ensemble[*i2], z, &flags), z, flags)
+        let offset=ibeta*nwalkers_per_beta;
+        let flags=gen_update_flags(ensemble[offset+i1].dimension(), pphi, rng);
+        (propose_move(&ensemble[offset+i1], &ensemble[offset+i2], z, &flags), z, flags)
     }).collect()
     }).collect();
 
@@ -251,12 +252,13 @@ where
     for (ibeta, (proposed_pt_z1, (new_logprob1, (pair_id1, &beta)))) in proposed_pt_z.into_iter().zip(new_logprob.into_iter().zip(pair_id.into_iter().zip(beta_list.iter()))).enumerate(){
         for (i, ((pt, z, flags), (new_lp, (i1, _i2)))) in proposed_pt_z1.into_iter().zip(new_logprob1.into_iter().zip(pair_id1.into_iter())).enumerate(){
             let nphi=T::from(flags.iter().filter(|&&x| x).count()).unwrap();
-            let lp_last_y=cached_logprob[ibeta*nwalkers_per_beta + i1];
-            let diff_lp=new_lp-lp_last_y;
-            let q = ((nphi - one::<T>()) * (z.ln()) + diff_lp*beta).exp();
+            let n=ibeta*nwalkers_per_beta + i1;
+            let lp_last_y=cached_logprob[n];
+            let delta_lp=new_lp-lp_last_y;
+            let q = ((nphi - one::<T>()) * (z.ln()) + delta_lp*beta).exp();
             if rng.gen_range(T::zero(), T::one()) < q{
-                ensemble[ibeta*nwalkers_per_beta+ i1]=pt;
-                cached_logprob[ibeta*nwalkers_per_beta + i1]=new_lp;
+                ensemble[n]=pt;
+                cached_logprob[n]=new_lp;
             }
         }
     }    

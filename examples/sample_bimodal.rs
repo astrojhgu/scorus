@@ -13,7 +13,9 @@ use num_traits::float::Float;
 use quickersort::sort_by;
 use scorus::linear_space::type_wrapper::LsVec;
 use scorus::mcmc::mcmc_errors::McmcErr;
-use scorus::mcmc::ptsample::{create_sampler, create_sampler_st};
+use scorus::mcmc::ensemble_sample::sample_pt;
+use scorus::mcmc::utils::swap_walkers;
+
 fn normal_dist(x: &Vec<f64>) -> f64 {
     let mut result = 0_f64;
     for i in x {
@@ -47,7 +49,7 @@ fn foo(x: &Vec<f64>) -> f64 {
 }
 
 fn main() {
-    let x: Vec<_> = vec![
+    let mut ensemble: Vec<_> = vec![
         vec![0.10, 0.20],
         vec![0.20, 0.10],
         vec![0.23, 0.21],
@@ -84,8 +86,8 @@ fn main() {
     .into_iter()
     .map(|x| LsVec(x))
     .collect();
-    let y = vec![0.0];
-    let rng = rand::thread_rng();
+    let mut logprob:Vec<_>=ensemble.iter().map(|x| bimodal(x)).collect();
+    let mut rng = rand::thread_rng();
     //let mut rng = rand::StdRng::new().unwrap();
 
     //let aa=(x,y);
@@ -93,7 +95,7 @@ fn main() {
 
     let blist = vec![1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125];
     let nbeta = blist.len();
-    let nwalkers = x.len() / nbeta;
+    let nwalkers = ensemble.len() / nbeta;
     let mut results: Vec<Vec<f64>> = Vec::new();
     let niter = 100000;
     for i in 0..nbeta {
@@ -101,25 +103,17 @@ fn main() {
         results[i].reserve(niter);
     }
 
-    let xy = (x, y);
-
-    //let mut sampler = create_sampler_st(bimodal, xy, rng, blist, 2.0);
-    let mut sampler = create_sampler(bimodal, xy, rng, blist, 2.0, 4);
 
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
+        if k%10==0{
+            swap_walkers(&mut ensemble, &mut logprob, &mut rng, &blist);
+        }
 
-        sampler(
-            &mut |xy: &Result<(Vec<LsVec<f64, Vec<f64>>>, Vec<f64>), McmcErr>| match xy {
-                &Ok(ref xy) => {
-                    for i in 0..nbeta {
-                        results[i].push(xy.0[i * nwalkers + 0][0]);
-                    }
-                }
-                _ => (),
-            },
-            k % 10 == 0,
-        );
+        sample_pt(&bimodal, &mut ensemble, &mut logprob, &mut rng, 2.0, 0.2 , &blist, 4);
+        for i in 0..nbeta {
+            results[i].push(ensemble[i * nwalkers + 0][0]);
+        }
     }
 
     for i in 0..nbeta {
