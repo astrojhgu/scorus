@@ -70,8 +70,9 @@ where
     }
 }
 
-pub fn swap_walkers<T, U, V, W, X>(
-    ensemble_logprob: &mut (W, X),
+pub fn swap_walkers<T, U, V>(
+    ensemble: &mut [V],
+    logprob: &mut [T],
     rng: &mut U,
     beta_list: &[T],
 ) -> Result<(), McmcErr>
@@ -83,21 +84,18 @@ where
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    W: Clone + IndexMut<usize, Output = V> + HasLen + ItemSwapable,
-    X: Clone + IndexMut<usize, Output = T> + HasLen + InitFromLen + ItemSwapable,
 {
     //let mut new_ensemble = ensemble_logprob.0.clone();
     //let mut new_logprob = ensemble_logprob.1.clone();
-    let (ref mut new_ensemble, ref mut new_logprob) = *ensemble_logprob;
     let nbeta = beta_list.len();
-    let nwalker_per_beta = new_ensemble.len() / nbeta;
-    if nwalker_per_beta * nbeta != new_ensemble.len() {
+    let nwalker_per_beta = ensemble.len() / nbeta;
+    if nwalker_per_beta * nbeta != ensemble.len() {
         //panic!("Error nensemble/nbeta%0!=0");
         return Err(McmcErr::NWalkersMismatchesNBeta);
     }
     let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
 
-    if new_ensemble.len() == new_logprob.len() {
+    if ensemble.len() == logprob.len() {
         for i in (1..nbeta).rev() {
             //println!("ibeta={}", i);
             let beta1 = beta_list[i];
@@ -113,16 +111,16 @@ where
                 let j1 = jvec[j];
                 let j2 = j;
 
-                let lp1 = new_logprob[i * nwalker_per_beta + j1];
-                let lp2 = new_logprob[(i - 1) * nwalker_per_beta + j2];
+                let lp1 = logprob[i * nwalker_per_beta + j1];
+                let lp2 = logprob[(i - 1) * nwalker_per_beta + j2];
                 let ep = exchange_prob(lp1, lp2, beta1, beta2);
                 //println!("{}",ep);
                 let r: T = rng.gen_range(zero::<T>(), one::<T>());
                 if r < ep {
-                    new_ensemble
-                        .swap_items(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
-                    new_logprob
-                        .swap_items(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
+                    ensemble
+                        .swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
+                    logprob
+                        .swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
                 }
             }
         }
