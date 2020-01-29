@@ -12,6 +12,20 @@ where
     T: Float,
     V: Clone + IndexMut<usize, Output = T> + HasLen + Sized;
 
+impl<T, V> LsVec<T, V>
+where
+    T: Float,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized,
+{
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+}
+
 impl<'a, T, V> Add<&'a LsVec<T, V>> for &'a LsVec<T, V>
 where
     T: Float,

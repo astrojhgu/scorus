@@ -1,4 +1,3 @@
-use super::mcmc_errors::McmcErr;
 use crate::linear_space::LinearSpace;
 use num_traits::float::Float;
 use num_traits::identities::one;
@@ -69,12 +68,7 @@ where
     }
 }
 
-pub fn swap_walkers<T, U, V>(
-    ensemble: &mut [V],
-    logprob: &mut [T],
-    rng: &mut U,
-    beta_list: &[T],
-) -> Result<(), McmcErr>
+pub fn swap_walkers<T, U, V>(ensemble: &mut [V], logprob: &mut [T], rng: &mut U, beta_list: &[T])
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
@@ -88,10 +82,7 @@ where
     //let mut new_logprob = ensemble_logprob.1.clone();
     let nbeta = beta_list.len();
     let nwalker_per_beta = ensemble.len() / nbeta;
-    if nwalker_per_beta * nbeta != ensemble.len() {
-        //panic!("Error nensemble/nbeta%0!=0");
-        return Err(McmcErr::NWalkersMismatchesNBeta);
-    }
+    assert!(nbeta * nwalker_per_beta == ensemble.len());
     let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
 
     if ensemble.len() == logprob.len() {
@@ -100,8 +91,7 @@ where
             let beta1 = beta_list[i];
             let beta2 = beta_list[i - 1];
             if beta1 > beta2 {
-                //panic!("beta list must be in decreasing order, with no duplicatation");
-                return Err(McmcErr::BetaNotInDecrOrd);
+                panic!("beta list must be in decreasing order, with no duplicatation");
             }
             //rng.shuffle(&mut jvec);
             jvec.shuffle(rng);
@@ -119,6 +109,4 @@ where
             }
         }
     }
-
-    Ok(())
 }
