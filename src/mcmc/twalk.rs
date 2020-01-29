@@ -285,16 +285,15 @@ where
     let update_flags = gen_update_flags(n, param.pphi, rng);
     //println!("{:?}", update_flags.iter().enumerate().filter(|(i, &f)| f).collect::<Vec<_>>());
     for i in 0..n {
-        let z={
+        let z = {
             if update_flags[i] {
                 let u = rng.gen_range(T::zero(), T::one());
                 (param.aw / (T::one() + aw)) * (aw * u.powi(2) + two * u - T::one())
-            }
-            else{
+            } else {
                 T::zero()
             }
         };
-        result[i] = x[i] + (x[i]-xp[i]) * z;
+        result[i] = x[i] + (x[i] - xp[i]) * z;
         //print!("{:?} ", result[i]);
     }
     //println!();
@@ -607,7 +606,7 @@ pub fn sample<T, U, V, W, X, F>(
     X: Clone + IndexMut<usize, Output = T> + HasLen + Sync + InitFromLen + Send,
     F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
-    let nbetas=beta_list.len();
+    let nbetas = beta_list.len();
     let nwalkers = ensemble_logprob.0.len();
     let nwalkers_per_beta = nwalkers / nbetas;
 
@@ -618,14 +617,30 @@ pub fn sample<T, U, V, W, X, F>(
             a.chunks(2).map(|a| (a[0], a[1])).collect()
         })
         .collect();
-    let pair_id2: Vec<Vec<_>> = pair_id1.iter().map(|pid1|{
-        pid1.iter().map(|(i1, i2)|(*i2, *i1)).collect()
-    }).collect();
+    let pair_id2: Vec<Vec<_>> = pair_id1
+        .iter()
+        .map(|pid1| pid1.iter().map(|(i1, i2)| (*i2, *i1)).collect())
+        .collect();
 
-    sample1(flogprob, ensemble_logprob, param, rng, beta_list, pair_id1, nthreads);
-    
-    sample1(flogprob, ensemble_logprob, param, rng, beta_list, pair_id2, nthreads);
-    
+    sample1(
+        flogprob,
+        ensemble_logprob,
+        param,
+        rng,
+        beta_list,
+        pair_id1,
+        nthreads,
+    );
+
+    sample1(
+        flogprob,
+        ensemble_logprob,
+        param,
+        rng,
+        beta_list,
+        pair_id2,
+        nthreads,
+    );
 }
 
 pub fn sample1<T, U, V, W, X, F>(
@@ -660,7 +675,7 @@ pub fn sample1<T, U, V, W, X, F>(
     let nwalkers = ensemble_logprob.0.len();
     let nwalkers_per_beta = nwalkers / nbetas;
     assert!(nwalkers_per_beta * nbetas == nwalkers);
-    
+
     let proposed_points: Vec<Vec<_>> = pair_id
         .iter()
         .map(|pair_id1| {
@@ -734,12 +749,11 @@ pub fn sample1<T, U, V, W, X, F>(
                 b,
                 beta_list[ibeta],
             );
-            
+
             if rng.gen_range(T::zero(), T::one()) < a1 {
                 ensemble_logprob.0[ibeta * nwalkers_per_beta + i1] = yp1;
                 ensemble_logprob.1[ibeta * nwalkers_per_beta + i1] = up_prop1;
             }
-            
         }
     }
 }

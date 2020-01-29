@@ -64,8 +64,8 @@ fn main() {
         .collect();
     let logprob: Vec<_> = walkers.iter().map(|x| lp(x)).collect();
     let mut ensemble_logprob = (walkers, logprob);
-    let mut sq_sum=0.0;
-    let mut sum=0.0;
+    let mut sq_sum = 0.0;
+    let mut sum = 0.0;
     let thin = 1000;
     for i in 0..10000000 {
         //sample_st(&normal_dist, &mut state, &param, &mut rng);
@@ -78,9 +78,9 @@ fn main() {
         //ensemble_logprob=el;
         //sample(lp, &mut ensemble_logprob, &param, &mut rng, 4);
         //sample1(&normal_dist, &mut (&mut walkers, &mut logprob), &param, &mut rng);
-        sq_sum+=ensemble_logprob.0[0][0].powi(2);
-        sum+=ensemble_logprob.0[0][0];
-        let stddev=(sq_sum/(i+1) as f64-(sum/(i+1) as f64).powi(2)).sqrt();
+        sq_sum += ensemble_logprob.0[0][0].powi(2);
+        sum += ensemble_logprob.0[0][0];
+        let stddev = (sq_sum / (i + 1) as f64 - (sum / (i + 1) as f64).powi(2)).sqrt();
 
         if i % thin == 0 {
             //println!( "{:?} {:?}", ensemble_logprob.0[1][0], ensemble_logprob.0[1][1]);

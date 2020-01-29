@@ -10,9 +10,8 @@ use rand::distributions::Standard;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std;
-use std::ops::{Add, IndexMut, Mul, Sub};
+use std::ops::{Add, Mul, Sub};
 
-use super::super::utils::{HasLen, InitFromLen, ItemSwapable};
 //use super::super::utils::Resizeable;
 
 /*
@@ -107,20 +106,15 @@ where
             //rng.shuffle(&mut jvec);
             jvec.shuffle(rng);
             //let jvec=shuffle(&jvec, &mut rng);
-            for j in 0..nwalker_per_beta {
-                let j1 = jvec[j];
-                let j2 = j;
-
+            for (j2, &j1) in jvec.iter().enumerate() {
                 let lp1 = logprob[i * nwalker_per_beta + j1];
                 let lp2 = logprob[(i - 1) * nwalker_per_beta + j2];
                 let ep = exchange_prob(lp1, lp2, beta1, beta2);
                 //println!("{}",ep);
                 let r: T = rng.gen_range(zero::<T>(), one::<T>());
                 if r < ep {
-                    ensemble
-                        .swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
-                    logprob
-                        .swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
+                    ensemble.swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
+                    logprob.swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
                 }
             }
         }

@@ -12,8 +12,8 @@ use std::io::Write;
 use num_traits::float::Float;
 use quickersort::sort_by;
 use scorus::linear_space::type_wrapper::LsVec;
-use scorus::mcmc::mcmc_errors::McmcErr;
 use scorus::mcmc::ensemble_sample::sample_pt;
+use scorus::mcmc::mcmc_errors::McmcErr;
 use scorus::mcmc::utils::swap_walkers;
 
 fn normal_dist(x: &Vec<f64>) -> f64 {
@@ -86,7 +86,7 @@ fn main() {
     .into_iter()
     .map(|x| LsVec(x))
     .collect();
-    let mut logprob:Vec<_>=ensemble.iter().map(|x| bimodal(x)).collect();
+    let mut logprob: Vec<_> = ensemble.iter().map(|x| bimodal(x)).collect();
     let mut rng = rand::thread_rng();
     //let mut rng = rand::StdRng::new().unwrap();
 
@@ -103,14 +103,22 @@ fn main() {
         results[i].reserve(niter);
     }
 
-
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        if k%10==0{
+        if k % 10 == 0 {
             swap_walkers(&mut ensemble, &mut logprob, &mut rng, &blist);
         }
 
-        sample_pt(&bimodal, &mut ensemble, &mut logprob, &mut rng, 2.0, 0.2 , &blist, 4);
+        sample_pt(
+            &bimodal,
+            &mut ensemble,
+            &mut logprob,
+            &mut rng,
+            2.0,
+            0.2,
+            &blist,
+            4,
+        );
         for i in 0..nbeta {
             results[i].push(ensemble[i * nwalkers + 0][0]);
         }
