@@ -22,20 +22,42 @@ use std::sync::Mutex;
 use super::mcmc_errors::McmcErr;
 use super::utils::{draw_z, scale_vec};
 
-use crate::linear_space::LinearSpace;
+use crate::linear_space::FiniteLinearSpace;
 use crate::utils::HasLen;
 use crate::utils::InitFromLen;
 
-pub fn propose_move<T, V>(p1: &V, p2: &V, z: T)->V
+pub fn gen_update_flags<T, U>(n: usize, pphi: T, rng: &mut U) -> Vec<bool>
+where
+    T: Float + SampleUniform,
+    U: Rng,
+{
+    loop {
+        let result: Vec<_> = (0..n)
+            .map(|_| rng.gen_range(T::zero(), T::one()) < pphi)
+            .collect();
+        if result.iter().any(|&b| b) {
+            break result;
+        }
+    }
+}
+
+
+pub fn propose_move<T, V>(p1: &V, p2: &V, z: T, update_flags: &[bool])->V
 where 
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
-    V: Clone + LinearSpace<T> + Sync + Send + Sized,
+    V: Clone + FiniteLinearSpace<T> + Sync + Send + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
 {
-    scale_vec(p1, p2, z)
+    let mut result=scale_vec(p1, p2, z);
+    for i in 0..update_flags.len(){
+        if !update_flags[i]{
+            result[i]=p1[i];
+        }
+    }
+    result
 }
 
 
@@ -44,13 +66,14 @@ pub fn sample<T, U, V, W, X, F>(
     ensemble_logprob: &mut (W, X),
     rng: &mut U,
     a: T,
+    pphi: T,
     nthread: usize,
 )
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + LinearSpace<T> + Sync + Send + Sized,
+    V: Clone + FiniteLinearSpace<T> + Sync + Send + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -67,7 +90,7 @@ where
     assert!(nwalkers%2==0);
 
     let ndims: T = NumCast::from(ensemble[0].dimension()).unwrap();
-
+    
     let half_nwalkers = nwalkers / 2;
 
     let pair_id:Vec<(usize, usize)>={
@@ -78,7 +101,8 @@ where
 
     let proposed_pt_z:Vec<_>=pair_id.iter().map(|(i1, i2)|{
         let z=draw_z(rng, a);
-        (propose_move(&ensemble[*i1], &ensemble[*i2], z), z)
+        let flags=gen_update_flags(ensemble[*i1].dimension(), pphi, rng);
+        (propose_move(&ensemble[*i1], &ensemble[*i2], z, &flags), z, flags)
     }).collect();
 
     let new_logprob=Mutex::new(vec![T::zero(); nwalkers]);
@@ -124,9 +148,10 @@ where
         }
     }
 
-    for (i, ((pt, z), (&new_lp, (i1, i2)))) in proposed_pt_z.into_iter().zip(new_logprob.into_inner().unwrap().iter().zip(pair_id.into_iter())).enumerate(){
+    for (i, ((pt, z, flags), (&new_lp, (i1, i2)))) in proposed_pt_z.into_iter().zip(new_logprob.into_inner().unwrap().iter().zip(pair_id.into_iter())).enumerate(){
+        let nphi=T::from(flags.iter().filter(|&&x| x).count()).unwrap();
         let lp_last_y=cached_logprob[i1];
-        let q = ((ndims - one::<T>()) * (z.ln()) + new_lp - lp_last_y).exp();
+        let q = ((nphi - one::<T>()) * (z.ln()) + new_lp - lp_last_y).exp();
         if rng.gen_range(T::zero(), T::one()) < q{
             ensemble[i1]=pt;
             cached_logprob[i1]=new_lp;
