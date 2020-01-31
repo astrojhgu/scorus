@@ -3,7 +3,7 @@
 extern crate rand;
 extern crate scorus;
 use rand::thread_rng;
-use scorus::mcmc::ensemble_sample::sample_st;
+use scorus::mcmc::ensemble_sample::sample;
 use scorus::mcmc::graph::graph::Graph;
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 use scorus::mcmc::graph::nodes::{
@@ -35,9 +35,18 @@ fn main() {
 
     let mut rng = thread_rng();
     for _i in 0..10000 {
-        let aa = sample_st(&|x| g.logpost_all(x), &(ensemble, lp), &mut rng, 2.0).unwrap();
-        ensemble = aa.0;
-        lp = aa.1;
+        //let aa = sample_st(&|x| g.logpost_all(x), &(ensemble, lp), &mut rng, 2.0).unwrap();
+        //ensemble = aa.0;
+        //lp = aa.1;
+        sample(
+            &|x| g.logpost_all(x),
+            &mut ensemble,
+            &mut lp,
+            &mut rng,
+            2.0,
+            0.01,
+            1,
+        );
         //println!("{}", ensemble[0].deterministic_values.borrow()[0]);
         println!("{}", ensemble[0][0]);
     }

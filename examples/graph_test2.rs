@@ -6,7 +6,7 @@ extern crate scorus;
 use rand::distributions::Distribution;
 use rand::distributions::Normal;
 use rand::thread_rng;
-use scorus::mcmc::ensemble_sample::sample_st;
+use scorus::mcmc::ensemble_sample::sample;
 use scorus::mcmc::graph::graph::Graph;
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
