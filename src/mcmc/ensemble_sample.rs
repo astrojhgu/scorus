@@ -74,6 +74,60 @@ where
     result
 }
 
+pub fn init_logprob<T, V, F>(flogprob: &F, ensemble: &[V], logprob: &mut [T], nthread: usize)
+where
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send ,
+    V: Sync + Send + Sized,
+    F: Fn(&V) -> T + Send + Sync,
+{
+    let nwalkers=ensemble.len();
+    assert_eq!(nwalkers, logprob.len());
+
+    let new_logprob = Mutex::new(vec![T::zero(); nwalkers]);
+
+    let atomic_k = Mutex::new(0);
+
+    let create_task = || {
+        let atomic_k = &atomic_k;
+        let new_logprob = &new_logprob;
+        let ensemble = ensemble;
+        let flogprob = flogprob;
+        //let rvec=Arc::clone(&rvec);
+        move || loop {
+            let k: usize;
+            {
+                let mut k1 = atomic_k.lock().unwrap();
+                k = *k1;
+                *k1 += 1;
+            }
+            if k >= nwalkers {
+                break;
+            }
+
+            let lp_y = flogprob(&ensemble[k]);
+
+            {
+                let mut nlp = new_logprob.lock().unwrap();
+                nlp[k] = lp_y;
+            }
+        }
+    };
+
+    if nthread > 1 {
+        scope(|s| {
+            for _ in 0..nthread {
+                s.spawn(|_| create_task()());
+            }
+        });
+    } else {
+        let task = create_task();
+        task();
+    }
+
+    let new_logprob=new_logprob.into_inner().unwrap();
+    logprob.copy_from_slice(&new_logprob);
+}
+
 pub fn sample<'a, T, U, V, F>(
     flogprob: &F,
     ensemble: &mut [V],
@@ -90,7 +144,7 @@ pub fn sample<'a, T, U, V, F>(
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> T + Send + Sync + ?Sized,
+    F: Fn(&V) -> T + Send + Sync,
 {
     sample_pt(
         flogprob,
@@ -121,7 +175,7 @@ pub fn sample_pt<'a, T, U, V, F>(
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> T + Send + Sync + ?Sized,
+    F: Fn(&V) -> T + Send + Sync,
 {
     //    let cached_logprob = &ensemble_logprob.1;
     //let pflogprob=Arc::new(&flogprob);
