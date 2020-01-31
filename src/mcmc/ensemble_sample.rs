@@ -37,7 +37,7 @@ where T: Float + SampleUniform,
 {
     pub fn generate_update_flags<U>(&mut self, n: usize, rng: &mut U)->Vec<bool>
     where U: Rng{
-        match &mut *self{
+        match self{
             UpdateFlagSpec::Prob(ref prob)=>{
                 loop{
                     let result: Vec<_> = (0..n)
