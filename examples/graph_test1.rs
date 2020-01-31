@@ -70,7 +70,7 @@ fn main() {
             &mut lp,
             &mut rng,
             2.0,
-            &mut UpdateFlagSpec::Pphi(0.01),
+            &mut UpdateFlagSpec::Prob(0.01),
             1,
         );
         println!("{} {}", ensemble[0][0], ensemble[0][1]);

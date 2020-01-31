@@ -27,7 +27,7 @@ use crate::linear_space::FiniteLinearSpace;
 pub enum UpdateFlagSpec<'a, T>
 where T: Float + SampleUniform,
 {
-    Pphi(T),
+    Prob(T),
     All,
     Func(&'a mut dyn FnMut()->Vec<bool>),
 }
@@ -38,10 +38,10 @@ where T: Float + SampleUniform,
     pub fn generate_update_flags<U>(&mut self, n: usize, rng: &mut U)->Vec<bool>
     where U: Rng{
         match &mut *self{
-            UpdateFlagSpec::Pphi(ref pphi)=>{
+            UpdateFlagSpec::Prob(ref prob)=>{
                 loop{
                     let result: Vec<_> = (0..n)
-                    .map(|_| rng.gen_range(T::zero(), T::one()) < *pphi)
+                    .map(|_| rng.gen_range(T::zero(), T::one()) < *prob)
                     .collect();
                     if result.iter().any(|&b| b) {
                         break result;

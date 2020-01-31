@@ -115,7 +115,7 @@ fn main() {
             &mut logprob,
             &mut rng,
             2.0,
-            &mut UpdateFlagSpec::Pphi(0.2),
+            &mut UpdateFlagSpec::Prob(0.5),
             &blist,
             4,
         );
