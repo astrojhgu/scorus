@@ -3,7 +3,7 @@
 extern crate rand;
 extern crate scorus;
 use rand::thread_rng;
-use scorus::mcmc::ensemble_sample::sample;
+use scorus::mcmc::ensemble_sample::{sample, UpdateFlagSpec};
 use scorus::mcmc::graph::graph::Graph;
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 use scorus::mcmc::graph::nodes::{
@@ -44,7 +44,7 @@ fn main() {
             &mut lp,
             &mut rng,
             2.0,
-            0.01,
+            &mut UpdateFlagSpec::Pphi(0.01),
             1,
         );
         //println!("{}", ensemble[0].deterministic_values.borrow()[0]);

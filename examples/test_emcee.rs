@@ -10,7 +10,7 @@ use num_traits::float::Float;
 use quickersort::sort_by;
 use rand::Rng;
 use scorus::linear_space::type_wrapper::LsVec;
-use scorus::mcmc::ensemble_sample::{sample, sample_pt};
+use scorus::mcmc::ensemble_sample::{sample, sample_pt, UpdateFlagSpec};
 use scorus::mcmc::mcmc_errors::McmcErr;
 use scorus::mcmc::utils::swap_walkers;
 use std::fs::File;
@@ -59,7 +59,7 @@ fn main() {
             &mut logprob,
             &mut rng,
             2.0,
-            0.2,
+            &mut UpdateFlagSpec::Pphi(0.2),
             &beta_list,
             12,
         );

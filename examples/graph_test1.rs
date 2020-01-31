@@ -6,7 +6,7 @@ extern crate scorus;
 use rand::distributions::Distribution;
 use rand::distributions::Normal;
 use rand::thread_rng;
-use scorus::mcmc::ensemble_sample::sample;
+use scorus::mcmc::ensemble_sample::{sample, UpdateFlagSpec};
 use scorus::mcmc::graph::graph::Graph;
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
 use scorus::mcmc::graph::nodes::{add_node, const_node, cos_node, normal_node, uniform_node};
@@ -70,7 +70,7 @@ fn main() {
             &mut lp,
             &mut rng,
             2.0,
-            0.01,
+            &mut UpdateFlagSpec::Pphi(0.01),
             1,
         );
         println!("{} {}", ensemble[0][0], ensemble[0][1]);

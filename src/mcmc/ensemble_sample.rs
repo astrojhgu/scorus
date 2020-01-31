@@ -23,22 +23,38 @@ use super::utils::{draw_z, scale_vec};
 
 use crate::linear_space::FiniteLinearSpace;
 
-pub fn gen_update_flags<T, U>(n: usize, pphi: T, rng: &mut U) -> Vec<bool>
-where
-    T: Float + SampleUniform,
-    U: Rng,
+
+pub enum UpdateFlagSpec<'a, T>
+where T: Float + SampleUniform,
 {
-    loop {
-        let result: Vec<_> = (0..n)
-            .map(|_| rng.gen_range(T::zero(), T::one()) < pphi)
-            .collect();
-        if result.iter().any(|&b| b) {
-            break result;
+    Pphi(T),
+    All,
+    Func(&'a mut dyn FnMut()->Vec<bool>),
+}
+
+impl<'a, T> UpdateFlagSpec<'a, T>
+where T: Float + SampleUniform,
+{
+    pub fn generate_update_flags<U>(&mut self, n: usize, rng: &mut U)->Vec<bool>
+    where U: Rng{
+        match &mut *self{
+            UpdateFlagSpec::Pphi(ref pphi)=>{
+                loop{
+                    let result: Vec<_> = (0..n)
+                    .map(|_| rng.gen_range(T::zero(), T::one()) < *pphi)
+                    .collect();
+                    if result.iter().any(|&b| b) {
+                        break result;
+                    }
+                }
+            },
+            UpdateFlagSpec::All=>(0..n).map(|_| true).collect(),
+            UpdateFlagSpec::Func(f)=>f(),
         }
     }
 }
 
-pub fn propose_move<T, V>(p1: &V, p2: &V, z: T, update_flags: &[bool]) -> V
+pub fn propose_move<T, V>(p1: &V, p2: &V, z: T, update_flags: Option<&[bool]>) -> V
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
@@ -48,21 +64,23 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     let mut result = scale_vec(p1, p2, z);
-    for i in 0..update_flags.len() {
-        if !update_flags[i] {
-            result[i] = p1[i];
-        }
+    if let Some(update_flags)=update_flags{
+        for i in 0..update_flags.len() {
+            if !update_flags[i] {
+                result[i] = p1[i];
+            }
+        }    
     }
     result
 }
 
-pub fn sample<T, U, V, F>(
+pub fn sample<'a, T, U, V, F>(
     flogprob: &F,
     ensemble: &mut [V],
     cached_logprob: &mut [T],
     rng: &mut U,
     a: T,
-    pphi: T,
+    ufs: &mut UpdateFlagSpec<'a, T>,
     nthread: usize,
 ) where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
@@ -80,19 +98,19 @@ pub fn sample<T, U, V, F>(
         cached_logprob,
         rng,
         a,
-        pphi,
+        ufs,
         &[T::one()],
         nthread,
     )
 }
 
-pub fn sample_pt<T, U, V, F>(
+pub fn sample_pt<'a, T, U, V, F>(
     flogprob: &F,
     ensemble: &mut [V],
     cached_logprob: &mut [T],
     rng: &mut U,
     a: T,
-    pphi: T,
+    ufs: &mut UpdateFlagSpec<'a, T>,
     beta_list: &[T],
     nthread: usize,
 ) where
@@ -135,9 +153,9 @@ pub fn sample_pt<T, U, V, F>(
                 .map(|(i1, i2)| {
                     let z = draw_z(rng, a);
                     let offset = ibeta * nwalkers_per_beta;
-                    let flags = gen_update_flags(ensemble[offset + i1].dimension(), pphi, rng);
+                    let flags = ufs.generate_update_flags(ensemble[offset+i1].dimension(), rng);
                     (
-                        propose_move(&ensemble[offset + i1], &ensemble[offset + i2], z, &flags),
+                        propose_move(&ensemble[offset + i1], &ensemble[offset + i2], z, Some(&flags)),
                         z,
                         flags,
                     )
