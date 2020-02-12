@@ -84,7 +84,15 @@ fn main() {
         //let aaa = sample(&mut logprob, &(ensemble, lp), &mut rng, 2.0, 4)//.unwrap();
 
         //let aaa = sample_st(&mut logprob, &(ensemble, lp), &mut rng, 2.0).unwrap();
-        sample(&logprob, &mut ensemble, &mut lp, &mut rng, 2.0, &mut UpdateFlagSpec::All, 1);
+        sample(
+            &logprob,
+            &mut ensemble,
+            &mut lp,
+            &mut rng,
+            2.0,
+            &mut UpdateFlagSpec::All,
+            1,
+        );
 
         if i > 1000 {
             let n = rng.gen_range(0, ensemble.len());

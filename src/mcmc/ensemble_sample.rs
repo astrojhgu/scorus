@@ -23,33 +23,34 @@ use super::utils::{draw_z, scale_vec};
 
 use crate::linear_space::FiniteLinearSpace;
 
-
 pub enum UpdateFlagSpec<'a, T>
-where T: Float + SampleUniform,
+where
+    T: Float + SampleUniform,
 {
     Prob(T),
     All,
-    Func(&'a mut dyn FnMut()->Vec<bool>),
+    Func(&'a mut dyn FnMut() -> Vec<bool>),
 }
 
 impl<'a, T> UpdateFlagSpec<'a, T>
-where T: Float + SampleUniform,
+where
+    T: Float + SampleUniform,
 {
-    pub fn generate_update_flags<U>(&mut self, n: usize, rng: &mut U)->Vec<bool>
-    where U: Rng{
-        match self{
-            UpdateFlagSpec::Prob(ref prob)=>{
-                loop{
-                    let result: Vec<_> = (0..n)
+    pub fn generate_update_flags<U>(&mut self, n: usize, rng: &mut U) -> Vec<bool>
+    where
+        U: Rng,
+    {
+        match self {
+            UpdateFlagSpec::Prob(ref prob) => loop {
+                let result: Vec<_> = (0..n)
                     .map(|_| rng.gen_range(T::zero(), T::one()) < *prob)
                     .collect();
-                    if result.iter().any(|&b| b) {
-                        break result;
-                    }
+                if result.iter().any(|&b| b) {
+                    break result;
                 }
             },
-            UpdateFlagSpec::All=>(0..n).map(|_| true).collect(),
-            UpdateFlagSpec::Func(f)=>f(),
+            UpdateFlagSpec::All => (0..n).map(|_| true).collect(),
+            UpdateFlagSpec::Func(f) => f(),
         }
     }
 }
@@ -64,23 +65,23 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
 {
     let mut result = scale_vec(p1, p2, z);
-    if let Some(update_flags)=update_flags{
+    if let Some(update_flags) = update_flags {
         for i in 0..update_flags.len() {
             if !update_flags[i] {
                 result[i] = p1[i];
             }
-        }    
+        }
     }
     result
 }
 
 pub fn init_logprob<T, V, F>(flogprob: &F, ensemble: &[V], logprob: &mut [T], nthread: usize)
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send ,
+    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send,
     V: Sync + Send + Sized,
     F: Fn(&V) -> T + Send + Sync,
 {
-    let nwalkers=ensemble.len();
+    let nwalkers = ensemble.len();
     assert_eq!(nwalkers, logprob.len());
 
     let new_logprob = Mutex::new(vec![T::zero(); nwalkers]);
@@ -124,7 +125,7 @@ where
         task();
     }
 
-    let new_logprob=new_logprob.into_inner().unwrap();
+    let new_logprob = new_logprob.into_inner().unwrap();
     logprob.copy_from_slice(&new_logprob);
 }
 
@@ -207,9 +208,14 @@ pub fn sample_pt<'a, T, U, V, F>(
                 .map(|(i1, i2)| {
                     let z = draw_z(rng, a);
                     let offset = ibeta * nwalkers_per_beta;
-                    let flags = ufs.generate_update_flags(ensemble[offset+i1].dimension(), rng);
+                    let flags = ufs.generate_update_flags(ensemble[offset + i1].dimension(), rng);
                     (
-                        propose_move(&ensemble[offset + i1], &ensemble[offset + i2], z, Some(&flags)),
+                        propose_move(
+                            &ensemble[offset + i1],
+                            &ensemble[offset + i2],
+                            z,
+                            Some(&flags),
+                        ),
                         z,
                         flags,
                     )

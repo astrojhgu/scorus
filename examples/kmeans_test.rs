@@ -17,29 +17,27 @@ fn main() {
 
     let mut rng = thread_rng();
 
-    let mut points = vec![vec![], vec![]];
+    let mut points = vec![];
     for _i in 0..1000 {
         let x = normal.sample(&mut rng) + 2.0;
         let y = normal.sample(&mut rng) + 2.0;
-        let cid = if normal.sample(&mut rng) > 0.0 { 1 } else { 0 };
-        points[cid].push(LsVec(vec![x, y]));
+        points.push(LsVec(vec![x, y]));
     }
 
     for _i in 0..1000 {
         let x = normal.sample(&mut rng) - 2.0;
         let y = normal.sample(&mut rng) - 2.0;
-        let cid = if normal.sample(&mut rng) > 0.0 { 1 } else { 0 };
-        points[cid].push(LsVec(vec![x, y]));
+        points.push(LsVec(vec![x, y]));
     }
 
-    for _i in 0..10000 {
-        points = kmeans::kmeans_iter(points).unwrap();
-    }
+    let mut centroids = vec![LsVec(vec![0., 0.]), LsVec(vec![1., 1.])];
+    kmeans::kmeans2(&points, &mut centroids, 100);
+    let points = kmeans::classify(&points, &centroids);
 
     for i in 0..2 {
         let mut f = File::create(format!("cluster_{}.txt", i)).unwrap();
         for p in &points[i] {
-            writeln!(f, "{} {}", p[0], p[1]);
+            writeln!(f, "{} {}", p[0], p[1]).unwrap();
         }
     }
 }
