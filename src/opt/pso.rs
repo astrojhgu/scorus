@@ -1,10 +1,10 @@
 #![allow(clippy::comparison_chain)]
 use std;
-use std::ops::{Add, IndexMut, Mul, Sub};
+use std::ops::{Add, Mul, Sub};
 
 use rayon::prelude::*;
 
-use crate::linear_space::LinearSpace;
+use crate::linear_space::IndexableLinearSpace;
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
@@ -24,7 +24,7 @@ where
         + Debug
         + Send
         + Sync,
-    V: Clone + IndexMut<usize, Output = T> + LinearSpace<T> + Debug + Send + Sync,
+    V: Clone + IndexableLinearSpace<T> + Debug + Send + Sync,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -46,7 +46,7 @@ where
         + Debug
         + Send
         + Sync,
-    V: Clone + IndexMut<usize, Output = T> + LinearSpace<T> + Debug + Send + Sync,
+    V: Clone + IndexableLinearSpace<T> + Debug + Send + Sync,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -69,7 +69,7 @@ where
         + Debug
         + Send
         + Sync,
-    V: Clone + IndexMut<usize, Output = T> + LinearSpace<T> + Debug + Send + Sync,
+    V: Clone + IndexableLinearSpace<T> + Debug + Send + Sync,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
