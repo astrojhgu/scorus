@@ -84,7 +84,7 @@ where
         .collect()
 }
 
-pub fn kmeans2<Scalar, T>(points: &[T], centroids: &mut [T], niter: usize)
+pub fn kmeans2<Scalar, T>(points: &[T], centroids: &mut [T], niter: usize)->Vec<usize>
 where
     T: PDInnerProdSpace<Scalar> + Clone + std::fmt::Debug,
     for<'a> &'a T: Add<Output = T>,
@@ -101,8 +101,28 @@ where
         .into_iter()
         .map(std::option::Option::unwrap)
         .collect();
+    
+    let labels:Vec<_>=points.iter().map(|x| {
+        centroids
+        .iter()
+        .map(|p| p.distance_to(&x))
+        .enumerate()
+        .min_by(|a, b| {
+            if a.1 > b.1 {
+                Ordering::Greater
+            } else if a.1 < b.1 {
+                Ordering::Less
+            } else {
+                Ordering::Equal
+            }
+        })
+        .unwrap()
+        .0
+    }).collect();
+    
 
     let _ = c.into_iter().zip(centroids.iter_mut()).map(|(c1, c2)| {
         *c2 = c1;
     });
+    labels
 }
