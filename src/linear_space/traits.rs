@@ -14,7 +14,7 @@ where
     fn dimension(&self) -> usize;
 }
 
-pub trait FiniteLinearSpace<Scalar>:
+pub trait IndexableLinearSpace<Scalar>:
     LinearSpace<Scalar>
     + std::ops::Index<usize, Output = Scalar>
     + std::ops::IndexMut<usize, Output = Scalar>

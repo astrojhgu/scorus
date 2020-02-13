@@ -1,5 +1,5 @@
 #![allow(clippy::needless_range_loop)]
-use crate::linear_space::{FiniteLinearSpace, LinearSpace};
+use crate::linear_space::{IndexableLinearSpace, LinearSpace};
 use crate::utils::HasLen;
 use num_traits::float::Float;
 use std;
@@ -126,4 +126,4 @@ where
     }
 }
 
-impl<T> FiniteLinearSpace<T> for GraphVar<T> where T: Float + Sync + Send + std::fmt::Display {}
+impl<T> IndexableLinearSpace<T> for GraphVar<T> where T: Float + Sync + Send + std::fmt::Display {}

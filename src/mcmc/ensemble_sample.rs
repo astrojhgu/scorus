@@ -21,7 +21,7 @@ use std::sync::Mutex;
 //use std::sync::Arc;
 use super::utils::{draw_z, scale_vec};
 
-use crate::linear_space::FiniteLinearSpace;
+use crate::linear_space::IndexableLinearSpace;
 
 pub enum UpdateFlagSpec<'a, T>
 where
@@ -59,7 +59,7 @@ pub fn propose_move<T, V>(p1: &V, p2: &V, z: T, update_flags: Option<&[bool]>) -
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
-    V: Clone + FiniteLinearSpace<T> + Sync + Send + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sync + Send + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -141,7 +141,7 @@ pub fn sample<'a, T, U, V, F>(
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sync + Send + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sync + Send + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -172,7 +172,7 @@ pub fn sample_pt<'a, T, U, V, F>(
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sync + Send + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sync + Send + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,

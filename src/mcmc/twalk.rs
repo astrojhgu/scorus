@@ -21,7 +21,7 @@ use std::ops::IndexMut;
 //use super::mcmc_errors::McmcErr;
 //use super::utils::{draw_z, scale_vec};
 
-use crate::linear_space::FiniteLinearSpace;
+use crate::linear_space::IndexableLinearSpace;
 //use crate::utils::HasLen;
 //use crate::utils::InitFromLen;
 
@@ -129,7 +129,7 @@ where
 pub struct TWalkState<T, V>
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -144,7 +144,7 @@ where
 impl<T, V> TWalkState<T, V>
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -208,7 +208,7 @@ where
 pub fn elements_changed<T, V>(x1: &V, x2: &V) -> Vec<bool>
 where
     T: Float + NumCast + std::cmp::PartialOrd + std::fmt::Debug,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -223,7 +223,7 @@ where
 fn all_different<T, V>(x1: &V, x2: &V) -> bool
 where
     T: Float + NumCast + std::cmp::PartialOrd + std::fmt::Debug,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -240,7 +240,7 @@ fn sqr_norm<T, V>(x: &V) -> T
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -273,7 +273,7 @@ where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -329,7 +329,7 @@ where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -355,7 +355,7 @@ where
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -386,7 +386,7 @@ where
     T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -416,7 +416,7 @@ where
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -448,7 +448,7 @@ where
     T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -470,7 +470,7 @@ where
     T: Float + FloatConst + NumCast + std::cmp::PartialOrd + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -510,7 +510,7 @@ where
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -538,7 +538,7 @@ pub fn sample_st<T, U, V, F>(
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sized,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -598,7 +598,7 @@ pub fn sample<T, U, V, W, X, F>(
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized + std::marker::Sync,
+    V: Clone + IndexableLinearSpace<T> + Sized + std::marker::Sync,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -663,7 +663,7 @@ pub fn sample1<T, U, V, W, X, F>(
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     U: Rng,
-    V: Clone + FiniteLinearSpace<T> + Sized + std::marker::Sync,
+    V: Clone + IndexableLinearSpace<T> + Sized + std::marker::Sync,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
