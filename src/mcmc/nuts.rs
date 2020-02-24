@@ -109,7 +109,7 @@ where
     for<'b> &'b V: Mul<T, Output = V>,
     U: Rng,
 {
-    let mut y = x0 - x0;
+    let mut y = V::zeros_like(x0);
     for i in 0..y.dimension() {
         y[i] = rng.sample(StandardNormal);
     }
