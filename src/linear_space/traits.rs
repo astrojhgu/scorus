@@ -34,7 +34,7 @@ where
     }
 }
 
-pub trait InnerProdSpace<Scalar>: LinearSpace<Scalar>
+pub trait InnerProdSpace<Scalar>: IndexableLinearSpace<Scalar>
 where
     Scalar: Num + Copy,
     Self: Sized,

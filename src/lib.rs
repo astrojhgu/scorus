@@ -1,3 +1,4 @@
+#![feature(with_options)]
 //! # Scientific Computing for Rust-lang
 
 extern crate num_traits;
