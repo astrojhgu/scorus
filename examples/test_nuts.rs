@@ -24,7 +24,7 @@ pub fn main(){
     let mut r0=LsVec(vec![0.0, 20.0]);
     let (mut lp, mut grad)=foo(&x);
     
-    nuts6(&foo, 1000, 10, &x,  0.6, &mut nutss, &mut rng);
+    nuts6(&foo, &mut x,&mut lp, &mut grad,  0.6, &mut nutss, &mut rng);
     
     /*
     let mut of=File::create("a.txt").unwrap();
