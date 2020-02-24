@@ -5,11 +5,9 @@
 
 /**
  * Implemented according to https://arxiv.org/abs/1111.4246
- * and 
+ * and
  * https://github.com/mfouesneau/NUTS
  */
-
-
 use std;
 
 use num_traits::float::Float;

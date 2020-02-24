@@ -4,6 +4,7 @@ use crate::utils::HasLen;
 use num_traits::Float;
 use std::convert::{AsMut, AsRef};
 use std::ops::{Add, Mul, Sub};
+use std::ops::{Deref, DerefMut};
 use std::ops::{Index, IndexMut};
 
 #[derive(Clone, Debug)]
@@ -146,5 +147,26 @@ where
 {
     fn as_mut(&mut self) -> &mut [T] {
         self.0.as_mut()
+    }
+}
+
+impl<T, V> Deref for LsVec<T, V>
+where
+    T: Float,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized + Deref<Target = [T]>,
+{
+    type Target = [T];
+    fn deref(&self) -> &[T] {
+        &self.0
+    }
+}
+
+impl<T, V> DerefMut for LsVec<T, V>
+where
+    T: Float,
+    V: Clone + IndexMut<usize, Output = T> + HasLen + Sized + Deref<Target = [T]> + DerefMut,
+{
+    fn deref_mut(&mut self) -> &mut [T] {
+        &mut self.0
     }
 }

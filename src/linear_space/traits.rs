@@ -12,8 +12,8 @@ where
     for<'a> &'a Self: Mul<Scalar, Output = Self>,
 {
     fn dimension(&self) -> usize;
-    fn zeros_like(rhs: &Self)->Self{
-        rhs-rhs
+    fn zeros_like(rhs: &Self) -> Self {
+        rhs - rhs
     }
 }
 
