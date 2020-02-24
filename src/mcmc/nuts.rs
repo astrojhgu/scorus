@@ -281,7 +281,6 @@ U: Rng,
 {
     let two=T::one()+T::one();
     let half=T::one()/two;
-    let D=theta0.dimension();
     //let (mut logp0, mut grad0)=f(theta0);
     let gamma=T::from(0.05).unwrap();
     let t0=10;
@@ -292,129 +291,30 @@ U: Rng,
         nutss.epsilon_bar=T::one();
         nutss.Hbar=T::zero();
         nutss.epsilon=find_reasonable_epsilon(theta0, &grad0, *logp0, f, rng);
-        
         nutss.mu=(T::from(10).unwrap()*nutss.epsilon).ln();
         nutss.m=1;
     }
-    
-    let M=1000;
-    let Madapt=10;
-    
-    while nutss.m<M+Madapt{
-        
-        let r0=normal_random_like(theta0, rng);
-        println!("{}, r0={:?}",nutss.m, r0);
-        let joint=*logp0-r0.dot(&r0)*half;
-        let logu=joint - dump_rand!(rng.sample(Exp1));
-
-        let mut thetaminus=theta0.clone();
-        let mut thetaplus=theta0.clone();
-        let mut rminus=r0.clone();
-        let mut rplus=r0.clone();
-        let mut gradminus=grad0.clone();
-        let mut gradplus=grad0.clone();
-
-        let mut j=0;
-        let mut n=1;
-        let mut s=1;
-        let (mut thetaprime, mut gradprime,mut logpprime,mut nprime,mut sprime, mut alpha,mut nalpha);
-        alpha=T::zero();
-        nalpha=0;
-        while s==1{
-            let v=if dump_rand!(rng.gen_range(T::zero(), T::one())) < half {1} else{-1};
-            if v==-1{
-                let a=build_tree(&thetaminus, &rminus, &gradminus, logu, v, j, nutss.epsilon, f, joint, rng);
-                thetaminus=a.0;
-                rminus=a.1;
-                gradminus=a.2;
-                thetaprime=a.6;
-                gradprime=a.7;
-                logpprime=a.8;
-                nprime=a.9;
-                sprime=a.10;
-                alpha=a.11;
-                nalpha=a.12;
-            }else{
-                let a=build_tree(&thetaplus, &rplus, &gradplus, logu, v, j, nutss.epsilon, f, joint, rng);
-                thetaplus=a.3;
-                rplus=a.4;
-                gradplus=a.5;
-                thetaprime=a.6;
-                gradprime=a.7;
-                logpprime=a.8;
-                nprime=a.9;
-                sprime=a.10;
-                alpha=a.11;
-                nalpha=a.12;
-            }
-
-            let tmp=T::one().min(T::from(nprime).unwrap()/T::from(n).unwrap());
-            //eprintln!("{}", nprime);
-            if sprime==1 && dump_rand!(rng.gen_range(T::zero(), T::one()))<tmp{
-                *theta0=thetaprime.clone();
-                *logp0=logpprime;
-                *grad0=gradprime.clone();
-            }
-            
-            n+=nprime;
-            s=if sprime >0 && stop_criterion(&thetaminus, &thetaplus, &rminus, &rplus) {1} else {0};
-            j+=1;
-        }
-
-        let mut eta=T::one()/T::from(nutss.m+t0).unwrap();
-        nutss.Hbar=(T::one()-eta)*nutss.Hbar+eta*(delta-alpha/T::from(nalpha).unwrap());
-        if nutss.m<=Madapt{
-            nutss.epsilon=(nutss.mu - T::sqrt(T::from(nutss.m).unwrap()) / gamma * nutss.Hbar).exp();
-            eta=T::from(nutss.m).unwrap().powf(-kappa);
-            nutss.epsilon_bar=T::exp((T::one() - eta) * T::ln(nutss.epsilon_bar) + eta * T::ln(nutss.epsilon));
-        }else{
-            nutss.epsilon=nutss.epsilon_bar;
-        }
-        nutss.m+=1;
-    }
-    //println!("{}",samples.len());
-    
-}
-/*
-pub fn nuts6<T, V, F, U>(f: &F, theta0: &mut V, logp: &mut T, grad0: &mut V,  delta: T, rng: &mut U, nutss: &mut NutsState<T>, m_adapt: usize)
-where
-T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
-Standard: Distribution<T>,
-StandardNormal: Distribution<T>,
-Exp1: Distribution<T>,
-V: Clone + InnerProdSpace<T> + Sync + Send + Sized + Clone + std::fmt::Debug,
-for<'b> &'b V: Add<Output = V>,
-for<'b> &'b V: Sub<Output = V>,
-for<'b> &'b V: Mul<T, Output = V>,
-F: Fn(&V) ->(T, V) + Send + Sync,
-U: Rng,
-{
-    let gamma=T::from(0.05).unwrap();
-    let t0=10;
-    let kappa=T::from(0.75).unwrap();
-    let mu=(T::from(10).unwrap()*nutss.epsilon).ln();
-
-    let two=T::one()+T::one();
-    let half=T::one()/two;
 
     let r0=normal_random_like(theta0, rng);
-    let joint = *logp-r0.dot(&r0)*half;
-    let logu=joint-dump_rand!(rng.sample(Exp1));
+    //println!("{}, r0={:?}",nutss.m, r0);
+    let joint=*logp0-r0.dot(&r0)*half;
+    let logu=joint - dump_rand!(rng.sample(Exp1));
+
     let mut thetaminus=theta0.clone();
     let mut thetaplus=theta0.clone();
     let mut rminus=r0.clone();
     let mut rplus=r0.clone();
     let mut gradminus=grad0.clone();
     let mut gradplus=grad0.clone();
-    let (mut thetaprime, mut gradprime,mut logpprime,mut nprime,mut sprime, mut alpha,mut nalpha);
+
     let mut j=0;
     let mut n=1;
-
-    if nutss.m==0{
-        nutss.epsilon=find_reasonable_epsilon(theta0, grad0, *logp, f, rng);
-    }
-    loop {
-        let v = if dump_rand!(rng.gen_range(T::zero(), T::one()))<half {1}else {-1};
+    let mut s=true;
+    let (mut thetaprime, mut gradprime,mut logpprime,mut nprime,mut sprime, mut alpha,mut nalpha);
+    alpha=T::zero();
+    nalpha=0;
+    while s{
+        let v=if dump_rand!(rng.gen_range(T::zero(), T::one())) < half {1} else{-1};
         if v==-1{
             let a=build_tree(&thetaminus, &rminus, &gradminus, logu, v, j, nutss.epsilon, f, joint, rng);
             thetaminus=a.0;
@@ -442,31 +342,26 @@ U: Rng,
         }
 
         let tmp=T::one().min(T::from(nprime).unwrap()/T::from(n).unwrap());
-        eprintln!("{}", nprime);
+        //eprintln!("{}", nprime);
         if sprime==1 && dump_rand!(rng.gen_range(T::zero(), T::one()))<tmp{
             *theta0=thetaprime.clone();
-            *logp=logpprime;
+            *logp0=logpprime;
             *grad0=gradprime.clone();
         }
+        
         n+=nprime;
+        s=sprime >0 && stop_criterion(&thetaminus, &thetaplus, &rminus, &rplus) ;
         j+=1;
-        eprintln!("sprime={:?} {} {:?} {:?}", sprime, stop_criterion(&thetaminus, &thetaplus, &rminus, &rplus), thetaminus, thetaplus);
-        let s=sprime >0 && stop_criterion(&thetaminus, &thetaplus, &rminus, &rplus);
-        if !s {
-            break;
+
+        let mut eta=T::one()/T::from(nutss.m+t0).unwrap();
+        nutss.Hbar=(T::one()-eta)*nutss.Hbar+eta*(delta-alpha/T::from(nalpha).unwrap());
+        if burning{
+            nutss.epsilon=(nutss.mu - T::sqrt(T::from(nutss.m).unwrap()) / gamma * nutss.Hbar).exp();
+            eta=T::from(nutss.m).unwrap().powf(-kappa);
+            nutss.epsilon_bar=T::exp((T::one() - eta) * T::ln(nutss.epsilon_bar) + eta * T::ln(nutss.epsilon));
+        }else{
+            nutss.epsilon=nutss.epsilon_bar;
         }
     }
-
-    let mut eta=T::one()/T::from(nutss.m+t0).unwrap();
-    nutss.Hbar=(T::one()-eta)*nutss.Hbar+eta*(delta-alpha/T::from(nalpha).unwrap());
-    if nutss.m<m_adapt{
-        nutss.epsilon=(mu-T::from(nutss.m).unwrap().sqrt()/gamma*nutss.Hbar).exp();
-        eta=T::from(nutss.m).unwrap().powf(-kappa);
-        nutss.epsilon_bar=T::exp((T::one() - eta) * T::ln(nutss.epsilon_bar) + eta * T::ln(nutss.epsilon));
-    }
-    else{
-        nutss.epsilon=nutss.epsilon_bar
-    }
     nutss.m+=1;
-}*/
-
+}

@@ -20,16 +20,16 @@ pub fn main(){
     let mut rng=TinyMT64::from_seed(1234.into());
     
     let mut nutss=NutsState::<f64>::new();
-    let mut x=LsVec(vec![1.0, 0.0]);
-    let mut r0=LsVec(vec![0.0, 20.0]);
+    let mut x=LsVec(vec![1.0;100]);
+    let mut r0=LsVec(vec![1.0; 100]);
     let (mut lp, mut grad)=foo(&x);
     
     //nuts6(&foo, &mut x,&mut lp, &mut grad,  0.6, &mut nutss, &mut rng);
     
     
     let mut of=File::create("a.txt").unwrap();
-    for i in 0..1{
-        nuts6(&foo, &mut x, &mut lp, &mut grad, 0.6, &mut nutss, i<100, &mut rng);
+    for i in 0..10000{
+        nuts6(&foo, &mut x, &mut lp, &mut grad, 0.6, &mut nutss, i<10, &mut rng);
         println!("m={}", nutss.m);
         if i>=10{
             writeln!(&mut of, "{} {}", x[0], x[1]);
