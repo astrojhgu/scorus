@@ -363,7 +363,7 @@ U: Rng,
 }
 */
 
-pub fn nuts6<T, V, F, U>(f: &F, M: usize, Madapt: usize, theta0: &V, delta: T, rng: &mut U)
+pub fn nuts6<T, V, F, U>(f: &F, M: usize, Madapt: usize, theta0: &V, delta: T, nutss: &mut NutsState<T>, rng: &mut U)
 where
 T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
 Standard: Distribution<T>,
@@ -384,13 +384,13 @@ U: Rng,
     let (mut logp, mut grad)=f(theta0);
     samples.push(theta0.clone());
     lnprob.push(logp);
-    let mut epsilon=find_reasonable_epsilon(theta0, &grad, logp, f, rng);
+    nutss.epsilon=find_reasonable_epsilon(theta0, &grad, logp, f, rng);
     let gamma=T::from(0.05).unwrap();
     let t0=10;
     let kappa=T::from(0.75).unwrap();
-    let mu=(T::from(10).unwrap()*epsilon).ln();
-    let mut epsilonbar=T::one();
-    let mut Hbar=T::zero();
+    let mu=(T::from(10).unwrap()*nutss.epsilon).ln();
+    nutss.epsilon_bar=T::one();
+    nutss.Hbar=T::zero();
 
     for m in 1..(M+Madapt){
         let r0=normal_random_like(theta0, rng);
@@ -417,7 +417,7 @@ U: Rng,
         while s==1{
             let v=if dump_rand!(rng.gen_range(T::zero(), T::one())) < half {1} else{-1};
             if v==-1{
-                let a=build_tree(&thetaminus, &rminus, &gradminus, logu, v, j, epsilon, f, joint, rng);
+                let a=build_tree(&thetaminus, &rminus, &gradminus, logu, v, j, nutss.epsilon, f, joint, rng);
                 thetaminus=a.0;
                 rminus=a.1;
                 gradminus=a.2;
@@ -429,7 +429,7 @@ U: Rng,
                 alpha=a.11;
                 nalpha=a.12;
             }else{
-                let a=build_tree(&thetaplus, &rplus, &gradplus, logu, v, j, epsilon, f, joint, rng);
+                let a=build_tree(&thetaplus, &rplus, &gradplus, logu, v, j, nutss.epsilon, f, joint, rng);
                 thetaplus=a.3;
                 rplus=a.4;
                 gradplus=a.5;
@@ -457,13 +457,13 @@ U: Rng,
         }
 
         let mut eta=T::one()/T::from(m+t0).unwrap();
-        Hbar=(T::one()-eta)*Hbar+eta*(delta-alpha/T::from(nalpha).unwrap());
+        nutss.Hbar=(T::one()-eta)*nutss.Hbar+eta*(delta-alpha/T::from(nalpha).unwrap());
         if m<=Madapt{
-            epsilon=(mu - T::sqrt(T::from(m).unwrap()) / gamma * Hbar).exp();
+            nutss.epsilon=(mu - T::sqrt(T::from(m).unwrap()) / gamma * nutss.Hbar).exp();
             eta=T::from(m).unwrap().powf(-kappa);
-            epsilonbar=T::exp((T::one() - eta) * T::ln(epsilonbar) + eta * T::ln(epsilon));
+            nutss.epsilon_bar=T::exp((T::one() - eta) * T::ln(nutss.epsilon_bar) + eta * T::ln(nutss.epsilon));
         }else{
-            epsilon=epsilonbar;
+            nutss.epsilon=nutss.epsilon_bar;
         }
     }
     //println!("{}",samples.len());
