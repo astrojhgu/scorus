@@ -54,7 +54,7 @@ pub fn main() {
     //nuts6(&foo, &mut x,&mut lp, &mut grad,  0.6, &mut nutss, &mut rng);
 
     let mut of = File::create("a.txt").unwrap();
-    for i in 0..10000 {
+    for i in 0..100000 {
         nuts6(
             &rosenbrock_f,
             &mut x,
@@ -62,13 +62,13 @@ pub fn main() {
             &mut grad,
             0.6,
             &mut nutss,
-            i < 1000,
+            i < 5000,
             &mut rng,
         );
         if i%100==0{
             println!("m={}", nutss.m);
         }
-        if i >= 1000 {
+        if i >= 5000 && i%1==0 {
             writeln!(&mut of, "{} {}", x[0], x[1]).unwrap();
         }
     }
