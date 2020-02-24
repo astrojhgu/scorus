@@ -1,11 +1,8 @@
 extern crate rand;
 extern crate scorus;
-extern crate tinymt;
 
-use rand::SeedableRng;
+use rand::thread_rng;
 use scorus::mcmc::nuts::{nuts6, NutsState};
-use tinymt::TinyMT64;
-
 use scorus::linear_space::type_wrapper::LsVec;
 
 use scorus::linear_space::LinearSpace;
@@ -51,7 +48,7 @@ fn rosenbrock_f(x: &LsVec<f64, Vec<f64>>) -> (f64, LsVec<f64, Vec<f64>>) {
 }
 
 pub fn main() {
-    let mut rng = TinyMT64::from_seed(1234.into());
+    let mut rng = thread_rng();
 
     let mut nutss = NutsState::<f64>::new();
     let mut x = LsVec(vec![1.0; 100]);
