@@ -6,43 +6,17 @@
 use std;
 
 use num_traits::float::Float;
-use num_traits::NumCast;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
 use rand::distributions::Standard;
 use rand::Rng;
 use rand_distr::Exp1;
 use rand_distr::StandardNormal;
-use std::marker::{Send, Sync};
+//use std::marker::{Send, Sync};
 
 use std::ops::{Add, Mul, Sub};
 
 use crate::linear_space::InnerProdSpace;
-use std::fs::File;
-use std::io::Write;
-macro_rules! dump_rand {
-    ($rng:ident.gen_range(T::zero(), T::one())) => {{
-        let x = $rng.gen_range(T::zero(), T::one());
-        let mut f = File::with_options()
-            .append(true)
-            .create(true)
-            .open("rand_dump.txt")
-            .unwrap();
-        writeln!(&mut f, "{:?} uniform {}", x, line!()).unwrap();
-        x
-    }};
-
-    ($rng:ident.sample($d: ident)) => {{
-        let x = $rng.sample($d);
-        let mut f = File::with_options()
-            .append(true)
-            .create(true)
-            .open("rand_dump.txt")
-            .unwrap();
-        writeln!(&mut f, "{:?} {} {}", x, stringify!($d), line!()).unwrap();
-        x
-    }};
-}
 
 pub struct NutsState<T>
 where
@@ -81,13 +55,13 @@ where
 
 pub fn leapfrog<T, V, F>(theta: &V, r: &V, grad: &V, epsilon: T, fg: &F) -> (V, V, V, T)
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
+    T: Float + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
-    V: Clone + InnerProdSpace<T> + Sync + Send + Sized,
+    V: Clone + InnerProdSpace<T>,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> (T, V) + Send + Sync,
+    F: Fn(&V) -> (T, V),
 {
     let two = T::one() + T::one();
     let half = T::one() / two;
@@ -102,8 +76,8 @@ where
 
 pub fn any_inf<T, V>(x: &V) -> bool
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
-    V: Clone + InnerProdSpace<T> + Sync + Send + Sized,
+    T: Float + SampleUniform + std::fmt::Debug,
+    V: Clone + InnerProdSpace<T>,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -119,10 +93,10 @@ where
 #[allow(clippy::eq_op)]
 pub fn normal_random_like<T, V, U>(x0: &V, rng: &mut U) -> V
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
+    T: Float + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
-    V: Clone + InnerProdSpace<T> + Sync + Send + Sized,
+    V: Clone + InnerProdSpace<T>,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -130,7 +104,7 @@ where
 {
     let mut y = x0 - x0;
     for i in 0..y.dimension() {
-        y[i] = dump_rand!(rng.sample(StandardNormal));
+        y[i] = rng.sample(StandardNormal);
     }
     y
 }
@@ -143,14 +117,14 @@ pub fn find_reasonable_epsilon<T, V, F, U>(
     rng: &mut U,
 ) -> T
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
+    T: Float + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
-    V: Clone + InnerProdSpace<T> + Sync + Send + Sized,
+    V: Clone + InnerProdSpace<T>,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> (T, V) + Send + Sync,
+    F: Fn(&V) -> (T, V),
     U: Rng,
 {
     let two = T::one() + T::one();
@@ -192,8 +166,8 @@ where
 
 pub fn stop_criterion<T, V>(thetaminus: &V, thetaplus: &V, rminus: &V, rplus: &V) -> bool
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
-    V: Clone + InnerProdSpace<T> + Sync + Send + Sized,
+    T: Float + SampleUniform + std::fmt::Debug,
+    V: Clone + InnerProdSpace<T>,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -215,13 +189,13 @@ pub fn build_tree<T, V, F, U>(
     rng: &mut U,
 ) -> (V, V, V, V, V, V, V, V, T, usize, usize, T, usize)
 where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
+    T: Float + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
-    V: Clone + InnerProdSpace<T> + Sync + Send + Sized + Clone + std::fmt::Debug,
+    V: Clone + InnerProdSpace<T> + Clone + std::fmt::Debug,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> (T, V) + Send + Sync,
+    F: Fn(&V) -> (T, V),
     U: Rng,
 {
     let two = T::one() + T::one();
@@ -336,7 +310,7 @@ where
                 nalphaprime2 = a.12;
             }
 
-            if dump_rand!(rng.gen_range(T::zero(), T::one()))
+            if rng.gen_range(T::zero(), T::one())
                 < T::from(nprime2).unwrap() / T::max(T::from(nprime + nprime2).unwrap(), T::one())
             {
                 thetaprime = thetaprime2;
@@ -385,15 +359,15 @@ pub fn nuts6<T, V, F, U>(
     burning: bool,
     rng: &mut U,
 ) where
-    T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Debug,
+    T: Float + SampleUniform + std::fmt::Debug,
     Standard: Distribution<T>,
     StandardNormal: Distribution<T>,
     Exp1: Distribution<T>,
-    V: Clone + InnerProdSpace<T> + Sync + Send + Sized + Clone + std::fmt::Debug,
+    V: Clone + InnerProdSpace<T> + Clone + std::fmt::Debug,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> (T, V) + Send + Sync,
+    F: Fn(&V) -> (T, V),
     U: Rng,
 {
     let two = T::one() + T::one();
@@ -414,7 +388,7 @@ pub fn nuts6<T, V, F, U>(
     let r0 = normal_random_like(theta0, rng);
     //println!("{}, r0={:?}",nutss.m, r0);
     let joint = *logp0 - r0.dot(&r0) * half;
-    let logu = joint - dump_rand!(rng.sample(Exp1));
+    let logu = joint - rng.sample(Exp1);
 
     let mut thetaminus = theta0.clone();
     let mut thetaplus = theta0.clone();
@@ -436,7 +410,7 @@ pub fn nuts6<T, V, F, U>(
         mut nalpha,
     );
     while s {
-        let v = if dump_rand!(rng.gen_range(T::zero(), T::one())) < half {
+        let v = if rng.gen_range(T::zero(), T::one()) < half {
             1
         } else {
             -1
@@ -491,7 +465,7 @@ pub fn nuts6<T, V, F, U>(
 
         let tmp = T::one().min(T::from(nprime).unwrap() / T::from(n).unwrap());
         //eprintln!("{}", nprime);
-        if sprime == 1 && dump_rand!(rng.gen_range(T::zero(), T::one())) < tmp {
+        if sprime == 1 && rng.gen_range(T::zero(), T::one()) < tmp {
             *theta0 = thetaprime.clone();
             *logp0 = logpprime;
             *grad0 = gradprime.clone();

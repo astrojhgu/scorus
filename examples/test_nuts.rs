@@ -3,7 +3,7 @@ extern crate scorus;
 extern crate tinymt;
 
 use rand::SeedableRng;
-use scorus::mcmc::nuts::{find_reasonable_epsilon, leapfrog, nuts6, NutsState};
+use scorus::mcmc::nuts::{nuts6, NutsState};
 use tinymt::TinyMT64;
 
 use scorus::linear_space::type_wrapper::LsVec;
@@ -20,7 +20,6 @@ pub fn main() {
 
     let mut nutss = NutsState::<f64>::new();
     let mut x = LsVec(vec![1.0; 100]);
-    let mut r0 = LsVec(vec![1.0; 100]);
     let (mut lp, mut grad) = foo(&x);
 
     //nuts6(&foo, &mut x,&mut lp, &mut grad,  0.6, &mut nutss, &mut rng);
@@ -39,7 +38,7 @@ pub fn main() {
         );
         println!("m={}", nutss.m);
         if i >= 10 {
-            writeln!(&mut of, "{} {}", x[0], x[1]);
+            writeln!(&mut of, "{} {}", x[0], x[1]).unwrap();
         }
     }
 }
