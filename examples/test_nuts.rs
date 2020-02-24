@@ -2,8 +2,8 @@ extern crate rand;
 extern crate scorus;
 
 use rand::thread_rng;
-use scorus::mcmc::nuts::{nuts6, NutsState};
 use scorus::linear_space::type_wrapper::LsVec;
+use scorus::mcmc::nuts::{nuts6, NutsState};
 
 use scorus::linear_space::LinearSpace;
 use std::fs::File;
