@@ -33,11 +33,11 @@ fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
 
 fn main() {
     let mut rng = rand::thread_rng();
-    let ndim = 20;
-    let niter = 3000000;
-    let nbeta = 5;
+    let ndim = 2;
+    let niter = 1000000;
+    let nbeta = 1;
     let beta_list: Vec<_> = (0..nbeta).map(|x| 2_f64.powi(-x)).collect();
-    let nwalkers_per_beta = 4;
+    let nwalkers_per_beta = 8;
     let mut ensemble = Vec::new();
     for i in 0..(nwalkers_per_beta * nbeta) {
         ensemble.push(LsVec(
@@ -47,12 +47,13 @@ fn main() {
         ));
     }
 
-    let lpf = &normal_dist;
+    let lpf = &rosenbrock;
     let mut logprob: Vec<_> = ensemble.iter().map(|x| lpf(x)).collect();
-
+    let mut of = File::create("a.txt").unwrap();
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        //sample(lpf, &mut ensemble, &mut logprob, &mut rng, 2.0, 0.1, 12);
+        sample(lpf, &mut ensemble, &mut logprob, &mut rng, 2.0, &mut UpdateFlagSpec::Prob(0.5), 12);
+        /*
         sample_pt(
             lpf,
             &mut ensemble,
@@ -65,10 +66,14 @@ fn main() {
         );
         if k % 100 == 0 {
             swap_walkers(&mut ensemble, &mut logprob, &mut rng, &beta_list);
+        }*/
+
+        if k%1000==0{
+            println!("{}", k);
         }
 
         if k % 10 == 0 {
-            println!("{} {}", ensemble[0][0], ensemble[0][1]);
+            writeln!(&mut of, "{} {}", ensemble[0][0], ensemble[0][1]).unwrap();
         }
     }
 }
