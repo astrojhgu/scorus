@@ -1,3 +1,4 @@
+#![allow(clippy::redundant_closure)]
 // The majority of the code in this module was forked from https://github.com/ibab/rust-ad in 2016.
 // The copyright notice is reproduced below:
 //
@@ -18,7 +19,7 @@
 // This crate is licensed under the terms described in the README.md, which is located at the root
 // directory of this crate.
 
-use num_traits::{Float, FloatConst, Num, NumCast, One, ToPrimitive, FromPrimitive, Zero};
+use num_traits::{Float, FloatConst, FromPrimitive, Num, NumCast, One, ToPrimitive, Zero};
 use std::f64;
 use std::num::FpCategory;
 use std::ops::{
@@ -27,14 +28,16 @@ use std::ops::{
 
 #[derive(Copy, Clone, Debug)]
 pub struct F<T>
-where T:Float
+where
+    T: Float,
 {
     pub x: T,
     pub dx: T,
 }
 
-impl<T> Neg for F<T> 
-where T: Float
+impl<T> Neg for F<T>
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -46,8 +49,9 @@ where T: Float
     }
 }
 
-impl<T> Add<F<T>> for F<T> 
-where T:Float
+impl<T> Add<F<T>> for F<T>
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -59,8 +63,9 @@ where T:Float
     }
 }
 
-impl<T> Add<T> for F<T> 
-where T:Float
+impl<T> Add<T> for F<T>
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -73,7 +78,8 @@ where T:Float
 }
 
 impl<T> AddAssign for F<T>
-where T: Float + AddAssign
+where
+    T: Float + AddAssign,
 {
     #[inline]
     fn add_assign(&mut self, rhs: F<T>) {
@@ -83,7 +89,8 @@ where T: Float + AddAssign
 }
 
 impl<T> AddAssign<T> for F<T>
-where T: Float+AddAssign
+where
+    T: Float + AddAssign,
 {
     #[inline]
     fn add_assign(&mut self, rhs: T) {
@@ -91,9 +98,9 @@ where T: Float+AddAssign
     }
 }
 
-
-impl<T> Sub<F<T>> for F<T> 
-where T: Float
+impl<T> Sub<F<T>> for F<T>
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -106,7 +113,8 @@ where T: Float
 }
 
 impl<T> Sub<T> for F<T>
-where T: Float
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -118,9 +126,9 @@ where T: Float
     }
 }
 
-
-impl<T> SubAssign for F<T> 
-where T: Float+SubAssign
+impl<T> SubAssign for F<T>
+where
+    T: Float + SubAssign,
 {
     #[inline]
     fn sub_assign(&mut self, rhs: F<T>) {
@@ -129,8 +137,9 @@ where T: Float+SubAssign
     }
 }
 
-impl<T> SubAssign<T> for F<T> 
-where T: Float+SubAssign
+impl<T> SubAssign<T> for F<T>
+where
+    T: Float + SubAssign,
 {
     #[inline]
     fn sub_assign(&mut self, rhs: T) {
@@ -142,8 +151,9 @@ where T: Float+SubAssign
  * Multiplication
  */
 
-impl<T> Mul<F<T>> for F<T> 
-where T: Float
+impl<T> Mul<F<T>> for F<T>
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -157,8 +167,9 @@ where T: Float
 
 // Multiply by double precision floats (treated as constants)
 
-impl<T> Mul<T> for F<T> 
-where T: Float
+impl<T> Mul<T> for F<T>
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -171,11 +182,11 @@ where T: Float
     }
 }
 
-
 // Multiply assign operators
 
 impl<T> MulAssign for F<T>
-where T: Float+MulAssign
+where
+    T: Float + MulAssign,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: F<T>) {
@@ -184,7 +195,8 @@ where T: Float+MulAssign
 }
 
 impl<T> MulAssign<T> for F<T>
-where T: Float+MulAssign
+where
+    T: Float + MulAssign,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: T) {
@@ -201,8 +213,9 @@ where T: Float+MulAssign
  * Division
  */
 
-impl<T> Div<F<T>> for F<T> 
-where T: Float
+impl<T> Div<F<T>> for F<T>
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -217,7 +230,8 @@ where T: Float
 // Division by double precision floats
 
 impl<T> Div<T> for F<T>
-where T: Float
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -229,9 +243,9 @@ where T: Float
     }
 }
 
-
-impl<T> DivAssign for F<T> 
-where T: Float+DivAssign
+impl<T> DivAssign for F<T>
+where
+    T: Float + DivAssign,
 {
     #[inline]
     fn div_assign(&mut self, rhs: F<T>) {
@@ -240,7 +254,8 @@ where T: Float+DivAssign
 }
 
 impl<T> DivAssign<T> for F<T>
-where T: Float+DivAssign
+where
+    T: Float + DivAssign,
 {
     #[inline]
     fn div_assign(&mut self, rhs: T) {
@@ -249,13 +264,13 @@ where T: Float+DivAssign
     }
 }
 
-
 /*
  * Remainder function
  */
 
 impl<T> Rem<F<T>> for F<T>
-where T: Float
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -269,7 +284,8 @@ where T: Float
 }
 
 impl<T> Rem<T> for F<T>
-where T: Float
+where
+    T: Float,
 {
     type Output = F<T>;
     #[inline]
@@ -282,9 +298,9 @@ where T: Float
     }
 }
 
-
-impl<T> RemAssign for F<T> 
-where T: Float
+impl<T> RemAssign for F<T>
+where
+    T: Float,
 {
     #[inline]
     fn rem_assign(&mut self, rhs: F<T>) {
@@ -293,7 +309,8 @@ where T: Float
 }
 
 impl<T> RemAssign<T> for F<T>
-where T: Float
+where
+    T: Float,
 {
     #[inline]
     fn rem_assign(&mut self, rhs: T) {
@@ -302,7 +319,8 @@ where T: Float
 }
 
 impl<T> Default for F<T>
-where T: Float+Default
+where
+    T: Float + Default,
 {
     #[inline]
     fn default() -> Self {
@@ -314,7 +332,8 @@ where T: Float+Default
 }
 
 impl<T> PartialEq<F<T>> for F<T>
-where T: Float
+where
+    T: Float,
 {
     #[inline]
     fn eq(&self, rhs: &F<T>) -> bool {
@@ -322,8 +341,9 @@ where T: Float
     }
 }
 
-impl<T> PartialOrd<F<T>> for F<T> 
-where T: Float
+impl<T> PartialOrd<F<T>> for F<T>
+where
+    T: Float,
 {
     #[inline]
     fn partial_cmp(&self, other: &F<T>) -> Option<::std::cmp::Ordering> {
@@ -332,7 +352,8 @@ where T: Float
 }
 
 impl<T> ToPrimitive for F<T>
-where T: Float
+where
+    T: Float,
 {
     #[inline]
     fn to_i64(&self) -> Option<i64> {
@@ -384,18 +405,23 @@ where T: Float
     }
 }
 
-impl<T> NumCast for F<T> 
-where T: Float + NumCast
+impl<T> NumCast for F<T>
+where
+    T: Float + NumCast,
 {
     fn from<U: ToPrimitive>(n: U) -> Option<F<T>> {
         match n.to_f64() {
-            Some(x) => Some(F { x: T::from(x).unwrap(), dx: T::zero() }),
+            Some(x) => Some(F {
+                x: T::from(x).unwrap(),
+                dx: T::zero(),
+            }),
             None => None,
         }
     }
 }
 impl<T> FromPrimitive for F<T>
-where T: Float+FromPrimitive
+where
+    T: Float + FromPrimitive,
 {
     #[inline]
     fn from_isize(n: isize) -> Option<Self> {
@@ -456,11 +482,15 @@ where T: Float+FromPrimitive
 }
 
 impl<T> Zero for F<T>
-where T: Float
+where
+    T: Float,
 {
     #[inline]
     fn zero() -> F<T> {
-        F { x: T::zero(), dx: T::zero() }
+        F {
+            x: T::zero(),
+            dx: T::zero(),
+        }
     }
     #[inline]
     fn is_zero(&self) -> bool {
@@ -469,19 +499,24 @@ where T: Float
 }
 
 impl<T> One for F<T>
-where T: Float
+where
+    T: Float,
 {
     #[inline]
     fn one() -> F<T> {
-        F { x: T::one(), dx: T::zero() }
+        F {
+            x: T::one(),
+            dx: T::zero(),
+        }
     }
 }
 
-impl<T> Num for F<T> 
-where T: Float+Num+ToPrimitive
+impl<T> Num for F<T>
+where
+    T: Float + Num + ToPrimitive,
 {
     type FromStrRadixErr = <T as Num>::FromStrRadixErr;
-    
+
     //::num_traits::ParseFloatError;
 
     fn from_str_radix(src: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
@@ -490,7 +525,8 @@ where T: Float+Num+ToPrimitive
 }
 
 impl<T> FloatConst for F<T>
-where T: Float+FloatConst
+where
+    T: Float + FloatConst,
 {
     #[inline]
     fn E() -> F<T> {
@@ -607,7 +643,8 @@ where T: Float+FloatConst
 }
 
 impl<T> Float for F<T>
-where T:Float
+where
+    T: Float,
 {
     #[inline]
     fn nan() -> F<T> {
@@ -632,7 +669,10 @@ where T:Float
     }
     #[inline]
     fn neg_zero() -> F<T> {
-        F { x: T::neg_zero(), dx: T::zero() }
+        F {
+            x: T::neg_zero(),
+            dx: T::zero(),
+        }
     }
     #[inline]
     fn min_value() -> F<T> {
@@ -715,7 +755,11 @@ where T:Float
     fn abs(self) -> F<T> {
         F {
             x: self.x.abs(),
-            dx: if self.x >= T::zero() { self.dx } else { -self.dx },
+            dx: if self.x >= T::zero() {
+                self.dx
+            } else {
+                -self.dx
+            },
         }
     }
     #[inline]
@@ -762,7 +806,7 @@ where T:Float
     fn sqrt(self) -> F<T> {
         F {
             x: self.x.sqrt(),
-            dx: self.dx /(T::one()+T::one()) / self.x.sqrt(),
+            dx: self.dx / (T::one() + T::one()) / self.x.sqrt(),
         }
     }
 
@@ -777,7 +821,7 @@ where T:Float
     fn exp2(self) -> F<T> {
         F {
             x: Float::exp2(self.x),
-            dx: self.dx * Float::ln(T::one()+T::one()) * Float::exp(self.x),
+            dx: self.dx * Float::ln(T::one() + T::one()) * Float::exp(self.x),
         }
     }
     #[inline]
@@ -797,11 +841,23 @@ where T:Float
     }
     #[inline]
     fn log2(self) -> F<T> {
-        Float::log(self, F { x: T::one()+T::one(), dx: T::zero() })
+        Float::log(
+            self,
+            F {
+                x: T::one() + T::one(),
+                dx: T::zero(),
+            },
+        )
     }
     #[inline]
     fn log10(self) -> F<T> {
-        Float::log(self, F { x: T::from(10.0).unwrap(), dx: T::zero() })
+        Float::log(
+            self,
+            F {
+                x: T::from(10.0).unwrap(),
+                dx: T::zero(),
+            },
+        )
     }
     #[inline]
     fn max(self, other: F<T>) -> F<T> {
@@ -827,7 +883,10 @@ where T:Float
                 dx: (self - other).dx,
             }
         } else {
-            F { x: T::zero(), dx: T::zero() }
+            F {
+                x: T::zero(),
+                dx: T::zero(),
+            }
         }
     }
     #[inline]
@@ -989,8 +1048,9 @@ where T:Float
     }
 }
 
-impl<T> std::iter::Sum for F<T> 
-where T: Float+AddAssign
+impl<T> std::iter::Sum for F<T>
+where
+    T: Float + AddAssign,
 {
     fn sum<I>(iter: I) -> Self
     where
@@ -1004,8 +1064,9 @@ where T: Float+AddAssign
     }
 }
 
-impl<T> std::iter::Sum<T> for F<T> 
-where T: Float+AddAssign
+impl<T> std::iter::Sum<T> for F<T>
+where
+    T: Float + AddAssign,
 {
     fn sum<I>(iter: I) -> Self
     where
@@ -1015,8 +1076,9 @@ where T: Float+AddAssign
     }
 }
 
-impl<T> F<T> 
-where T: Float
+impl<T> F<T>
+where
+    T: Float,
 {
     /// Create a new constant. Use this also to convert from a variable to a constant.
     /// This constructor panics if `x` cannot be converted to `f64`.
@@ -1075,7 +1137,7 @@ where T: Float
 pub fn diff<G, T>(f: G, x0: T) -> T
 where
     G: FnOnce(F<T>) -> F<T>,
-    T: Float
+    T: Float,
 {
     f(F::var(x0)).deriv()
 }
@@ -1113,9 +1175,10 @@ where
     results
 }
 
-pub fn eval<G,T>(f: G, x0: &[T])->T
-where G: Fn(&[F<T>]) -> F<T>,
-T: Float,
+pub fn eval<G, T>(f: G, x0: &[T]) -> T
+where
+    G: Fn(&[F<T>]) -> F<T>,
+    T: Float,
 {
     let nums: Vec<F<T>> = x0.iter().map(|&x| F::cst(x)).collect();
     f(&nums).x
@@ -1142,7 +1205,7 @@ mod tests {
 
         assert_full_eq!(x + y, F { x: 3.0, dx: 2.0 }); // addition
         assert_full_eq!(x + 2.0, F { x: 3.0, dx: 1.0 }); // addition
-        //assert_full_eq!(2.0 + x, F { x: 3.0, dx: 1.0 }); // addition
+                                                         //assert_full_eq!(2.0 + x, F { x: 3.0, dx: 1.0 }); // addition
         x += y;
         assert_full_eq!(x, F { x: 3.0, dx: 2.0 }); // assign add
         x += 1.0;
@@ -1150,7 +1213,7 @@ mod tests {
 
         assert_full_eq!(x - y, F { x: 2.0, dx: 1.0 }); // subtraction
         assert_full_eq!(x - 1.0, F { x: 3.0, dx: 2.0 }); // subtraction
-        //assert_full_eq!(1.0 - x, F { x: -3.0, dx: -2.0 }); // subtraction
+                                                         //assert_full_eq!(1.0 - x, F { x: -3.0, dx: -2.0 }); // subtraction
         x -= y;
         assert_full_eq!(x, F { x: 2.0, dx: 1.0 }); // subtract assign
         x -= 1.0;
@@ -1158,7 +1221,7 @@ mod tests {
 
         assert_full_eq!(x * y, F { x: 2.0, dx: 3.0 }); // multiplication
         assert_full_eq!(x * 2.0, F { x: 2.0, dx: 2.0 }); // multiplication
-        //assert_full_eq!(2.0 * x, F { x: 2.0, dx: 2.0 }); // multiplication
+                                                         //assert_full_eq!(2.0 * x, F { x: 2.0, dx: 2.0 }); // multiplication
         x *= y;
         assert_full_eq!(x, F { x: 2.0, dx: 3.0 }); // multiply assign
         x *= 2.0;
@@ -1166,7 +1229,7 @@ mod tests {
 
         assert_full_eq!(x / y, F { x: 2.0, dx: 2.0 }); // division
         assert_full_eq!(x / 2.0, F { x: 2.0, dx: 3.0 }); // division
-        //assert_full_eq!(2.0 / x, F { x: 0.5, dx: -0.75 }); // division
+                                                         //assert_full_eq!(2.0 / x, F { x: 0.5, dx: -0.75 }); // division
         x /= y;
         assert_full_eq!(x, F { x: 2.0, dx: 2.0 }); // divide assign
         x /= 2.0;
@@ -1174,7 +1237,7 @@ mod tests {
 
         assert_full_eq!(x % y, F { x: 1.0, dx: 1.0 }); // mod
         assert_full_eq!(x % 2.0, F { x: 1.0, dx: 1.0 }); // mod
-        //assert_full_eq!(2.0 % x, F { x: 0.0, dx: -2.0 }); // mod
+                                                         //assert_full_eq!(2.0 % x, F { x: 0.0, dx: -2.0 }); // mod
         x %= y;
         assert_full_eq!(x, F { x: 1.0, dx: 1.0 }); // mod assign
         x %= 2.0;
