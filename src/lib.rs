@@ -52,3 +52,5 @@ pub mod basic;
 pub mod linear_space;
 
 pub mod kmeans;
+
+pub mod autodiff;
