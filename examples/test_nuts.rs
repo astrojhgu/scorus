@@ -51,13 +51,13 @@ pub fn main() {
     let mut rng = thread_rng();
 
     let mut nutss = NutsState::<f64>::new();
-    let mut x = LsVec(vec![1.0; 100]);
+    let mut x = LsVec(vec![1.0; 2]);
     let (mut lp, mut grad) = rosenbrock_f(&x);
 
     //nuts6(&foo, &mut x,&mut lp, &mut grad,  0.6, &mut nutss, &mut rng);
 
     let mut of = File::create("a.txt").unwrap();
-    for i in 0..100000 {
+    for i in 0..10000000 {
         nuts6(
             &rosenbrock_f,
             &mut x,
@@ -71,7 +71,7 @@ pub fn main() {
         if i % 100 == 0 {
             println!("m={}", nutss.m);
         }
-        if i >= 5000 && i % 1 == 0 {
+        if i >= 5000 && i % 10 == 0 {
             writeln!(&mut of, "{} {}", x[0], x[1]).unwrap();
         }
     }

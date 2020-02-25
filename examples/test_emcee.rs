@@ -33,11 +33,11 @@ fn rosenbrock(x: &LsVec<f64, Vec<f64>>) -> f64 {
 
 fn main() {
     let mut rng = rand::thread_rng();
-    let ndim = 2;
+    let ndim = 200;
     let niter = 1000000;
     let nbeta = 1;
     let beta_list: Vec<_> = (0..nbeta).map(|x| 2_f64.powi(-x)).collect();
-    let nwalkers_per_beta = 8;
+    let nwalkers_per_beta = 4;
     let mut ensemble = Vec::new();
     for i in 0..(nwalkers_per_beta * nbeta) {
         ensemble.push(LsVec(
