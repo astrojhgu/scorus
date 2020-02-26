@@ -6,6 +6,7 @@ pub mod init_ensemble;
 pub mod mcmc_errors;
 //pub mod mcmc_vec;
 pub mod nuts;
+pub mod hmc;
 pub mod twalk;
 pub mod utils;
 
