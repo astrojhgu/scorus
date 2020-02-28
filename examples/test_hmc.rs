@@ -46,7 +46,7 @@ pub fn main() {
 
     let mut x = LsVec(vec![1.0; 2]);
     let mut lp = rosenbrock_f(&x);
-    let mut last_hq_q=diff_rosenbrock(&x);
+    let mut last_grad=diff_rosenbrock(&x);
     //nuts6(&foo, &mut x,&mut lp, &mut grad,  0.6, &mut nutss, &mut rng);
 
     let mut of = File::create("a.txt").unwrap();
@@ -55,11 +55,11 @@ pub fn main() {
 
     let param=HmcParam::quick_adj(0.7);
     for i in 0..10000000 {
-        sample(&rosenbrock_f, &diff_rosenbrock, &mut x, &mut lp, &mut last_hq_q, &mut rng, &mut epsilon, 2, &param);
+        sample(&rosenbrock_f, &diff_rosenbrock, &mut x, &mut lp, &mut last_grad, &mut rng, &mut epsilon, 2, &param);
     }
     let param=HmcParam::slow_adj(0.7);
     for i in 0..100000000 {
-        if sample(&rosenbrock_f, &diff_rosenbrock, &mut x, &mut lp, &mut last_hq_q, &mut rng, &mut epsilon, 2, &param){
+        if sample(&rosenbrock_f, &diff_rosenbrock, &mut x, &mut lp, &mut last_grad, &mut rng, &mut epsilon, 2, &param){
             accept_cnt+=1;
         }
         if i%100000==0{

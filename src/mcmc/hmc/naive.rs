@@ -31,7 +31,7 @@ where T: Float{
     }
 
     pub fn slow_adj(target_accept_ratio:T)->HmcParam<T>{
-        Self::new(target_accept_ratio, T::from(0.0000001).unwrap())
+        Self::new(target_accept_ratio, T::from(0.000001).unwrap())
     }
 }
 
@@ -48,7 +48,7 @@ pub fn sample<T, U, V, F, G>(
     grad_logprob: &G,
     q0: &mut V,
     lp: &mut T,
-    last_hq_q: &mut V,
+    last_grad_logprob: &mut V,
     rng: &mut U,
     epsilon: &mut T,
     l: usize,
@@ -82,7 +82,7 @@ G: Fn(&V) -> V{
     let h_p=|p: &V| &p.clone()*m_inv;
     let h_q=|q: &V| &grad_logprob(q)*(-T::one());
     //let mut last_hq_q=h_q(&q);
-    let mut last_hq_q_tmp=last_hq_q.clone();
+    let mut last_hq_q_tmp=last_grad_logprob as &V*(-T::one());
     for _i in 0..l{
         leapfrog(&mut q, &mut p, &mut last_hq_q_tmp, *epsilon, &h_q, &h_p);
     }
@@ -93,7 +93,7 @@ G: Fn(&V) -> V{
     if rng.gen_range(T::zero(), T::one())<(current_u-proposed_u+current_k-proposed_k).exp(){
         *q0=q;
         *lp=-proposed_u;
-        *last_hq_q=last_hq_q_tmp;
+        *last_grad_logprob=&last_hq_q_tmp*(-T::one());
         if rng.gen_range(T::zero(), T::one())<T::one()-param.target_accept_ratio{
             *epsilon=*epsilon*T::from(T::one()+param.adj_factor).unwrap();
         }
