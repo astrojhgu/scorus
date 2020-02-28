@@ -48,6 +48,7 @@ pub fn sample<T, U, V, F, G>(
     grad_logprob: &G,
     q0: &mut V,
     lp: &mut T,
+    last_hq_q: &mut V,
     rng: &mut U,
     epsilon: &mut T,
     l: usize,
@@ -80,9 +81,10 @@ G: Fn(&V) -> V{
     let mut q=q0.clone();
     let h_p=|p: &V| &p.clone()*m_inv;
     let h_q=|q: &V| &grad_logprob(q)*(-T::one());
-    let mut last_hq_q=h_q(&q);
+    //let mut last_hq_q=h_q(&q);
+    let mut last_hq_q_tmp=last_hq_q.clone();
     for _i in 0..l{
-        leapfrog(&mut q, &mut p, &mut last_hq_q, *epsilon, &h_q, &h_p);
+        leapfrog(&mut q, &mut p, &mut last_hq_q_tmp, *epsilon, &h_q, &h_p);
     }
     let current_u=-*lp;
     let proposed_u=-flogprob(&q);
@@ -91,6 +93,7 @@ G: Fn(&V) -> V{
     if rng.gen_range(T::zero(), T::one())<(current_u-proposed_u+current_k-proposed_k).exp(){
         *q0=q;
         *lp=-proposed_u;
+        *last_hq_q=last_hq_q_tmp;
         if rng.gen_range(T::zero(), T::one())<T::one()-param.target_accept_ratio{
             *epsilon=*epsilon*T::from(T::one()+param.adj_factor).unwrap();
         }
