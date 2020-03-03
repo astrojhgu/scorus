@@ -18,9 +18,10 @@ fn h_p(p: &LsVec<f64, Vec<f64>>)->LsVec<f64, Vec<f64>>{
 pub fn main(){
     let mut q=LsVec(vec![1.0, 0.0]);
     let mut p=LsVec(vec![0.0, 1.4]);
+    let mut last_hq=h_q(&q);
 
     for i in 0..150000{
-        leapfrog(&mut q, &mut p, 0.01, &h_q, &h_p);
+        leapfrog(&mut q, &mut p, &mut last_hq, 0.01, &h_q, &h_p);
         println!("{} {}", q[0], q[1]);
     }
 }
