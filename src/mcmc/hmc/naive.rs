@@ -90,7 +90,8 @@ G: Fn(&V) -> V{
     let proposed_u=-flogprob(&q);
     let proposed_k=kinetic(&p);
     //println!("{:?}", (current_u-proposed_u+current_k-proposed_k));
-    if rng.gen_range(T::zero(), T::one())<(current_u-proposed_u+current_k-proposed_k).exp(){
+    let dh=current_u-proposed_u+current_k-proposed_k;
+    if dh.is_finite() && rng.gen_range(T::zero(), T::one())<dh.exp() {
         *q0=q;
         *lp=-proposed_u;
         *last_grad_logprob=&last_hq_q_tmp*(-T::one());
