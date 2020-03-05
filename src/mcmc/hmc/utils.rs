@@ -1,8 +1,4 @@
 use num_traits::{Float};
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::distributions::uniform::SampleUniform;
-use rand::Rng;
 use std::ops::{Add,Sub, Mul};
 
 

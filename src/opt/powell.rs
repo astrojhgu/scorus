@@ -1,17 +1,17 @@
 #![allow(clippy::needless_range_loop)]
 use std;
-use std::ops::IndexMut;
 
 use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::{one, zero};
 use std::fmt::Debug;
-
+use std::ops::{Add, Sub, Mul};
 use super::bas_utils::sqr;
 use super::linmin::linmin;
 use super::opt_errors::OptErr;
 use super::tolerance::Tolerance;
-use crate::utils::HasLen;
+
+use crate::linear_space::IndexableLinearSpace;
 
 pub fn fmin<F, V, T, O>(
     f: &F,
@@ -22,12 +22,15 @@ pub fn fmin<F, V, T, O>(
 ) -> (V, OptErr)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy + Debug,
-    V: Clone + IndexMut<usize, Output = T> + HasLen + Debug,
+    V: Clone + IndexableLinearSpace<T>,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T,
     O: FnMut(&V, T),
 {
     let two = one::<T>() + one::<T>();
-    let n = p.len();
+    let n = p.dimension();
     let mut xi = Vec::new();
     xi.reserve(n);
     for i in 0..n {

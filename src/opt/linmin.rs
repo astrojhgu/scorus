@@ -3,9 +3,9 @@ use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::one;
 use num_traits::identities::zero;
-use std;
-use std::ops::IndexMut;
+use std::ops::{Add, Sub, Mul};
 
+use crate::linear_space::traits::IndexableLinearSpace;
 use crate::utils::HasLen;
 
 use super::bas_utils::{max, shft3, sign, swap};
@@ -186,10 +186,13 @@ where
     }
 }
 
-pub fn linmin<F, V, T>(f: &F, p: &mut V, xi: &mut V, fret: &mut T)
+pub fn linmin<F, V, T>(f: &F, p0: &mut V, direction: &mut V, fret: &mut T)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy,
-    V: Clone + IndexMut<usize, Output = T> + HasLen,
+    V: Clone + IndexableLinearSpace<T>,
+    for<'b> &'b V: Add<Output = V>,
+    for<'b> &'b V: Sub<Output = V>,
+    for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T,
 {
     let tol = T::epsilon().sqrt();
@@ -204,9 +207,9 @@ where
     let xmin;
     {
         let func_adapter = |x: T| {
-            let mut x1 = p.clone();
-            for i in 0..x1.len() {
-                x1[i] = x1[i] + x * xi[i];
+            let mut x1 = p0.clone();
+            for i in 0..x1.dimension() {
+                x1[i] = x1[i] + x * direction[i];
             }
             f(&x1)
         };
@@ -224,8 +227,8 @@ where
         xmin = xf.0;
         *fret = xf.1;
     }
-    for j in 0..p.len() {
-        xi[j] = xi[j] * xmin;
-        p[j] = p[j] + xi[j];
+    for j in 0..p0.dimension() {
+        direction[j] = direction[j] * xmin;
+        p0[j] = p0[j] + direction[j];
     }
 }
