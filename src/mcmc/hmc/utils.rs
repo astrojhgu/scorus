@@ -14,13 +14,18 @@ where
     F: Fn(&V) -> V,
     G: Fn(&V) -> V,
 {
+    assert_eq!(q.dimension(), p.dimension());
+    assert_eq!(q.dimension(), last_hq_q.dimension());
     let two = T::one() + T::one();
     let half = T::one() / two;
 
     let p_mid=p as &V -&(last_hq_q as &V*(epsilon*half));
 
-    *q=q as &V +&(&h_p(&p_mid)*epsilon);
+    let qdot=h_p(&p_mid);
+    assert_eq!(qdot.dimension(),p.dimension());
+    *q=q as &V +&(&qdot*epsilon);
 
     *last_hq_q=h_q(q);
+    assert_eq!(last_hq_q.dimension(),q.dimension());
     *p=&p_mid-&(last_hq_q as &V*(epsilon*half));
 }
