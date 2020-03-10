@@ -18,10 +18,10 @@ fn grad(x: &LsVec<f64, Vec<f64>>)->LsVec<f64, Vec<f64>>{
 fn main(){
     let mut x=LsVec(vec![1., 1., 1.]);
     let mut g=grad(&x);
-    let mut d=g.clone();
+    let mut d=&g.clone()*(-1.0);
     let mut fret=fobj(&x);
     for i in 0..10{
-        println!("{}",cg_iter(&fobj, &grad, &mut x, &mut d, &mut g, &mut fret, Tolerance::Abs(0.00001)));
+        println!("{}",cg_iter(&fobj, &grad, &mut x, &mut d, &mut g, &mut fret, Tolerance::Abs(1e-199)));
         println!("{:?}", x);
     }
 }
