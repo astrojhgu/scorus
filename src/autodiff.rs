@@ -1119,21 +1119,6 @@ where
     }
 }
 
-/// Evaluates the derivative of `f` at `x0`
-///
-/// # Examples
-///
-/// ```rust
-/// # use autodiff::*;
-/// # fn main() {
-///     // Define a function `f(x) = e^{-0.5*x^2}`
-///     let f = |x: F<f64>| (-x * x / F::cst(2.0)).exp();
-///
-///     // Differentiate `f` at zero.
-///     println!("{}", diff(f, 0.0)); // prints `0`
-/// #   assert_eq!(diff(f, 0.0), 0.0);
-/// # }
-/// ```
 pub fn diff<G, T>(f: G, x0: T) -> T
 where
     G: FnOnce(F<T>) -> F<T>,
@@ -1142,21 +1127,6 @@ where
     f(F::var(x0)).deriv()
 }
 
-/// Evaluates the gradient of `f` at `x0`
-///
-/// # Examples
-///
-/// ```rust
-/// # use autodiff::*;
-/// # fn main() {
-///     // Define a multivariate function `f(x,y) = x*y^2`
-///     let f = |x: &[F<f64>]| x[0] * x[1] * x[1];
-///
-///     // Differentiate `f` at `(1,2)`.
-///     let g = grad(f, &vec![1.0, 2.0]);
-///     println!("({}, {})", g[0], g[1]); // prints `(4, 4)`
-/// #   assert_eq!(g, vec![4.0, 4.0]);
-/// # }
 pub fn grad<G, T>(f: G, x0: &[T]) -> Vec<T>
 where
     G: Fn(&[F<T>]) -> F<T>,

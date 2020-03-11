@@ -1,11 +1,3 @@
-[[test]]
-name = 'ptsample_test1'
-path = 'tests/ptsample_test1.rs'
-
-[[test]]
-name = 'es_test1'
-path = 'tests/es_test1.rs'
-
 [dependencies]
 num-traits = '0.2.8'
 quickersort = '3.0.1'

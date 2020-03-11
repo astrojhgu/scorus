@@ -3,10 +3,9 @@ use num_traits::cast::NumCast;
 use num_traits::float::Float;
 use num_traits::identities::one;
 use num_traits::identities::zero;
-use std::ops::{Add, Sub, Mul};
+use std::ops::{Add, Mul, Sub};
 
 use crate::linear_space::traits::IndexableLinearSpace;
-use crate::utils::HasLen;
 
 use super::bas_utils::{max, shft3, sign, swap};
 

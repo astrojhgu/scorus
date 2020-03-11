@@ -3,8 +3,8 @@ extern crate scorus;
 
 use rand::thread_rng;
 use scorus::linear_space::type_wrapper::LsVec;
-use scorus::mcmc::hmc::naive::{sample, HmcParam};
 use scorus::linear_space::LinearSpace;
+use scorus::mcmc::hmc::naive::{sample, HmcParam};
 use std::fs::File;
 use std::io::Write;
 
@@ -46,24 +46,44 @@ pub fn main() {
 
     let mut x = LsVec(vec![1.0; 2]);
     let mut lp = rosenbrock_f(&x);
-    let mut last_grad=diff_rosenbrock(&x);
+    let mut last_grad = diff_rosenbrock(&x);
     //nuts6(&foo, &mut x,&mut lp, &mut grad,  0.6, &mut nutss, &mut rng);
 
     let mut of = File::create("a.txt").unwrap();
-    let mut accept_cnt=0;
-    let mut epsilon=0.005;
+    let mut accept_cnt = 0;
+    let mut epsilon = 0.005;
 
-    let param=HmcParam::quick_adj(0.7);
+    let param = HmcParam::quick_adj(0.7);
     for i in 0..10000000 {
-        sample(&rosenbrock_f, &diff_rosenbrock, &mut x, &mut lp, &mut last_grad, &mut rng, &mut epsilon, 2, &param);
+        sample(
+            &rosenbrock_f,
+            &diff_rosenbrock,
+            &mut x,
+            &mut lp,
+            &mut last_grad,
+            &mut rng,
+            &mut epsilon,
+            2,
+            &param,
+        );
     }
-    let param=HmcParam::slow_adj(0.7);
+    let param = HmcParam::slow_adj(0.7);
     for i in 0..100000000 {
-        if sample(&rosenbrock_f, &diff_rosenbrock, &mut x, &mut lp, &mut last_grad, &mut rng, &mut epsilon, 2, &param){
-            accept_cnt+=1;
+        if sample(
+            &rosenbrock_f,
+            &diff_rosenbrock,
+            &mut x,
+            &mut lp,
+            &mut last_grad,
+            &mut rng,
+            &mut epsilon,
+            2,
+            &param,
+        ) {
+            accept_cnt += 1;
         }
-        if i%100000==0{
-            println!("{} {}" , accept_cnt as f64/(i+1) as f64, epsilon);
+        if i % 100000 == 0 {
+            println!("{} {}", accept_cnt as f64 / (i + 1) as f64, epsilon);
         }
         if i % 100 == 0 {
             writeln!(&mut of, "{} {}", x[0], x[1]).unwrap();

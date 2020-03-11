@@ -1,15 +1,15 @@
 #![allow(clippy::needless_range_loop)]
 use std;
 
-use num_traits::cast::NumCast;
-use num_traits::float::Float;
-use num_traits::identities::{one, zero};
-use std::fmt::Debug;
-use std::ops::{Add, Sub, Mul};
 use super::bas_utils::sqr;
 use super::linmin::linmin;
 use super::opt_errors::OptErr;
 use super::tolerance::Tolerance;
+use num_traits::cast::NumCast;
+use num_traits::float::Float;
+use num_traits::identities::{one, zero};
+use std::fmt::Debug;
+use std::ops::{Add, Mul, Sub};
 
 use crate::linear_space::IndexableLinearSpace;
 

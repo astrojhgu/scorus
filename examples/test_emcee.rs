@@ -52,7 +52,15 @@ fn main() {
     let mut of = File::create("a.txt").unwrap();
     for k in 0..niter {
         //let aaa = ff(foo, &(x, y), &mut rng, 2.0, 1);
-        sample(lpf, &mut ensemble, &mut logprob, &mut rng, 2.0, &mut UpdateFlagSpec::Prob(0.5), 12);
+        sample(
+            lpf,
+            &mut ensemble,
+            &mut logprob,
+            &mut rng,
+            2.0,
+            &mut UpdateFlagSpec::Prob(0.5),
+            12,
+        );
         /*
         sample_pt(
             lpf,
@@ -68,7 +76,7 @@ fn main() {
             swap_walkers(&mut ensemble, &mut logprob, &mut rng, &beta_list);
         }*/
 
-        if k%1000==0{
+        if k % 1000 == 0 {
             println!("{}", k);
         }
 
