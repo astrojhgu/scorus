@@ -167,18 +167,20 @@ pub fn sample_pt<'a, T, U, V, F>(
         .map(|f| f.iter().filter(|&&x| x).count())
         .collect();
 
-    for (i, (pt, (ppt, (z, (nphi1, (new_lp, old_lp)))))) in 
-        ensemble.iter_mut().zip(
+    for (i, (pt, (ppt, (z, (nphi1, (new_lp, old_lp)))))) in ensemble
+        .iter_mut()
+        .zip(
             proposed_pt.into_iter().zip(
                 z_list.into_iter().zip(
                     nphi.into_iter()
                         .zip(new_logprob.into_iter().zip(cached_logprob.iter_mut())),
                 ),
             ),
-        ).enumerate()
-     {
-        let ibeta=i/nwalkers_per_beta;
-        let beta=beta_list[ibeta];         
+        )
+        .enumerate()
+    {
+        let ibeta = i / nwalkers_per_beta;
+        let beta = beta_list[ibeta];
         let delta_lp = new_lp - *old_lp;
         let q = (T::from(nphi1 - 1).unwrap() * z.ln() + delta_lp * beta).exp();
         if rng.gen_range(T::zero(), T::one()) < q {
