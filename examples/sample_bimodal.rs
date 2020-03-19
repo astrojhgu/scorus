@@ -117,7 +117,6 @@ fn main() {
             2.0,
             &mut UpdateFlagSpec::Prob(0.5),
             &blist,
-            4,
         );
         for i in 0..nbeta {
             results[i].push(ensemble[i * nwalkers + 0][0]);

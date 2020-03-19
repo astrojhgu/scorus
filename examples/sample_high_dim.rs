@@ -77,7 +77,6 @@ fn main() {
             //&mut UpdateFlagSpec::Pphi(0.01),
             &mut UpdateFlagSpec::Func(&mut update_flag_func),
             &blist,
-            1,
         );
         for i in 0..nbeta {
             results[i].push(ensemble[i * nwalkers_per_beta + 0][0]);

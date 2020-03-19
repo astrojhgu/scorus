@@ -2,11 +2,12 @@
 #![allow(clippy::many_single_char_names)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::mutex_atomic)]
-use rayon::scope;
+
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 use std;
 
 use num_traits::float::Float;
-use num_traits::identities::one;
 use num_traits::NumCast;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::Distribution;
@@ -16,7 +17,6 @@ use rand::Rng;
 use std::marker::{Send, Sync};
 
 use std::ops::{Add, Mul, Sub};
-use std::sync::Mutex;
 
 //use std::sync::Arc;
 use super::utils::{draw_z, scale_vec};
@@ -75,57 +75,13 @@ where
     result
 }
 
-pub fn init_logprob<T, V, F>(flogprob: &F, ensemble: &[V], logprob: &mut [T], nthread: usize)
+pub fn init_logprob<T, V, F>(flogprob: &F, ensemble: &[V], logprob: &mut [T])
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send,
     V: Sync + Send + Sized,
     F: Fn(&V) -> T + Send + Sync,
 {
-    let nwalkers = ensemble.len();
-    assert_eq!(nwalkers, logprob.len());
-
-    let new_logprob = Mutex::new(vec![T::zero(); nwalkers]);
-
-    let atomic_k = Mutex::new(0);
-
-    let create_task = || {
-        let atomic_k = &atomic_k;
-        let new_logprob = &new_logprob;
-        let ensemble = ensemble;
-        let flogprob = flogprob;
-        //let rvec=Arc::clone(&rvec);
-        move || loop {
-            let k: usize;
-            {
-                let mut k1 = atomic_k.lock().unwrap();
-                k = *k1;
-                *k1 += 1;
-            }
-            if k >= nwalkers {
-                break;
-            }
-
-            let lp_y = flogprob(&ensemble[k]);
-
-            {
-                let mut nlp = new_logprob.lock().unwrap();
-                nlp[k] = lp_y;
-            }
-        }
-    };
-
-    if nthread > 1 {
-        scope(|s| {
-            for _ in 0..nthread {
-                s.spawn(|_| create_task()());
-            }
-        });
-    } else {
-        let task = create_task();
-        task();
-    }
-
-    let new_logprob = new_logprob.into_inner().unwrap();
+    let new_logprob = ensemble.par_iter().map(flogprob).collect::<Vec<_>>();
     logprob.copy_from_slice(&new_logprob);
 }
 
@@ -136,7 +92,6 @@ pub fn sample<'a, T, U, V, F>(
     rng: &mut U,
     a: T,
     ufs: &mut UpdateFlagSpec<'a, T>,
-    nthread: usize,
 ) where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
@@ -147,16 +102,7 @@ pub fn sample<'a, T, U, V, F>(
     for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T + Send + Sync,
 {
-    sample_pt(
-        flogprob,
-        ensemble,
-        cached_logprob,
-        rng,
-        a,
-        ufs,
-        &[T::one()],
-        nthread,
-    )
+    sample_pt(flogprob, ensemble, cached_logprob, rng, a, ufs, &[T::one()])
 }
 
 pub fn sample_pt<'a, T, U, V, F>(
@@ -167,7 +113,6 @@ pub fn sample_pt<'a, T, U, V, F>(
     a: T,
     ufs: &mut UpdateFlagSpec<'a, T>,
     beta_list: &[T],
-    nthread: usize,
 ) where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
@@ -188,112 +133,61 @@ pub fn sample_pt<'a, T, U, V, F>(
     assert!(nwalkers_per_beta % 2 == 0);
     assert!(ensemble.len() == cached_logprob.len());
 
-    let pair_id: Vec<Vec<(usize, usize)>> = (0..nbetas)
-        .map(|_| {
-            let mut a: Vec<usize> = (0..nwalkers_per_beta).collect();
-            a.shuffle(rng);
-            a.chunks(2)
-                .map(|a| (a[0], a[1]))
-                .chain(a.chunks(2).map(|a| (a[1], a[0])))
-                .collect()
-        })
-        .collect();
-
-    let proposed_pt_z: Vec<Vec<_>> = pair_id
-        .iter()
-        .enumerate()
-        .map(|(ibeta, pair_id1)| {
-            pair_id1
-                .iter()
-                .map(|(i1, i2)| {
-                    let z = draw_z(rng, a);
-                    let offset = ibeta * nwalkers_per_beta;
-                    let flags = ufs.generate_update_flags(ensemble[offset + i1].dimension(), rng);
-                    (
-                        propose_move(
-                            &ensemble[offset + i1],
-                            &ensemble[offset + i2],
-                            z,
-                            Some(&flags),
-                        ),
-                        z,
-                        flags,
-                    )
-                })
-                .collect()
-        })
-        .collect();
-
-    let new_logprob = Mutex::new(vec![vec![T::zero(); nwalkers_per_beta]; nbetas]);
-
-    let atomic_k = Mutex::new(0);
-
-    {
-        let create_task = || {
-            let atomic_k = &atomic_k;
-            let new_logprob = &new_logprob;
-            let proposed_pt_z = &proposed_pt_z;
-            let flogprob = flogprob;
-            //let rvec=Arc::clone(&rvec);
-            move || loop {
-                let k: usize;
-                {
-                    let mut k1 = atomic_k.lock().unwrap();
-                    k = *k1;
-                    *k1 += 1;
-                }
-                if k >= nwalkers {
-                    break;
-                }
-
-                let ibeta = k / nwalkers_per_beta;
-                let jbeta = k - ibeta * nwalkers_per_beta;
-
-                let lp_y = flogprob(&proposed_pt_z[ibeta][jbeta].0);
-
-                {
-                    let mut nlp = new_logprob.lock().unwrap();
-                    nlp[ibeta][jbeta] = lp_y;
-                }
-            }
-        };
-
-        if nthread > 1 {
-            scope(|s| {
-                for _ in 0..nthread {
-                    s.spawn(|_| create_task()());
-                }
-            });
-        } else {
-            let task = create_task();
-            task();
-        }
+    let mut pair_id = Vec::new();
+    for ibeta in 0..nbetas {
+        let offset = ibeta * nwalkers_per_beta;
+        let mut b: Vec<_> = (0..nwalkers_per_beta).map(|i| i + offset).collect();
+        b.shuffle(rng);
+        let mut pid1 = b
+            .chunks(2)
+            .map(|b1| (b1[0], b1[1]))
+            .chain(b.chunks(2).map(|b1| (b1[1], b1[0])))
+            .collect();
+        pair_id.append(&mut pid1);
     }
 
-    let new_logprob = new_logprob.into_inner().unwrap();
-    for (ibeta, (proposed_pt_z1, (new_logprob1, (pair_id1, &beta)))) in proposed_pt_z
-        .into_iter()
-        .zip(
-            new_logprob
-                .into_iter()
-                .zip(pair_id.into_iter().zip(beta_list.iter())),
-        )
-        .enumerate()
-    {
-        for (_i, ((pt, z, flags), (new_lp, (i1, _i2)))) in proposed_pt_z1
-            .into_iter()
-            .zip(new_logprob1.into_iter().zip(pair_id1.into_iter()))
-            .enumerate()
-        {
-            let nphi = T::from(flags.iter().filter(|&&x| x).count()).unwrap();
-            let n = ibeta * nwalkers_per_beta + i1;
-            let lp_last_y = cached_logprob[n];
-            let delta_lp = new_lp - lp_last_y;
-            let q = ((nphi - one::<T>()) * (z.ln()) + delta_lp * beta).exp();
-            if rng.gen_range(T::zero(), T::one()) < q {
-                ensemble[n] = pt;
-                cached_logprob[n] = new_lp;
-            }
+    pair_id.sort();
+    let z_list: Vec<_> = (0..nwalkers).map(|_| draw_z(rng, a)).collect();
+    let flags: Vec<_> = ensemble
+        .iter()
+        .map(|e| ufs.generate_update_flags(e.dimension(), rng))
+        .collect();
+
+    let proposed_pt: Vec<_> = pair_id
+        .iter()
+        .zip(z_list.iter().zip(flags.iter()))
+        .map(|(&(i1, i2), (&z, f))| propose_move(&ensemble[i1], &ensemble[i2], z, Some(f)))
+        .collect();
+
+    let new_logprob: Vec<_> = proposed_pt.par_iter().map(|p| flogprob(p)).collect();
+
+    //let nphi = T::from(flags.iter().filter(|&&x| x).count()).unwrap();
+    let nphi: Vec<_> = flags
+        .iter()
+        .map(|f| f.iter().filter(|&&x| x).count())
+        .collect();
+
+    let expanded_beta_list = beta_list
+        .iter()
+        .map(|&b| vec![b; nwalkers_per_beta])
+        .collect::<Vec<_>>()
+        .concat();
+
+    for (beta, (pt, (ppt, (z, (nphi1, (new_lp, old_lp)))))) in expanded_beta_list.into_iter().zip(
+        ensemble.iter_mut().zip(
+            proposed_pt.into_iter().zip(
+                z_list.into_iter().zip(
+                    nphi.into_iter()
+                        .zip(new_logprob.into_iter().zip(cached_logprob.iter_mut())),
+                ),
+            ),
+        ),
+    ) {
+        let delta_lp = new_lp - *old_lp;
+        let q = (T::from(nphi1 - 1).unwrap() * z.ln() + delta_lp * beta).exp();
+        if rng.gen_range(T::zero(), T::one()) < q {
+            *pt = ppt;
+            *old_lp = new_lp;
         }
     }
 }

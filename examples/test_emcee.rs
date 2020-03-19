@@ -59,7 +59,6 @@ fn main() {
             &mut rng,
             2.0,
             &mut UpdateFlagSpec::Prob(0.5),
-            12,
         );
         /*
         sample_pt(

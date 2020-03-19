@@ -45,7 +45,6 @@ fn main() {
             &mut rng,
             2.0,
             &mut UpdateFlagSpec::Prob(0.01),
-            1,
         );
         //println!("{}", ensemble[0].deterministic_values.borrow()[0]);
         println!("{}", ensemble[0][0]);

@@ -60,7 +60,6 @@ fn main() {
             2.0,
             &mut UpdateFlagSpec::Prob(0.2),
             &blist,
-            4,
         );
         if k % 100 == 0 {
             for i in 0..ensemble[0].len() {

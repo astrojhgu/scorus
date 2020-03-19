@@ -91,7 +91,6 @@ fn main() {
             &mut rng,
             2.0,
             &mut UpdateFlagSpec::All,
-            1,
         );
 
         if i > 1000 {
