@@ -88,7 +88,7 @@ where
 
     let current_k = kinetic(&p);
     let mut q = q0.clone();
-    let h_p = |p: &V| &p.clone() * m_inv;
+    let h_p = |p: &V| p * m_inv;
     let h_q = |q: &V| &grad_logprob(q) * (-T::one());
     //let mut last_hq_q=h_q(&q);
     let mut last_hq_q_tmp = last_grad_logprob as &V * (-T::one());
@@ -221,7 +221,7 @@ where
             let ibeta = i / n_per_beta;
             let beta = beta_list[ibeta];
             let e = epsilon[ibeta];
-            let h_p = |p: &V| &p.clone() * m_inv;
+            let h_p = |p: &V| p * m_inv;
             let h_q = |q: &V| &grad_logprob(q) * (-beta);
             for _i in 0..l {
                 leapfrog(q, p, lhqq, e, &h_q, &h_p);
