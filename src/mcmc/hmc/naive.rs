@@ -11,7 +11,8 @@ use rand::Rng;
 use rand_distr::StandardNormal;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
-
+use rayon::iter::IntoParallelRefMutIterator;
+use rayon::iter::IndexedParallelIterator;
 pub struct HmcParam<T>
 where
     T: Float,
@@ -213,11 +214,11 @@ where
         .map(|(i, x)| x * (-T::one() * beta_list[i / n_per_beta]))
         .collect();
 
-    //q.par_iter_mut().zip(p.par_iter_mut().zip(last_hq_q_tmp.par_iter_mut())).enumerate().for_each(|(i, (q, (p, lhqq)))|{
-    q.iter_mut()
-        .zip(p.iter_mut().zip(last_hq_q_tmp.iter_mut()))
-        .enumerate()
-        .for_each(|(i, (q, (p, lhqq)))| {
+    q.par_iter_mut().zip(p.par_iter_mut().zip(last_hq_q_tmp.par_iter_mut())).enumerate().for_each(|(i, (q, (p, lhqq)))|{
+    //q.iter_mut()
+    //    .zip(p.iter_mut().zip(last_hq_q_tmp.iter_mut()))
+    //    .enumerate()
+    //    .for_each(|(i, (q, (p, lhqq)))| {
             let ibeta = i / n_per_beta;
             let beta = beta_list[ibeta];
             let e = epsilon[ibeta];
