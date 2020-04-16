@@ -59,7 +59,7 @@ pub fn propose_move<T, V>(p1: &V, p2: &V, z: T, update_flags: Option<&[bool]>) -
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
-    V: Clone + IndexableLinearSpace<T> + Sync + Send + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sync + Send,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
@@ -78,7 +78,7 @@ where
 pub fn init_logprob<T, V, F>(flogprob: &F, ensemble: &[V], logprob: &mut [T])
 where
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send,
-    V: Sync + Send + Sized,
+    V: Sync + Send,
     F: Fn(&V) -> T + Send + Sync,
 {
     let new_logprob = ensemble.par_iter().map(flogprob).collect::<Vec<_>>();
@@ -96,11 +96,11 @@ pub fn sample<'a, T, U, V, F>(
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + IndexableLinearSpace<T> + Sync + Send + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sync + Send,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> T + Send + Sync,
+    F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     sample_pt(flogprob, ensemble, cached_logprob, rng, a, ufs, &[T::one()])
 }
@@ -117,11 +117,11 @@ pub fn sample_pt<'a, T, U, V, F>(
     T: Float + NumCast + std::cmp::PartialOrd + SampleUniform + Sync + Send + std::fmt::Display,
     Standard: Distribution<T>,
     U: Rng,
-    V: Clone + IndexableLinearSpace<T> + Sync + Send + Sized,
+    V: Clone + IndexableLinearSpace<T> + Sync + Send,
     for<'b> &'b V: Add<Output = V>,
     for<'b> &'b V: Sub<Output = V>,
     for<'b> &'b V: Mul<T, Output = V>,
-    F: Fn(&V) -> T + Send + Sync,
+    F: Fn(&V) -> T + Send + Sync + ?Sized,
 {
     //    let cached_logprob = &ensemble_logprob.1;
     //let pflogprob=Arc::new(&flogprob);
