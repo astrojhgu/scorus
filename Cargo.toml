@@ -1,9 +1,9 @@
 [dependencies]
-num-traits = '0.2.8'
+num-traits = '0.2.14'
 quickersort = '3.0.1'
-rand = '0.7.2'
-rand_distr = '0.2.2'
-rayon = '1.2.0'
+rand = '0.7.3'
+rand_distr = '0.3.0'
+rayon = '1.5.0'
 special = '0.8.1'
 
 [package]
