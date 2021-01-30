@@ -5,11 +5,18 @@ use std::ops::{Add, Mul, Sub};
 use rayon::prelude::*;
 
 use crate::linear_space::IndexableLinearSpace;
-use num_traits::cast::NumCast;
-use num_traits::float::Float;
-use num_traits::identities::{one, zero};
-use rand::distributions::uniform::SampleUniform;
-use rand::Rng;
+use num_traits::{
+    cast::NumCast
+    ,float::Float
+    ,identities::{zero}
+};
+use rand::{
+    Rng
+    ,distributions::{
+        uniform::SampleUniform
+        , Uniform
+    }
+};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
@@ -148,13 +155,15 @@ where
     where
         R: Rng,
     {
+        
         let mut result = Vec::<Particle<V, T>>::new();
         let ndim = lower.dimension();
         for _i in 0..pc {
             let mut p = lower * T::zero();
             let mut v = lower * T::zero();
             for j in 0..ndim {
-                p[j] = rng.gen_range(lower[j], upper[j]);
+                let uniform=Uniform::new(lower[j], upper[j]);
+                p[j] = rng.sample(uniform);
                 v[j] = zero();
             }
             let f = func(&p);
@@ -252,10 +261,10 @@ where
                     for j in 0..self.ndim {
                         let part_vel = w * p.velocity[j];
                         let cog_vel = c1
-                            * rng.gen_range(zero::<T>(), one::<T>())
+                            * rng.sample(Uniform::new(T::zero(), T::one()))
                             * (pbest.position[j] - p.position[j]);
                         let soc_vel = c2
-                            * rng.gen_range(zero::<T>(), one::<T>())
+                            * rng.sample(Uniform::new(T::zero(), T::one()))
                             * (gbest.position[j] - p.position[j]);
                         p.velocity[j] = part_vel + cog_vel + soc_vel;
                         p.position[j] = p.position[j] + p.velocity[j]

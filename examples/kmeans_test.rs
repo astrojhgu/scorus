@@ -1,11 +1,14 @@
 extern crate rand;
+extern crate rand_distr;
 extern crate scorus;
 
 use std::fs::File;
 use std::io::Write;
 
-use rand::distributions::Distribution;
-use rand::distributions::Normal;
+use rand::{Rng, distributions::Distribution};
+use rand_distr::{
+    Normal
+};
 use rand::thread_rng;
 
 use scorus::kmeans;
@@ -13,20 +16,20 @@ use scorus::kmeans;
 use scorus::linear_space::type_wrapper::LsVec;
 
 fn main() {
-    let normal = Normal::new(0.0, 1.0);
+    let normal = Normal::new(0.0, 1.0).unwrap();
 
     let mut rng = thread_rng();
 
     let mut points = vec![];
     for _i in 0..1000 {
-        let x = normal.sample(&mut rng) + 2.0;
-        let y = normal.sample(&mut rng) + 2.0;
+        let x = rng.sample(normal) + 2.0;
+        let y = rng.sample(normal) + 2.0;
         points.push(LsVec(vec![x, y]));
     }
 
     for _i in 0..1000 {
-        let x = normal.sample(&mut rng) - 2.0;
-        let y = normal.sample(&mut rng) - 2.0;
+        let x = rng.sample(normal) - 2.0;
+        let y = rng.sample(normal) - 2.0;
         points.push(LsVec(vec![x, y]));
     }
 

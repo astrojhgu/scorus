@@ -1,7 +1,15 @@
 use num_traits::NumCast;
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+use rand::{
+    distributions::{
+        uniform::SampleUniform
+        ,Distribution
+        , Standard
+        ,Uniform
+    }
+    , Rng
+};
+
+
 use std::cmp::PartialOrd;
 use std::fmt::Display;
 use std::marker::Copy;
@@ -24,7 +32,7 @@ where
     let mut result = y1.clone();
 
     for i in 0..result.len() {
-        result[i] = rng.gen_range(y1[i], y2[i]);
+        result[i] = rng.sample(Uniform::new(y1[i], y2[i]));
     }
     result
 }

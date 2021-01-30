@@ -3,17 +3,24 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::mutex_atomic)]
 
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
-use std;
+use rayon::iter::{
+    IntoParallelRefIterator
+    ,ParallelIterator
+};
 
-use num_traits::float::Float;
-use num_traits::NumCast;
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::seq::SliceRandom;
-use rand::Rng;
+use num_traits::{NumCast, float::Float};
+
+use rand::{
+    Rng, 
+    distributions::{
+        uniform::SampleUniform
+        , Distribution
+        , Standard
+        , Uniform
+    }
+    , seq::SliceRandom
+};
+
 use std::marker::{Send, Sync};
 
 use std::ops::{Add, Mul, Sub};
@@ -43,7 +50,7 @@ where
         match self {
             UpdateFlagSpec::Prob(ref prob) => loop {
                 let result: Vec<_> = (0..n)
-                    .map(|_| rng.gen_range(T::zero(), T::one()) < *prob)
+                    .map(|_| rng.sample(Uniform::new(T::zero(), T::one())) < *prob)
                     .collect();
                 if result.iter().any(|&b| b) {
                     break result;
@@ -183,7 +190,7 @@ pub fn sample_pt<'a, T, U, V, F>(
         let beta = beta_list[ibeta];
         let delta_lp = new_lp - *old_lp;
         let q = (T::from(nphi1 - 1).unwrap() * z.ln() + delta_lp * beta).exp();
-        if rng.gen_range(T::zero(), T::one()) < q {
+        if rng.sample(Uniform::new(T::zero(), T::one())) < q {
             *pt = ppt;
             *old_lp = new_lp;
         }

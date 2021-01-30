@@ -8,7 +8,12 @@ extern crate scorus;
 
 use num_traits::float::Float;
 use quickersort::sort_by;
-use rand::Rng;
+use rand::{
+    Rng
+    , distributions::{
+        Uniform
+    }
+};
 use scorus::linear_space::type_wrapper::LsVec;
 use scorus::mcmc::ensemble_sample::{sample, sample_pt, UpdateFlagSpec};
 use scorus::mcmc::mcmc_errors::McmcErr;
@@ -42,7 +47,7 @@ fn main() {
     for i in 0..(nwalkers_per_beta * nbeta) {
         ensemble.push(LsVec(
             (0..ndim)
-                .map(|_| rng.gen_range(0.9, 1.1))
+                .map(|_| rng.sample(Uniform::new(0.9, 1.1)))
                 .collect::<Vec<f64>>(),
         ));
     }

@@ -1,11 +1,18 @@
 #![allow(unused_imports)]
 extern crate rand;
 extern crate scorus;
-
+extern crate rand_distr;
 //use std;
-use rand::distributions::Distribution;
-use rand::distributions::Normal;
+use rand::{
+    distributions::{
+        Distribution
+    }
+    , Rng
+};
 use rand::thread_rng;
+use rand_distr::{
+    Normal
+};
 use scorus::mcmc::ensemble_sample::{sample, UpdateFlagSpec};
 use scorus::mcmc::graph::graph::Graph;
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};
@@ -31,12 +38,12 @@ fn main() {
 
     let mut rng = thread_rng();
 
-    let norm = Normal::new(0.0, 2.0);
+    let norm = Normal::new(0.0, 2.0).unwrap();
 
     for i in 0..10000 {
         let k = format!("n{}", i);
         normal_node((m, 0), (s, 0))
-            .with_all_values(&[Observed(norm.sample(&mut rng))])
+            .with_all_values(&[Observed(rng.sample(norm))])
             .add_to(&mut g, &k);
     }
 

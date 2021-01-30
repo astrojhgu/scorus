@@ -7,17 +7,23 @@ use std;
 use std::sync::Mutex;
 //use num_traits::identities::{one, zero};
 use num_traits::NumCast;
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::Rng;
+use rand::{
+    distributions::{
+        uniform::SampleUniform
+        , Distribution
+        , Standard
+        , Uniform
+    }
+    , Rng
+    , seq::SliceRandom
+};
+
 use rand_distr::StandardNormal;
 //use std::marker::{Send, Sync};
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, Mul, Sub, IndexMut};
 //use std::sync::Arc;
 use crate::utils::{HasLen, InitFromLen};
-use rand::seq::SliceRandom;
-use std::ops::IndexMut;
+
 //use super::mcmc_errors::McmcErr;
 //use super::utils::{draw_z, scale_vec};
 
@@ -51,7 +57,7 @@ impl TWalkKernal {
         } else {
             TWalkKernal::Hop
         }*/
-        let u = rng.gen_range(T::zero(), fw[1]);
+        let u = rng.sample(Uniform::new(T::zero(), fw[1]));
         if u < fw[0] {
             TWalkKernal::Walk
         } else {
@@ -260,7 +266,7 @@ where
 {
     loop {
         let result: Vec<_> = (0..n)
-            .map(|_| rng.gen_range(T::zero(), T::one()) < pphi)
+            .map(|_| rng.sample(Uniform::new(T::zero(), T::one())) < pphi)
             .collect();
         if result.iter().any(|&b| b) {
             break result;
@@ -287,7 +293,7 @@ where
     for i in 0..n {
         let z = {
             if update_flags[i] {
-                let u = rng.gen_range(T::zero(), T::one());
+                let u = rng.sample(Uniform::new(T::zero(), T::one()));
                 (param.aw / (T::one() + aw)) * (aw * u.powi(2) + two * u - T::one())
             } else {
                 T::zero()
@@ -308,10 +314,10 @@ where
 {
     let two = T::one() + T::one();
     let at = param.at;
-    let x = rng.gen_range(T::zero(), T::one());
+    let x = rng.sample(Uniform::new(T::zero(), T::one()));
     if x == T::zero() {
         x
-    } else if rng.gen_range(T::zero(), T::one()) < (at - T::one()) / (two * at) {
+    } else if rng.sample(Uniform::new(T::zero(), T::one())) < (at - T::one()) / (two * at) {
         x.powf(T::one() / (at + T::one()))
     } else {
         x.powf(T::one() / (T::one() - at))
@@ -544,6 +550,7 @@ pub fn sample_st<T, U, V, F>(
     for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T + ?Sized,
 {
+    let uniform=Uniform::new(T::zero(), T::one());
     let (yp1, phi1, kernel1, b1) = propose_move(&state.xp, &state.x, rng, param);
     let (yp2, phi2, kernel2, b2) = propose_move(&state.x, &state.xp, rng, param);
 
@@ -568,12 +575,12 @@ pub fn sample_st<T, U, V, F>(
         T::one(),
     );
 
-    if rng.gen_range(T::zero(), T::one()) < a1 {
+    if rng.sample(uniform) < a1 {
         state.xp = yp1;
         state.up = up_prop1;
     }
 
-    if rng.gen_range(T::zero(), T::one()) < a2 {
+    if rng.sample(Uniform::new(T::zero(), T::one())) < a2 {
         state.x = yp2;
         state.u = up_prop2;
     }
@@ -675,7 +682,6 @@ pub fn sample1<T, U, V, W, X, F>(
     let nwalkers = ensemble_logprob.0.len();
     let nwalkers_per_beta = nwalkers / nbetas;
     assert!(nwalkers_per_beta * nbetas == nwalkers);
-
     let proposed_points: Vec<Vec<_>> = pair_id
         .iter()
         .map(|pair_id1| {
@@ -750,7 +756,7 @@ pub fn sample1<T, U, V, W, X, F>(
                 beta_list[ibeta],
             );
 
-            if rng.gen_range(T::zero(), T::one()) < a1 {
+            if rng.sample(Uniform::new(T::zero(), T::one())) < a1 {
                 ensemble_logprob.0[ibeta * nwalkers_per_beta + i1] = yp1;
                 ensemble_logprob.1[ibeta * nwalkers_per_beta + i1] = up_prop1;
             }

@@ -11,12 +11,19 @@
 use std;
 
 use num_traits::float::Float;
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::Rng;
-use rand_distr::Exp1;
-use rand_distr::StandardNormal;
+use rand::{
+    distributions::{
+        uniform::SampleUniform
+        , Distribution
+        , Standard
+        , Uniform
+    }
+    , Rng
+};
+use rand_distr::{
+    Exp1
+    , StandardNormal
+};
 //use std::marker::{Send, Sync};
 
 use std::ops::{Add, Mul, Sub};
@@ -203,6 +210,7 @@ where
     F: Fn(&V) -> (T, V),
     U: Rng,
 {
+    let uniform=Uniform::new(T::zero(), T::one());
     let two = T::one() + T::one();
     let half = T::one() / two;
     let (
@@ -315,7 +323,7 @@ where
                 nalphaprime2 = a.12;
             }
 
-            if rng.gen_range(T::zero(), T::one())
+            if rng.sample(uniform)
                 < T::from(nprime2).unwrap() / T::max(T::from(nprime + nprime2).unwrap(), T::one())
             {
                 thetaprime = thetaprime2;
@@ -415,7 +423,7 @@ pub fn nuts6<T, V, F, U>(
         mut nalpha,
     );
     while s {
-        let v = if rng.gen_range(T::zero(), T::one()) < half {
+        let v = if rng.sample(Uniform::new(T::zero(), T::one())) < half {
             1
         } else {
             -1
@@ -470,7 +478,7 @@ pub fn nuts6<T, V, F, U>(
 
         let tmp = T::one().min(T::from(nprime).unwrap() / T::from(n).unwrap());
         //eprintln!("{}", nprime);
-        if sprime == 1 && rng.gen_range(T::zero(), T::one()) < tmp {
+        if sprime == 1 && rng.sample(Uniform::new(T::zero(), T::one())) < tmp {
             *theta0 = thetaprime.clone();
             *logp0 = logpprime;
             *grad0 = gradprime.clone();

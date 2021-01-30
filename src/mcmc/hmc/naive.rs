@@ -4,15 +4,26 @@ use std::ops::{Add, Mul, Sub};
 use super::utils::leapfrog;
 use crate::linear_space::InnerProdSpace;
 use num_traits::Float;
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::Rng;
+use rand::{
+    distributions::{
+        uniform::SampleUniform
+        , Distribution
+        , Standard
+        , Uniform
+    }
+    , Rng
+};
 use rand_distr::StandardNormal;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
-use rayon::iter::IntoParallelRefMutIterator;
-use rayon::iter::IndexedParallelIterator;
+
+use rayon::iter::{
+    IntoParallelRefIterator
+    ,ParallelIterator
+    ,IntoParallelRefMutIterator
+    ,IndexedParallelIterator
+};
+
+
+
 pub struct HmcParam<T>
 where
     T: Float,
@@ -101,16 +112,18 @@ where
     let proposed_k = kinetic(&p);
     //println!("{:?}", (current_u-proposed_u+current_k-proposed_k));
     let dh = current_u - proposed_u + current_k - proposed_k;
-    if dh.is_finite() && rng.gen_range(T::zero(), T::one()) < dh.exp() {
+    
+    if dh.is_finite() && rng.sample(Uniform::new(T::zero(), T::one())) < dh.exp() {
+        
         *q0 = q;
         *lp = -proposed_u;
         *last_grad_logprob = &last_hq_q_tmp * (-T::one());
-        if rng.gen_range(T::zero(), T::one()) < T::one() - param.target_accept_ratio {
+        if rng.sample(Uniform::new(T::zero(), T::one())) < T::one() - param.target_accept_ratio {
             *epsilon = *epsilon * T::from(T::one() + param.adj_factor).unwrap();
         }
         true
     } else {
-        if rng.gen_range(T::zero(), T::one()) < param.target_accept_ratio {
+        if rng.sample(Uniform::new(T::zero(), T::one())) < param.target_accept_ratio {
             *epsilon = *epsilon / T::from(T::one() + param.adj_factor).unwrap();
         }
         false
@@ -267,16 +280,17 @@ where
         .for_each(|(i, (&dh1, (q01, (q1, (lp1, (lgl1, (pu, lhqt)))))))| {
             let ibeta = i / n_per_beta;
             //println!("{} {} {}", ibeta, n_per_beta, i);
-            if dh1.is_finite() && rng.gen_range(T::zero(), T::one()) < dh1.exp() {
+            
+            if dh1.is_finite() && rng.sample(Uniform::new(T::zero(), T::one())) < dh1.exp() {
                 *q01 = q1;
                 *lp1 = -pu;
                 *lgl1 = lhqt * (-T::one());
                 accepted_cnt[ibeta] += 1;
                 //println!("{:?}", accepted_cnt);
-                if rng.gen_range(T::zero(), T::one()) < T::one() - param.target_accept_ratio {
+                if rng.sample(Uniform::new(T::zero(), T::one())) < T::one() - param.target_accept_ratio {
                     epsilon[ibeta] = epsilon[ibeta] * T::from(T::one() + param.adj_factor).unwrap();
                 }
-            } else if rng.gen_range(T::zero(), T::one()) < param.target_accept_ratio {
+            } else if rng.sample(Uniform::new(T::zero(), T::one())) < param.target_accept_ratio {
                 epsilon[ibeta] = epsilon[ibeta] / T::from(T::one() + param.adj_factor).unwrap();
             }
         });

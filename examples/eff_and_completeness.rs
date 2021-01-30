@@ -94,7 +94,7 @@ fn main() {
         );
 
         if i > 1000 {
-            let n = rng.gen_range(0, ensemble.len());
+            let n = rng.gen_range(0..ensemble.len());
             println!(
                 "{} {} {} {}",
                 ensemble[n][0], ensemble[n][1], ensemble[n][2], ensemble[n][3]

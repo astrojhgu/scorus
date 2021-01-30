@@ -1,14 +1,22 @@
 use crate::linear_space::LinearSpace;
-use num_traits::float::Float;
-use num_traits::identities::one;
-use num_traits::identities::zero;
-use num_traits::NumCast;
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::seq::SliceRandom;
-use rand::Rng;
-use std;
+use num_traits::{
+    float::Float
+    ,identities::{
+        one
+        , zero
+    }
+    , NumCast
+};
+use rand::{
+    distributions::{
+        uniform::SampleUniform
+        ,Distribution
+        ,Standard
+        ,Uniform
+    }
+    ,seq::SliceRandom
+    ,Rng
+};
 use std::ops::{Add, Mul, Sub};
 
 //use super::super::utils::Resizeable;
@@ -38,7 +46,7 @@ where
     let sqrt_a: T = a.sqrt();
     let unit: T = one();
     let two = unit + unit;
-    let p: T = rng.gen_range(zero::<T>(), two * (sqrt_a - unit / sqrt_a));
+    let p: T = rng.sample(Uniform::new(zero::<T>(), two * (sqrt_a - unit / sqrt_a)));
     let y: T = unit / sqrt_a + p / (two);
     y * y
 }
@@ -84,7 +92,6 @@ where
     let nwalker_per_beta = ensemble.len() / nbeta;
     assert!(nbeta * nwalker_per_beta == ensemble.len());
     let mut jvec: Vec<usize> = (0..nwalker_per_beta).collect();
-
     if ensemble.len() == logprob.len() {
         for i in (1..nbeta).rev() {
             //println!("ibeta={}", i);
@@ -101,7 +108,7 @@ where
                 let lp2 = logprob[(i - 1) * nwalker_per_beta + j2];
                 let ep = exchange_prob(lp1, lp2, beta1, beta2);
                 //println!("{}",ep);
-                let r: T = rng.gen_range(zero::<T>(), one::<T>());
+                let r: T = rng.sample(Uniform::new(T::zero(), T::one()));
                 if r < ep {
                     ensemble.swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);
                     logprob.swap(i * nwalker_per_beta + j1, (i - 1) * nwalker_per_beta + j2);

@@ -2,17 +2,27 @@
 use std;
 use std::ops::IndexMut;
 //use rand::Rand;
-use num_traits::float::Float;
-use num_traits::identities::one;
-use num_traits::identities::zero;
-use num_traits::NumCast;
+use num_traits::{
+    float::Float,
+    identities::{
+        one
+        ,zero
+    }
+    ,NumCast
+};
 use std::collections::VecDeque;
 
 use crate::utils::HasLen;
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::Distribution;
-use rand::distributions::Standard;
-use rand::Rng;
+use rand::{
+    distributions::{
+        uniform::SampleUniform
+        , Distribution
+        , Uniform
+        , Standard
+    }
+    ,Rng
+};
+
 use std::fmt::Debug;
 //use utils::Resizeable;
 //use utils::ItemSwapable;
@@ -1000,7 +1010,9 @@ where
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     R: Rng,
 {
-    let p = rng.gen_range(zero::<T>(), one::<T>());
+    
+    //let p = rng.gen_range(zero::<T>(), one::<T>());
+    let p=rng.sample(Uniform::new(zero::<T>(), one::<T>()));
     let n = search_point(section_list, p /*, pd, scale*/)?;
     let y: T = match section_list.back() {
         Some(s) => p * s._cum_int_exp_y_u.unwrap(),
@@ -1140,7 +1152,7 @@ where
     while i < n {
         x = fetch_one(&section_list, rng /*, pd, scale*/)?;
 
-        let xa = if rng.gen_range(zero::<T>(), one::<T>()).ln() + eval(x, &section_list)?
+        let xa = if rng.sample(Uniform::new(zero::<T>(), one::<T>())).ln() + eval(x, &section_list)?
             > eval_log(&pd, x, scale)?
         {
             section_list = insert_point(&pd, section_list, x, scale)?;
@@ -1160,7 +1172,7 @@ where
             x
         };
 
-        let u: T = rng.gen_range(zero::<T>(), one::<T>());
+        let u: T = rng.sample(Uniform::new(zero::<T>(), one::<T>()));
 
         let ya = eval_log(&pd, xa, scale)?;
         let ycur = eval_log(&pd, xcur, scale)?;
