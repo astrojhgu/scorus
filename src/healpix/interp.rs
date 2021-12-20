@@ -164,7 +164,7 @@ where
         wgt[1] = fac;
 
         wgt[2] = wgt[2] + fac;
-        wgt[3] = wgt[2] + fac;
+        wgt[3] = wgt[3] + fac;
 
         pix[0] = (pix[2] + 2_usize) & 3;
         pix[1] = (pix[3] + 2_usize) & 3;
