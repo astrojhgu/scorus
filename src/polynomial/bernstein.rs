@@ -1,7 +1,9 @@
 use special::Gamma;
 
-use num_traits::float::Float;
-use num_traits::identities::{one, zero};
+use num::traits::{
+    float::Float
+    , identities::{one, zero}
+};
 use std::ops::IndexMut;
 
 use crate::basic::log_cn;

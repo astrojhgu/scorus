@@ -8,9 +8,13 @@ use super::graph::NodeHandle;
 use super::node::BasicNode;
 use super::node::Node;
 use super::node::NodeContent;
-use num_traits::float::{Float, FloatConst};
-use num_traits::identities::one;
-use num_traits::identities::zero;
+use num::traits::{
+    float::{Float, FloatConst}
+    , identities::{
+        one
+        , zero
+    }
+};
 use std::boxed::Box;
 
 pub fn const_node<T>(v: T) -> NodeAdder<T>

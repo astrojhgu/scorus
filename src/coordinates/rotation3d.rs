@@ -1,8 +1,14 @@
 #![allow(clippy::needless_range_loop)]
 //! Rotation of vectors in 3D Euclid space
 
-use num_traits::float::Float;
-use std::ops::{Index, Mul};
+use num::traits::float::Float;
+use std::{
+    ops::{Index, Mul}
+    , fmt::{
+        Debug
+        , Formatter
+    }
+};
 
 use super::vec3d::Vec3d;
 
@@ -11,10 +17,23 @@ use super::vec3d::Vec3d;
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub struct RotMatrix<T>
-where
-    T: Float + Copy,
 {
     elements: [[T; 3]; 3],
+}
+
+impl<T> Debug for RotMatrix<T>
+where T:Debug{
+    fn fmt(&self, f: &mut Formatter<'_>)->std::fmt::Result{
+        f.write_str(&format!("RotMat:[\n"))?;
+        for i in 0..3{
+            for j in 0..3{
+                f.write_str(&format!("{:?} ", self.elements[i][j]))?;
+            }
+            f.write_str("\n")?;
+        }
+        f.write_str("]\n")?;
+        Ok(())
+    }
 }
 
 impl<T> Index<[usize; 2]> for RotMatrix<T>
@@ -213,6 +232,12 @@ where
             }
         }
         RotMatrix { elements: data }
+    }
+
+    pub fn new(elements: [[T;3];3])->RotMatrix<T>{
+        RotMatrix{
+            elements
+        }
     }
 
     /// Because of the property of rotation matrix, inv is simply obtained through transpose.

@@ -5,7 +5,7 @@ use std::ops::{Add, Mul, Sub};
 use rayon::prelude::*;
 
 use crate::linear_space::IndexableLinearSpace;
-use num_traits::{
+use num::traits::{
     cast::NumCast
     ,float::Float
     ,identities::{zero}

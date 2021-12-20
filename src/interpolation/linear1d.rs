@@ -1,6 +1,6 @@
 #![allow(clippy::comparison_chain)]
 
-use num_traits::float::Float;
+use num::traits::float::Float;
 
 pub fn encloses<T>(x: T, x1: T, x2: T) -> bool
 where

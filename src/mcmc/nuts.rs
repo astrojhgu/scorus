@@ -10,7 +10,7 @@
  */
 use std;
 
-use num_traits::float::Float;
+use num::traits::float::Float;
 use rand::{
     distributions::{
         uniform::SampleUniform

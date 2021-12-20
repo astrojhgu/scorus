@@ -1,11 +1,7 @@
 //#![feature(with_options)]
 //! # Scientific Computing for Rust-lang
 
-extern crate num_traits;
-extern crate rand;
-extern crate rand_distr;
-extern crate rayon;
-extern crate special;
+
 //extern crate pdqselect;
 //use num_traits::float::Float;
 

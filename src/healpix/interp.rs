@@ -5,9 +5,14 @@ use std::fmt::Debug;
 use super::utils::nside2npix;
 use crate::coordinates::SphCoord;
 use crate::utils::regulate;
-use num_traits::cast::NumCast;
-use num_traits::float::Float;
-use num_traits::float::FloatConst;
+use num::{
+    traits::{
+        cast::NumCast
+        , float::{
+            Float, FloatConst
+        }
+    }
+};
 
 fn ring_above<T>(nside: usize, z: T) -> usize
 where

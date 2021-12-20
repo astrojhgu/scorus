@@ -3,7 +3,7 @@ use std::ops::{Add, Mul, Sub};
 
 use super::utils::leapfrog;
 use crate::linear_space::InnerProdSpace;
-use num_traits::Float;
+use num::traits::Float;
 use rand::{
     distributions::{
         uniform::SampleUniform

@@ -1,7 +1,7 @@
 #![allow(clippy::needless_range_loop)]
 use crate::linear_space::{IndexableLinearSpace, LinearSpace};
 use crate::utils::HasLen;
-use num_traits::float::Float;
+use num::traits::float::Float;
 use std;
 use std::cell::RefCell;
 use std::fmt::{Display, Error, Formatter};

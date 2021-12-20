@@ -1,7 +1,7 @@
 #![allow(clippy::needless_range_loop)]
 use super::traits::{IndexableLinearSpace, InnerProdSpace, LinearSpace, PDInnerProdSpace};
 use crate::utils::HasLen;
-use num_traits::Float;
+use num::traits::Float;
 use std::convert::{AsMut, AsRef};
 use std::ops::{Add, Mul, Sub};
 use std::ops::{Deref, DerefMut};

@@ -1,4 +1,4 @@
-use num_traits::float::Float;
+use num::traits::float::Float;
 
 fn gen_spline1<T>(x_list: &[T], y_list: &[T], d2y0: T, d2y1: T) -> Vec<T>
 where

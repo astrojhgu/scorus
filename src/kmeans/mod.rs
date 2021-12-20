@@ -1,6 +1,6 @@
 #![allow(clippy::comparison_chain)]
 use crate::linear_space::traits::*;
-use num_traits::float::Float;
+use num::traits::float::Float;
 use std::cmp::Ordering;
 use std::ops::{Add, Mul, Sub};
 pub fn kmeans_iter<Scalar, T>(points: Vec<Vec<T>>) -> Option<Vec<Vec<T>>>

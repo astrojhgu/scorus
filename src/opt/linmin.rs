@@ -1,8 +1,12 @@
 #![allow(clippy::many_single_char_names)]
-use num_traits::cast::NumCast;
-use num_traits::float::Float;
-use num_traits::identities::one;
-use num_traits::identities::zero;
+use num::traits::{
+    cast::NumCast
+    , float::Float
+    , identities::{
+        one
+        , zero
+    }
+};
 use std::ops::{Add, Mul, Sub};
 
 use crate::linear_space::traits::IndexableLinearSpace;

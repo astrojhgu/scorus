@@ -19,7 +19,7 @@
 // This crate is licensed under the terms described in the README.md, which is located at the root
 // directory of this crate.
 
-use num_traits::{Float, FloatConst, FromPrimitive, Num, NumCast, One, ToPrimitive, Zero};
+use num::traits::{Float, FloatConst, FromPrimitive, Num, NumCast, One, ToPrimitive, Zero};
 use std::f64;
 use std::num::FpCategory;
 use std::ops::{

@@ -1,6 +1,6 @@
 //! Spherical coordinates
 
-use num_traits::float::Float;
+use num::traits::float::Float;
 use std::clone::Clone;
 //use std::cmp::Eq;
 use super::vec3d::Vec3d;

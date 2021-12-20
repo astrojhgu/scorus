@@ -6,7 +6,7 @@ use std::ops::{Add, Sub};
 
 use self::pdqselect::select_by;
 
-use num_traits::Bounded;
+use num::traits::Bounded;
 
 pub struct Node<T> {
     index: usize,

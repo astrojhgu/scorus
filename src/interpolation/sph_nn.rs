@@ -1,5 +1,9 @@
-use num_traits::float::Float;
-use num_traits::Bounded;
+use num::{
+    traits::{
+        Bounded
+        ,float::Float
+    }
+};
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::fmt::Debug;

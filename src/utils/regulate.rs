@@ -1,4 +1,4 @@
-use num_traits::float::Float;
+use num::traits::float::Float;
 
 pub fn regulate<T>(x: T, a: T, b: T) -> T
 where

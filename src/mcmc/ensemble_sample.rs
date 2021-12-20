@@ -8,7 +8,7 @@ use rayon::iter::{
     ,ParallelIterator
 };
 
-use num_traits::{NumCast, float::Float};
+use num::traits::{NumCast, float::Float};
 
 use rand::{
     Rng, 

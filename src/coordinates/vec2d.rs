@@ -1,6 +1,6 @@
 //! 2-D Euclid vectors
 
-use num_traits::float::Float;
+use num::traits::float::Float;
 use std::clone::Clone;
 use std::marker::Copy;
 use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};

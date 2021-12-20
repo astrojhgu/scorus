@@ -1,5 +1,5 @@
 [dependencies]
-num-traits = '0.2.14'
+num = '0.4.0'
 quickersort = '3.0.1'
 rand = '0.8.3'
 rand_distr = '0.4.0'
@@ -10,6 +10,8 @@ special = '0.8.1'
 authors = ['Gu Junhua <jhgu@nao.cas.cn>']
 name = 'scorus'
 version = '0.1.0'
+edition = "2021"
+
 [profile.dev]
 debug = true
 opt-level = 2

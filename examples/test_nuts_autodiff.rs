@@ -1,8 +1,6 @@
-extern crate num_traits;
-extern crate rand;
 extern crate scorus;
-use num_traits::float::Float;
-use num_traits::identities::{One, Zero};
+use num::traits::float::Float;
+use num::traits::identities::{One, Zero};
 use rand::thread_rng;
 use scorus::autodiff::{eval, grad, F};
 use scorus::linear_space::type_wrapper::LsVec;

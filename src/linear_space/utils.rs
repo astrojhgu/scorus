@@ -1,5 +1,5 @@
 use crate::linear_space::{IndexableLinearSpace, LinearSpace};
-use num_traits::Float;
+use num::traits::Float;
 
 pub fn mean<T, V>(x: &[V]) -> V
 where

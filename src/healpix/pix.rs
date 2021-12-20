@@ -2,8 +2,13 @@
 
 use super::utils::isqrt;
 use crate::coordinates::{SphCoord, Vec3d};
-use num_traits::float::Float;
-use num_traits::float::FloatConst;
+use num::{
+    traits::float::{
+        Float
+        , FloatConst
+    }
+};
+
 
 fn pix2ang_ring_z_phi<T>(nside: usize, pix: usize) -> (T, T)
 where

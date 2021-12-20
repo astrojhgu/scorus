@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::coordinates::Vec3d;
-use num_traits::float::Float;
+use num::traits::float::Float;
 
 pub struct Tessellation<T>
 where

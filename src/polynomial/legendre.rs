@@ -1,7 +1,9 @@
 #![allow(clippy::needless_range_loop)]
 //use ::std;
-use num_traits::float::Float;
-use num_traits::identities::{one, zero};
+use num::traits::{
+    float::Float
+    , identities::{one, zero}
+};
 use special::Gamma;
 use std::fmt::Display;
 use std::marker::Copy;

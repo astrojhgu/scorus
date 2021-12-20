@@ -1,12 +1,14 @@
 #![allow(clippy::many_single_char_names)]
 #![allow(clippy::type_complexity)]
 #![allow(clippy::mutex_atomic)]
-use num_traits::float::{Float, FloatConst};
+use num::traits::{
+    float::{Float, FloatConst}
+    , NumCast
+};
 use rayon::scope;
-use std;
 use std::sync::Mutex;
 //use num_traits::identities::{one, zero};
-use num_traits::NumCast;
+
 use rand::{
     distributions::{
         uniform::SampleUniform

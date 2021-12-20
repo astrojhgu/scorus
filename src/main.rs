@@ -1,12 +1,11 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 //extern crate std;
-extern crate num_traits;
-extern crate quickersort;
-extern crate rand;
+
 extern crate scorus;
 
-use num_traits::Bounded;
+use num::traits::Bounded;
+use num::traits::float::{Float, FloatConst};
 use rand::thread_rng;
 use std::slice;
 
@@ -18,7 +17,7 @@ use scorus::coordinates::{SphCoord, Vec3d};
 use scorus::polynomial::bernstein::bernstein_base;
 use scorus::polynomial::bernstein::bernstein_poly;
 
-use num_traits::float::{Float, FloatConst};
+
 use rand::Rng;
 use scorus::healpix::utils::{nest2ring, ring2nest};
 use scorus::integration::adaptive_trapezoid::integrate;

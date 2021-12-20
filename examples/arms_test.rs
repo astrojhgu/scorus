@@ -1,8 +1,6 @@
 #![allow(unused_imports)]
-extern crate num_traits;
-extern crate rand;
 extern crate scorus;
-use num_traits::float::Float;
+use num::traits::float::Float;
 use rand::thread_rng;
 use scorus::mcmc::arms::sample as arms;
 

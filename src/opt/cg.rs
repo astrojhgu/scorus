@@ -1,4 +1,4 @@
-use num_traits::{Float, NumCast};
+use num::traits::{Float, NumCast};
 use std::fmt::Debug;
 use std::ops::{Add, Mul, Sub};
 

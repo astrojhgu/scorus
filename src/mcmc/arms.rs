@@ -2,7 +2,7 @@
 use std;
 use std::ops::IndexMut;
 //use rand::Rand;
-use num_traits::{
+use num::traits::{
     float::Float,
     identities::{
         one

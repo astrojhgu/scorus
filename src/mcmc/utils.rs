@@ -1,5 +1,5 @@
 use crate::linear_space::LinearSpace;
-use num_traits::{
+use num::traits::{
     float::Float
     ,identities::{
         one
@@ -7,6 +7,7 @@ use num_traits::{
     }
     , NumCast
 };
+
 use rand::{
     distributions::{
         uniform::SampleUniform

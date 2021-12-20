@@ -1,7 +1,9 @@
 #![allow(clippy::many_single_char_names)]
 #![allow(clippy::too_many_arguments)]
 
-use num_traits::float::Float;
+use num::{
+    traits::float::Float
+};
 use std::fmt::Debug;
 
 #[derive(Clone, Copy, Debug)]

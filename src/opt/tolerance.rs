@@ -1,4 +1,4 @@
-use num_traits::float::Float;
+use num::traits::float::Float;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Tolerance<T>

@@ -1,4 +1,4 @@
-use num_traits::Float;
+use num::traits::Float;
 use std::ops::{Add, Mul, Sub};
 
 use crate::linear_space::traits::LinearSpace;

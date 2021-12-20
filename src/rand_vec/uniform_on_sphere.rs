@@ -1,5 +1,5 @@
 use crate::coordinates::SphCoord;
-use num_traits::float::{Float, FloatConst};
+use num::traits::float::{Float, FloatConst};
 use rand::{
     Rng
     ,distributions::{

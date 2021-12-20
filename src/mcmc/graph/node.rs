@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 use std::fmt::{Display, Error, Formatter};
 
-use num_traits::float::Float;
+use num::traits::float::Float;
 
 pub enum ValueType {
     FIXED,

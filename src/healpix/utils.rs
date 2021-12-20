@@ -2,8 +2,12 @@
 
 use std::fmt::Debug;
 
-use num_traits::cast::NumCast;
-use num_traits::int::PrimInt;
+use num::{
+    traits::{
+        cast::NumCast
+        , int::PrimInt
+    }
+};
 
 /// calculate the sqrt of some integer
 pub fn isqrt<T>(x: T) -> T

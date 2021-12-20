@@ -1,13 +1,13 @@
 #![allow(non_snake_case)]
 #![allow(unused_imports)]
 
-extern crate num_traits;
+
 extern crate rand;
 extern crate scorus;
 
-use num_traits::float::Float;
-use num_traits::identities::one;
-use num_traits::identities::zero;
+use num::traits::float::Float;
+use num::traits::identities::one;
+use num::traits::identities::zero;
 use rand::thread_rng;
 use rand::Rng;
 use scorus::linear_space::type_wrapper::LsVec;

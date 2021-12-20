@@ -1,12 +1,12 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 //sextern crate std;
-extern crate num_traits;
+
 extern crate quickersort;
 extern crate rand;
 extern crate scorus;
 
-use num_traits::float::Float;
+use num::traits::float::Float;
 use quickersort::sort_by;
 use rand::{
     Rng

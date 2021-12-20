@@ -1,7 +1,7 @@
 #![allow(clippy::needless_range_loop)]
 //! 3-D Euclid vectors
 
-use num_traits::float::Float;
+use num::traits::float::Float;
 use std::clone::Clone;
 //use std::cmp::{Eq, PartialEq};
 use super::sphcoord::SphCoord;

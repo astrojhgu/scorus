@@ -1,4 +1,4 @@
-use num_traits::NumCast;
+use num::traits::NumCast;
 use rand::{
     distributions::{
         uniform::SampleUniform
