@@ -12,6 +12,10 @@ use std::{
     fmt::{
         Debug
     }
+    , ops::{
+        Mul
+        , Div
+    }
 };
 
 use crate::{
@@ -33,8 +37,10 @@ use crate::{
     }
 };
 
-pub fn rotate_ring<T>(input: &[T], mat: &RotMatrix<T>)->Vec<T>
-where T:FloatConst+Float+Debug
+pub fn rotate_ring<T, W>(input: &[T], mat: &RotMatrix<W>)->Vec<T>
+where 
+T: Float + FloatConst + Debug + Mul<W, Output=T> + Div<W, Output=T>,
+W: Float + FloatConst + Debug
 {
     let mat=mat.transpose();
     let npix=input.len();
@@ -59,8 +65,10 @@ where T: Float{
     T::atan2(sinalpha, cosalpha)
 }
 
-pub fn rotate_ring_pol<T>(t:&[T], q:&[T], u:&[T], mat: &RotMatrix<T>)->(Vec<T>, Vec<T>, Vec<T>)
-where T:FloatConst+Float+Debug
+pub fn rotate_ring_pol<T, W>(t:&[T], q:&[T], u:&[T], mat: &RotMatrix<W>)->(Vec<T>, Vec<T>, Vec<T>)
+where 
+    T: Float + FloatConst + Debug + Mul<W, Output=T> + Div<W, Output=T>,
+    W: Float + FloatConst + Debug
 {
     let mat_inv=mat.transpose();
     let two=T::one()+T::one();

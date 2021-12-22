@@ -1,6 +1,12 @@
 //! Interpolating based on healpix data
 
-use std::fmt::Debug;
+use std::{
+    fmt::Debug
+    , ops::{
+        Mul,
+        Div
+    }
+};
 
 use super::utils::nside2npix;
 use crate::coordinates::SphCoord;
@@ -211,13 +217,14 @@ where
 
 /// Compute the natural interpolation value, the natural interpolation is calculated through
 /// nearest neighbour interpolation
-pub fn natural_interp_ring<T>(nside: usize, data: &[T], ptg: SphCoord<T>) -> T
+pub fn natural_interp_ring<T,W>(nside: usize, data: &[T], ptg: SphCoord<W>) -> T
 where
-    T: Float + FloatConst + Debug,
+    T: Float + FloatConst + Debug + Mul<W, Output=T> + Div<W, Output=T>,
+    W: Float + FloatConst + Debug
 {
     let (pix, wgt) = get_interpol_ring(nside, ptg);
     let mut result = T::zero();
-    let mut total_wgt = T::zero();
+    let mut total_wgt = W::zero();
     for i in 0..pix.len() {
         result = result + data[pix[i]] * wgt[i];
         total_wgt = total_wgt + wgt[i];
