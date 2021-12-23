@@ -123,7 +123,18 @@ where T: Float+FloatConst{
     m3.transpose()*(m2.transpose()*m1.transpose())
 }
 
+pub fn get_euler_matrix_deg<T>(a1: T, a2: T, a3: T)->RotMatrix<T>
+where T:Float+FloatConst
+{
+    get_euler_matrix(a1.to_radians(), a2.to_radians(), a3.to_radians())
+}
+
 pub fn get_rotation_matrix<T>(a1: T, a2: T, a3: T)->RotMatrix<T>
 where T:Float+FloatConst{
     get_euler_matrix(a1, T::zero()-a2, a3)
+}
+
+pub fn get_rotation_matrix_deg<T>(a1: T, a2: T, a3: T)->RotMatrix<T>
+where T:Float+FloatConst{
+    get_euler_matrix_deg(a1, T::zero()-a2, a3)
 }
