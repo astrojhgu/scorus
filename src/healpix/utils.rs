@@ -400,3 +400,7 @@ pub fn npix2nside(npix: usize) -> usize {
         panic!()
     }
 }
+
+pub fn nside2nring(nside: usize)->usize{
+    4*nside-1
+}
