@@ -1,23 +1,16 @@
 //! Interpolating based on healpix data
 
 use std::{
-    fmt::Debug
-    , ops::{
-        Mul,
-        Div
-    }
+    fmt::Debug,
+    ops::{Div, Mul},
 };
 
 use super::utils::nside2npix;
 use crate::coordinates::SphCoord;
 use crate::utils::regulate;
-use num::{
-    traits::{
-        cast::NumCast
-        , float::{
-            Float, FloatConst
-        }
-    }
+use num::traits::{
+    cast::NumCast,
+    float::{Float, FloatConst},
 };
 
 fn ring_above<T>(nside: usize, z: T) -> usize
@@ -217,10 +210,10 @@ where
 
 /// Compute the natural interpolation value, the natural interpolation is calculated through
 /// nearest neighbour interpolation
-pub fn natural_interp_ring<T,W>(nside: usize, data: &[T], ptg: SphCoord<W>) -> T
+pub fn natural_interp_ring<T, W>(nside: usize, data: &[T], ptg: SphCoord<W>) -> T
 where
-    T: Float + FloatConst + Debug + Mul<W, Output=T> + Div<W, Output=T>,
-    W: Float + FloatConst + Debug
+    T: Float + FloatConst + Debug + Mul<W, Output = T> + Div<W, Output = T>,
+    W: Float + FloatConst + Debug,
 {
     let (pix, wgt) = get_interpol_ring(nside, ptg);
     let mut result = T::zero();

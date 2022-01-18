@@ -1,7 +1,6 @@
 //#![feature(with_options)]
 //! # Scientific Computing for Rust-lang
 
-
 //extern crate pdqselect;
 //use num_traits::float::Float;
 

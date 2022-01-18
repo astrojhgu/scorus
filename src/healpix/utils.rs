@@ -2,12 +2,7 @@
 
 use std::fmt::Debug;
 
-use num::{
-    traits::{
-        cast::NumCast
-        , int::PrimInt
-    }
-};
+use num::traits::{cast::NumCast, int::PrimInt};
 
 /// calculate the sqrt of some integer
 pub fn isqrt<T>(x: T) -> T
@@ -401,6 +396,6 @@ pub fn npix2nside(npix: usize) -> usize {
     }
 }
 
-pub fn nside2nring(nside: usize)->usize{
-    4*nside-1
+pub fn nside2nring(nside: usize) -> usize {
+    4 * nside - 1
 }

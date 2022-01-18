@@ -1,8 +1,8 @@
 #![allow(clippy::needless_range_loop)]
 //use ::std;
 use num::traits::{
-    float::Float
-    , identities::{one, zero}
+    float::Float,
+    identities::{one, zero},
 };
 use special::Gamma;
 use std::fmt::Display;

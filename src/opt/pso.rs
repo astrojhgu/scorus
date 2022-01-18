@@ -5,17 +5,10 @@ use std::ops::{Add, Mul, Sub};
 use rayon::prelude::*;
 
 use crate::linear_space::IndexableLinearSpace;
-use num::traits::{
-    cast::NumCast
-    ,float::Float
-    ,identities::{zero}
-};
+use num::traits::{cast::NumCast, float::Float, identities::zero};
 use rand::{
-    Rng
-    ,distributions::{
-        uniform::SampleUniform
-        , Uniform
-    }
+    distributions::{uniform::SampleUniform, Uniform},
+    Rng,
 };
 use std::fmt::Debug;
 
@@ -155,14 +148,13 @@ where
     where
         R: Rng,
     {
-        
         let mut result = Vec::<Particle<V, T>>::new();
         let ndim = lower.dimension();
         for _i in 0..pc {
             let mut p = lower * T::zero();
             let mut v = lower * T::zero();
             for j in 0..ndim {
-                let uniform=Uniform::new(lower[j], upper[j]);
+                let uniform = Uniform::new(lower[j], upper[j]);
                 p[j] = rng.sample(uniform);
                 v[j] = zero();
             }

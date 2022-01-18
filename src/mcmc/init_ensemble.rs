@@ -1,14 +1,8 @@
 use num::traits::NumCast;
 use rand::{
-    distributions::{
-        uniform::SampleUniform
-        ,Distribution
-        , Standard
-        ,Uniform
-    }
-    , Rng
+    distributions::{uniform::SampleUniform, Distribution, Standard, Uniform},
+    Rng,
 };
-
 
 use std::cmp::PartialOrd;
 use std::fmt::Display;

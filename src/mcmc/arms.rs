@@ -4,23 +4,15 @@ use std::ops::IndexMut;
 //use rand::Rand;
 use num::traits::{
     float::Float,
-    identities::{
-        one
-        ,zero
-    }
-    ,NumCast
+    identities::{one, zero},
+    NumCast,
 };
 use std::collections::VecDeque;
 
 use crate::utils::HasLen;
 use rand::{
-    distributions::{
-        uniform::SampleUniform
-        , Distribution
-        , Uniform
-        , Standard
-    }
-    ,Rng
+    distributions::{uniform::SampleUniform, Distribution, Standard, Uniform},
+    Rng,
 };
 
 use std::fmt::Debug;
@@ -1010,9 +1002,8 @@ where
     //F: Fn(T) -> T + std::marker::Sync + std::marker::Send,
     R: Rng,
 {
-    
     //let p = rng.gen_range(zero::<T>(), one::<T>());
-    let p=rng.sample(Uniform::new(zero::<T>(), one::<T>()));
+    let p = rng.sample(Uniform::new(zero::<T>(), one::<T>()));
     let n = search_point(section_list, p /*, pd, scale*/)?;
     let y: T = match section_list.back() {
         Some(s) => p * s._cum_int_exp_y_u.unwrap(),

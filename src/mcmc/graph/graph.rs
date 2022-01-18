@@ -10,10 +10,7 @@ use std::fmt::{Display, Error, Formatter};
 use std::iter::FromIterator;
 use std::option::Option;
 
-use num::traits::{
-    float::Float
-    , identities::zero
-};
+use num::traits::{float::Float, identities::zero};
 
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Standard};

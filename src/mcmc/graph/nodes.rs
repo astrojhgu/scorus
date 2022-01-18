@@ -9,11 +9,8 @@ use super::node::BasicNode;
 use super::node::Node;
 use super::node::NodeContent;
 use num::traits::{
-    float::{Float, FloatConst}
-    , identities::{
-        one
-        , zero
-    }
+    float::{Float, FloatConst},
+    identities::{one, zero},
 };
 use std::boxed::Box;
 

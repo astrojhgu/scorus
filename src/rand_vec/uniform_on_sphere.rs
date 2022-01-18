@@ -1,13 +1,8 @@
 use crate::coordinates::SphCoord;
 use num::traits::float::{Float, FloatConst};
 use rand::{
-    Rng
-    ,distributions::{
-        uniform::SampleUniform
-        ,Distribution
-        , Standard
-        , Uniform
-    }
+    distributions::{uniform::SampleUniform, Distribution, Standard, Uniform},
+    Rng,
 };
 
 pub fn rand<T, U>(rng: &mut U) -> SphCoord<T>

@@ -1,18 +1,11 @@
 #![allow(unused_imports)]
 extern crate rand;
-extern crate scorus;
 extern crate rand_distr;
+extern crate scorus;
 //use std;
-use rand::{
-    distributions::{
-        Distribution
-    }
-    , Rng
-};
 use rand::thread_rng;
-use rand_distr::{
-    Normal
-};
+use rand::{distributions::Distribution, Rng};
+use rand_distr::Normal;
 use scorus::mcmc::ensemble_sample::{sample, UpdateFlagSpec};
 use scorus::mcmc::graph::graph::Graph;
 use scorus::mcmc::graph::graph::ParamObservability::{Observed, UnObserved};

@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(unused_imports)]
 
-
 extern crate rand;
 extern crate scorus;
 

@@ -1,10 +1,5 @@
 #![allow(clippy::eq_op)]
-use num::{
-    traits::{
-        float::Float
-        , Num
-    }
-};
+use num::traits::{float::Float, Num};
 use std::ops::{Add, Mul, Sub};
 
 pub trait LinearSpace<Scalar>

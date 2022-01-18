@@ -1,9 +1,6 @@
 #![allow(clippy::needless_range_loop)]
 use crate::utils::HasLen;
-use num::traits::{
-    float::Float
-    , identities::zero
-};
+use num::traits::{float::Float, identities::zero};
 use std::marker::Copy;
 use std::ops::IndexMut;
 

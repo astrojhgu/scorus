@@ -54,10 +54,10 @@ where
             [0, 1, 2],
             [0, 2, 3],
             [0, 3, 4],
-            [0, 1, 4],
-            [1, 2, 5],
-            [2, 3, 5],
-            [3, 4, 5],
+            [1, 0, 4],
+            [2, 1, 5],
+            [3, 2, 5],
+            [4, 3, 5],
             [1, 4, 5],
         ];
         Tessellation { vertices, faces }
@@ -73,7 +73,7 @@ where
             Vec3d::new(-one, zero, zero),
             Vec3d::new(zero, -one, zero),
         ];
-        let faces = vec![[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 1, 4]];
+        let faces = vec![[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]];
         Tessellation { vertices, faces }
     }
 
@@ -132,5 +132,20 @@ where
             *p = *p + center;
         }
         self.faces = new_faces;
+    }
+
+    pub fn regulate_norm(&mut self) {
+        self.faces.iter_mut().for_each(|v| {
+            let v0 = self.vertices[v[0]];
+            let v1 = self.vertices[v[2]];
+            let v2 = self.vertices[v[2]];
+            let x1 = v1 - v0;
+            let x2 = v2 - v0;
+            let norm = x1.cross(x2);
+            let w = x1 + x2 + x2;
+            if norm.dot(w) < T::zero() {
+                v.swap(1, 2);
+            }
+        });
     }
 }

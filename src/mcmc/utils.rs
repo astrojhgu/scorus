@@ -1,22 +1,14 @@
 use crate::linear_space::LinearSpace;
 use num::traits::{
-    float::Float
-    ,identities::{
-        one
-        , zero
-    }
-    , NumCast
+    float::Float,
+    identities::{one, zero},
+    NumCast,
 };
 
 use rand::{
-    distributions::{
-        uniform::SampleUniform
-        ,Distribution
-        ,Standard
-        ,Uniform
-    }
-    ,seq::SliceRandom
-    ,Rng
+    distributions::{uniform::SampleUniform, Distribution, Standard, Uniform},
+    seq::SliceRandom,
+    Rng,
 };
 use std::ops::{Add, Mul, Sub};
 

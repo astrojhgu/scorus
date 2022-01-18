@@ -6,11 +6,7 @@ extern crate scorus;
 use num::traits::float::Float;
 use num::traits::FloatConst;
 use quickersort::sort_by;
-use rand::{Rng
-    ,distributions::{
-        Uniform
-    }
-};
+use rand::{distributions::Uniform, Rng};
 use scorus::linear_space::type_wrapper::LsVec;
 use scorus::mcmc::ensemble_sample::{sample_pt, UpdateFlagSpec};
 use scorus::mcmc::mcmc_errors::McmcErr;
@@ -36,7 +32,9 @@ fn main() {
     let mut rng = rand::thread_rng();
     let mut ensemble: Vec<_> = (0..nwalkers_per_beta * nbetas)
         .map(|_| {
-            let a: Vec<_> = (0..ndims).map(|_| rng.sample(Uniform::new(-0.01, 0.01))).collect();
+            let a: Vec<_> = (0..ndims)
+                .map(|_| rng.sample(Uniform::new(-0.01, 0.01)))
+                .collect();
             LsVec(a)
         })
         .collect();

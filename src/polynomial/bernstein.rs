@@ -1,8 +1,8 @@
 use special::Gamma;
 
 use num::traits::{
-    float::Float
-    , identities::{one, zero}
+    float::Float,
+    identities::{one, zero},
 };
 use std::ops::IndexMut;
 

@@ -1,9 +1,6 @@
 use special::{Error, Gamma};
 
-use num::traits::{
-    float::Float
-    , identities::one
-};
+use num::traits::{float::Float, identities::one};
 
 use crate::basic::log_cn;
 

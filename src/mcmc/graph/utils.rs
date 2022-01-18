@@ -1,8 +1,6 @@
 use super::graph::Graph;
 use super::node::NodeContent::{DeterministicNode, StochasticNode};
-use num::{
-    traits::Float
-};
+use num::traits::Float;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Standard};
 

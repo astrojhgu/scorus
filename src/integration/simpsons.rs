@@ -1,10 +1,7 @@
 #![allow(clippy::many_single_char_names)]
 #![allow(clippy::too_many_arguments)]
 use super::integration_errors::IntegrationError;
-use num::traits::{
-    float::Float
-    , identities::one
-};
+use num::traits::{float::Float, identities::one};
 
 fn integrate_aux<F, T>(
     f: &F,

@@ -1,8 +1,5 @@
 use crate::coordinates::{SphCoord, Vec2d};
-use num::traits::{
-    float::Float
-    , FloatConst
-};
+use num::traits::{float::Float, FloatConst};
 
 pub fn proj<T>(p: SphCoord<T>) -> Vec2d<T>
 where

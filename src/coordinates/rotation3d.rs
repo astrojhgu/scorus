@@ -3,11 +3,8 @@
 
 use num::traits::float::Float;
 use std::{
-    ops::{Index, Mul}
-    , fmt::{
-        Debug
-        , Formatter
-    }
+    fmt::{Debug, Formatter},
+    ops::{Index, Mul},
 };
 
 use super::vec3d::Vec3d;
@@ -16,17 +13,18 @@ use super::vec3d::Vec3d;
 /// Mearly a 3x3 matrix. Inner data should not be accessed directly
 
 #[derive(Copy, Clone, PartialEq, Eq)]
-pub struct RotMatrix<T>
-{
+pub struct RotMatrix<T> {
     elements: [[T; 3]; 3],
 }
 
 impl<T> Debug for RotMatrix<T>
-where T:Debug{
-    fn fmt(&self, f: &mut Formatter<'_>)->std::fmt::Result{
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!("RotMat:[\n"))?;
-        for i in 0..3{
-            for j in 0..3{
+        for i in 0..3 {
+            for j in 0..3 {
                 f.write_str(&format!("{:?} ", self.elements[i][j]))?;
             }
             f.write_str("\n")?;
@@ -234,10 +232,8 @@ where
         RotMatrix { elements: data }
     }
 
-    pub fn new(elements: [[T;3];3])->RotMatrix<T>{
-        RotMatrix{
-            elements
-        }
+    pub fn new(elements: [[T; 3]; 3]) -> RotMatrix<T> {
+        RotMatrix { elements }
     }
 
     /// Because of the property of rotation matrix, inv is simply obtained through transpose.

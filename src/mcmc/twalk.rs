@@ -2,27 +2,22 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::mutex_atomic)]
 use num::traits::{
-    float::{Float, FloatConst}
-    , NumCast
+    float::{Float, FloatConst},
+    NumCast,
 };
 use rayon::scope;
 use std::sync::Mutex;
 //use num_traits::identities::{one, zero};
 
 use rand::{
-    distributions::{
-        uniform::SampleUniform
-        , Distribution
-        , Standard
-        , Uniform
-    }
-    , Rng
-    , seq::SliceRandom
+    distributions::{uniform::SampleUniform, Distribution, Standard, Uniform},
+    seq::SliceRandom,
+    Rng,
 };
 
 use rand_distr::StandardNormal;
 //use std::marker::{Send, Sync};
-use std::ops::{Add, Mul, Sub, IndexMut};
+use std::ops::{Add, IndexMut, Mul, Sub};
 //use std::sync::Arc;
 use crate::utils::{HasLen, InitFromLen};
 
@@ -552,7 +547,7 @@ pub fn sample_st<T, U, V, F>(
     for<'b> &'b V: Mul<T, Output = V>,
     F: Fn(&V) -> T + ?Sized,
 {
-    let uniform=Uniform::new(T::zero(), T::one());
+    let uniform = Uniform::new(T::zero(), T::one());
     let (yp1, phi1, kernel1, b1) = propose_move(&state.xp, &state.x, rng, param);
     let (yp2, phi2, kernel2, b2) = propose_move(&state.x, &state.xp, rng, param);
 

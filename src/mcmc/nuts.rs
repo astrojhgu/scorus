@@ -12,18 +12,10 @@ use std;
 
 use num::traits::float::Float;
 use rand::{
-    distributions::{
-        uniform::SampleUniform
-        , Distribution
-        , Standard
-        , Uniform
-    }
-    , Rng
+    distributions::{uniform::SampleUniform, Distribution, Standard, Uniform},
+    Rng,
 };
-use rand_distr::{
-    Exp1
-    , StandardNormal
-};
+use rand_distr::{Exp1, StandardNormal};
 //use std::marker::{Send, Sync};
 
 use std::ops::{Add, Mul, Sub};
@@ -210,7 +202,7 @@ where
     F: Fn(&V) -> (T, V),
     U: Rng,
 {
-    let uniform=Uniform::new(T::zero(), T::one());
+    let uniform = Uniform::new(T::zero(), T::one());
     let two = T::one() + T::one();
     let half = T::one() / two;
     let (

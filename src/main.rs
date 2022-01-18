@@ -4,8 +4,8 @@
 
 extern crate scorus;
 
-use num::traits::Bounded;
 use num::traits::float::{Float, FloatConst};
+use num::traits::Bounded;
 use rand::thread_rng;
 use std::slice;
 
@@ -16,7 +16,6 @@ use std::io::Write;
 use scorus::coordinates::{SphCoord, Vec3d};
 use scorus::polynomial::bernstein::bernstein_base;
 use scorus::polynomial::bernstein::bernstein_poly;
-
 
 use rand::Rng;
 use scorus::healpix::utils::{nest2ring, ring2nest};

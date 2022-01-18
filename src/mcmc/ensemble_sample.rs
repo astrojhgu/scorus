@@ -3,22 +3,14 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::mutex_atomic)]
 
-use rayon::iter::{
-    IntoParallelRefIterator
-    ,ParallelIterator
-};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use num::traits::{NumCast, float::Float};
+use num::traits::{float::Float, NumCast};
 
 use rand::{
-    Rng, 
-    distributions::{
-        uniform::SampleUniform
-        , Distribution
-        , Standard
-        , Uniform
-    }
-    , seq::SliceRandom
+    distributions::{uniform::SampleUniform, Distribution, Standard, Uniform},
+    seq::SliceRandom,
+    Rng,
 };
 
 use std::marker::{Send, Sync};

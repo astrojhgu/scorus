@@ -1,12 +1,6 @@
 use special::Gamma;
 
-use num::{
-    traits::{
-        float::Float
-        , identities::one
-    }
-};
-
+use num::traits::{float::Float, identities::one};
 
 pub fn log_factorial<T>(x: T) -> T
 where

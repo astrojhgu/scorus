@@ -4,9 +4,9 @@ use super::linmin::linmin;
 use super::opt_errors::OptErr;
 use super::tolerance::Tolerance;
 use num::traits::{
-    cast::NumCast
-    , float::Float
-    , identities::{one, zero}
+    cast::NumCast,
+    float::Float,
+    identities::{one, zero},
 };
 use std::fmt::Debug;
 use std::ops::{Add, Mul, Sub};

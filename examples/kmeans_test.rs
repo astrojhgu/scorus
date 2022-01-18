@@ -5,11 +5,9 @@ extern crate scorus;
 use std::fs::File;
 use std::io::Write;
 
-use rand::{Rng, distributions::Distribution};
-use rand_distr::{
-    Normal
-};
 use rand::thread_rng;
+use rand::{distributions::Distribution, Rng};
+use rand_distr::Normal;
 
 use scorus::kmeans;
 

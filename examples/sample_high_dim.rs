@@ -9,11 +9,8 @@ extern crate scorus;
 use num::traits::float::Float;
 use quickersort::sort_by;
 use rand::{
-    Rng
-    , distributions::{
-        Uniform,
-        uniform::UniformSampler
-    }
+    distributions::{uniform::UniformSampler, Uniform},
+    Rng,
 };
 use scorus::linear_space::type_wrapper::LsVec;
 //use scorus::mcmc::mcmc_errors::McmcErr;

@@ -1,11 +1,8 @@
 #![allow(clippy::many_single_char_names)]
 use num::traits::{
-    cast::NumCast
-    , float::Float
-    , identities::{
-        one
-        , zero
-    }
+    cast::NumCast,
+    float::Float,
+    identities::{one, zero},
 };
 use std::ops::{Add, Mul, Sub};
 
