@@ -1,4 +1,7 @@
-use std::collections::BTreeMap;
+use std::{
+    collections::BTreeMap
+    , cmp::Ordering
+};
 
 use crate::coordinates::Vec3d;
 use num::traits::float::Float;
@@ -63,20 +66,7 @@ where
         Tessellation { vertices, faces }
     }
 
-    pub fn northern_hemispere() -> Tessellation<T> {
-        let one = T::one();
-        let zero = T::zero();
-        let vertices = vec![
-            Vec3d::new(zero, zero, one),
-            Vec3d::new(one, zero, zero),
-            Vec3d::new(zero, one, zero),
-            Vec3d::new(-one, zero, zero),
-            Vec3d::new(zero, -one, zero),
-        ];
-        let faces = vec![[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]];
-        Tessellation { vertices, faces }
-    }
-
+    
     pub fn refine(&mut self) {
         let num_of_points_init = self.vertices.len();
         for f in &mut self.faces {
@@ -134,8 +124,8 @@ where
         self.faces = new_faces;
     }
 
-    pub fn regulate_norm(&mut self) {
-        self.faces.iter_mut().for_each(|v| {
+    pub fn regulate_norm(&mut self) ->Vec<Vec3d<T>>{
+        self.faces.iter_mut().map(|v| {
             let v0 = self.vertices[v[0]];
             let v1 = self.vertices[v[2]];
             let v2 = self.vertices[v[2]];
@@ -145,7 +135,11 @@ where
             let w = x1 + x2 + x2;
             if norm.dot(w) < T::zero() {
                 v.swap(1, 2);
+                norm*(-T::one())
+            }else{
+                norm
             }
-        });
+        }).collect()
     }
 }
+
