@@ -1,6 +1,5 @@
 use std::{
     collections::BTreeMap
-    , cmp::Ordering
 };
 
 use crate::coordinates::Vec3d;
