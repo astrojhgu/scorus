@@ -399,3 +399,9 @@ pub fn npix2nside(npix: usize) -> usize {
 pub fn nside2nring(nside: usize) -> usize {
     4 * nside - 1
 }
+
+pub fn nring2nside(nring: usize) -> usize {
+    let nside=(nring + 1) / 4;
+    assert_eq!(nring, nside2nring(nside));
+    nside
+}
