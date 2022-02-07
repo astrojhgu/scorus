@@ -138,8 +138,8 @@ where
         self.swarm = Self::init_swarm(&self.func, lower, upper, particle_count, rng);
     }
 
-    pub fn init_swarm<R>(
-        func: &dyn Fn(&V) -> T,
+    pub fn init_swarm<R, F>(
+        func: &F,
         lower: &V,
         upper: &V,
         pc: usize,
@@ -147,44 +147,48 @@ where
     ) -> Vec<Particle<V, T>>
     where
         R: Rng,
+        F: Fn(&V) -> T+Sync+Send
     {
-        let mut result = Vec::<Particle<V, T>>::new();
         let ndim = lower.dimension();
+        let mut p_list=vec![];
+        let mut v_list=vec![];
         for _i in 0..pc {
             let mut p = lower * T::zero();
             let mut v = lower * T::zero();
             for j in 0..ndim {
-                let uniform = Uniform::new(lower[j], upper[j]);
-                p[j] = rng.sample(uniform);
+                p[j] = rng.sample(Uniform::new(lower[j], upper[j]));
                 v[j] = zero();
             }
+            p_list.push(p);
+            v_list.push(v);
+        }
+
+        p_list.into_par_iter().zip(v_list.into_par_iter()).map(|(p,v)|{
             let f = func(&p);
-            result.push(Particle {
+            Particle {
                 position: p,
                 velocity: v,
                 fitness: f,
                 pbest: None,
-            });
-        }
-        result
+            }
+        }).collect()
     }
 
-    pub fn init_swarm_from_ensemble(func: &dyn Fn(&V) -> T, ensemble: &[V]) -> Vec<Particle<V, T>> {
-        let mut result = Vec::<Particle<V, T>>::new();
-
-        for v in ensemble {
+    pub fn init_swarm_from_ensemble<F>(func: &F, ensemble: &[V]) -> Vec<Particle<V, T>> 
+    where F: Fn(&V) -> T+Sync+Send
+    {
+        ensemble.par_iter().map(|v|{
             let p = v.clone();
             let v = v * T::zero();
 
             let f = func(&p);
-            result.push(Particle {
+            Particle {
                 position: p,
                 velocity: v,
                 fitness: f,
                 pbest: None,
-            });
-        }
-        result
+            }
+        }).collect()
     }
 
     pub fn update_fitness(&mut self) {
