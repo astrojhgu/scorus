@@ -1,8 +1,11 @@
 use std::fmt::Display;
 
+#[cfg(not(target_family = "wasm"))]
 use special::{Error, Gamma};
 
+#[cfg(not(target_family = "wasm"))]
 use super::super::functions::phi;
+
 use super::graph::NodeAdder;
 use super::graph::NodeHandle;
 use super::node::BasicNode;
@@ -213,6 +216,7 @@ where
     NodeAdder::new(n, &[a, b])
 }
 
+#[cfg(not(target_family = "wasm"))]
 pub fn phi_node<T>(x: (NodeHandle, usize)) -> NodeAdder<T>
 where
     T: 'static + Float + Error + Sync + Send + Display,
@@ -235,7 +239,7 @@ where
 
 pub fn scalar_func_node<T>(x: &[(NodeHandle, usize)], func: Box<dyn Fn(&[T]) -> T>) -> NodeAdder<T>
 where
-    T: 'static + Float + Error + Sync + Send + Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -255,7 +259,7 @@ where
 
 pub fn ln_node<T>(x: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Error + Sync + Send + Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -275,7 +279,7 @@ where
 
 pub fn lg_node<T>(x: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + Error + Sync + Send + Display,
+    T: 'static + Float + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -293,9 +297,10 @@ where
     NodeAdder::new(n, &[x])
 }
 
+#[cfg(not(target_family = "wasm"))]
 pub fn t_node<T>(mu: (NodeHandle, usize), sigma: (NodeHandle, usize), dof: usize) -> NodeAdder<T>
 where
-    T: 'static + Float + FloatConst + Error + Gamma + Sync + Send + Display,
+    T: 'static + Float + Gamma +Error + FloatConst + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -337,7 +342,7 @@ where
 
 pub fn pareto_node<T>(a: (NodeHandle, usize), c: (NodeHandle, usize)) -> NodeAdder<T>
 where
-    T: 'static + Float + FloatConst + Error + Gamma + Sync + Send + Display,
+    T: 'static + Float + FloatConst + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {
@@ -381,6 +386,7 @@ where
     NodeAdder::new(n, &[a, c])
 }
 
+#[cfg(not(target_family = "wasm"))]
 pub fn trunc_pareto_node<T>(
     a: (NodeHandle, usize),
     c: (NodeHandle, usize),
@@ -388,7 +394,7 @@ pub fn trunc_pareto_node<T>(
     xmax: T,
 ) -> NodeAdder<T>
 where
-    T: 'static + Float + FloatConst + Error + Gamma + Sync + Send + Display,
+    T: 'static + Float + FloatConst + Sync + Send + Display,
 {
     let n = Node {
         info: BasicNode {

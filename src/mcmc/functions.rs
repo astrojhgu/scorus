@@ -1,3 +1,4 @@
+#![cfg(not(target_family = "wasm"))]
 use special::{Error, Gamma};
 
 use num::traits::{float::Float, identities::one};

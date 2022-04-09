@@ -1,3 +1,4 @@
+#![cfg(not(target_family = "wasm"))]
 #![allow(clippy::needless_range_loop)]
 //use ::std;
 use num::traits::{

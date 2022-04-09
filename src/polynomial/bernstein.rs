@@ -1,3 +1,4 @@
+#![cfg(not(target_family = "wasm"))]
 use special::Gamma;
 
 use num::traits::{

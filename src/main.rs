@@ -14,8 +14,6 @@ use std::fs::File;
 use std::io::Write;
 
 use scorus::coordinates::{SphCoord, Vec3d};
-use scorus::polynomial::bernstein::bernstein_base;
-use scorus::polynomial::bernstein::bernstein_poly;
 
 use rand::Rng;
 use scorus::healpix::utils::{nest2ring, ring2nest};
@@ -28,7 +26,6 @@ use scorus::opt::opt_errors::OptErr;
 use scorus::opt::powell::fmin;
 use scorus::opt::pso::*;
 use scorus::opt::tolerance::Tolerance;
-use scorus::polynomial::legendre;
 use scorus::rand_vec::uniform_on_sphere::rand as rand_sph;
 use scorus::sph_tessellation::Tessellation;
 use scorus::utils::regulate;
