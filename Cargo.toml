@@ -5,6 +5,9 @@ rand = '0.8.5'
 rand_distr = '0.4.3'
 rayon = '1.5.1'
 
+[dev-dependencies]
+plotly = "0.7.0"
+
 [package]
 authors = ['Gu Junhua <jhgu@nao.cas.cn>']
 edition = '2021'

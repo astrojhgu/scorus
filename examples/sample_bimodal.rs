@@ -2,6 +2,22 @@
 #![allow(dead_code)]
 //sextern crate std;
 
+
+use plotly::common::Mode;
+use plotly::{
+    Plot
+    , Scatter
+    , Layout
+    , layout::{
+        Axis
+        , BarMode
+    }
+    , common::{
+        Title
+    }
+    , Histogram
+};
+
 extern crate quickersort;
 extern crate rand;
 extern crate scorus;
@@ -143,4 +159,42 @@ fn main() {
         }
         writeln!(file, "{}", j);
     }
+
+    let mut plot = Plot::new();
+
+    let y:Vec<_>=(0..results[0].len()).map(|x| x as f64/niter as f64).collect();
+    for i in 0..nbeta{
+        let x:Vec<_>=(0..results[0].len()).map(|j| results[i][j] as f64).collect();
+        let trace = Scatter::new(x, y.clone())
+        .name(&format!("beta={}", blist[i]))
+        .mode(Mode::Lines);
+        plot.add_trace(trace);
+    }
+    let layout=Layout::new()
+        .x_axis(Axis::new().title(Title::new("x")))
+        .y_axis(Axis::new().title(Title::new("Accumulation Distribution P(<x)")));
+    plot.set_layout(layout);
+    plot.show();
+
+    let mut plot = Plot::new();
+
+    for i in 0..nbeta{
+        let x:Vec<_>=(0..results[0].len()).map(|j| results[i][j]).collect();
+        let trace = Histogram::new(x)
+            .name(&format!("beta={}", blist[i]))
+            .n_bins_x(niter/20)
+            .opacity(0.2);
+        plot.add_trace(trace);
+    }
+
+    let layout = Layout::new()
+        .title(Title::new("Sampled Results"))
+        .x_axis(Axis::new().title(Title::new("Value")))
+        .y_axis(Axis::new().title(Title::new("Count")))
+        .bar_mode(BarMode::Overlay)
+        .bar_gap(0.0)
+        .bar_group_gap(0.02);
+
+    plot.set_layout(layout);
+    plot.show();
 }
