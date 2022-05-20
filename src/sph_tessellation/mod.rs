@@ -133,9 +133,6 @@ where
             let norm = x1.cross(x2);
             let w = v0 + v1 + v2;
             if norm.dot(w) < T::zero() {
-                for i in [0,1,2]{
-                    println!("{:?}", self.vertices[v[i]]);
-                }
                 v.swap(1, 2);
                 norm*(-T::one())
             }else{
