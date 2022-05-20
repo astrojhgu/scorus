@@ -39,7 +39,7 @@ fn regulate(mut v: [usize; 3]) -> [usize; 3] {
 
 impl<T> Tessellation<T>
 where
-    T: Float + Copy,
+    T: Float + Copy + std::fmt::Debug,
 {
     pub fn octahedron() -> Tessellation<T> {
         let one = T::one();
@@ -124,6 +124,7 @@ where
     }
 
     pub fn regulate_norm(&mut self) ->Vec<Vec3d<T>>{
+        println!("**********************************");
         self.faces.iter_mut().map(|v| {
             let v0 = self.vertices[v[0]];
             let v1 = self.vertices[v[1]];
@@ -131,8 +132,11 @@ where
             let x1 = v1 - v0;
             let x2 = v2 - v0;
             let norm = x1.cross(x2);
-            let w = x1 + x2 + x2;
+            let w = v0 + v1 + v2;
             if norm.dot(w) < T::zero() {
+                for i in [0,1,2]{
+                    println!("{:?}", self.vertices[v[i]]);
+                }
                 v.swap(1, 2);
                 norm*(-T::one())
             }else{
