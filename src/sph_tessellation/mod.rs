@@ -124,7 +124,6 @@ where
     }
 
     pub fn regulate_norm(&mut self) ->Vec<Vec3d<T>>{
-        println!("**********************************");
         self.faces.iter_mut().map(|v| {
             let v0 = self.vertices[v[0]];
             let v1 = self.vertices[v[1]];
