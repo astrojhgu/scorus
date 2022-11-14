@@ -242,6 +242,7 @@ where
     let mut block_l = BLOCK;
     let mut start_l = ptr::null_mut();
     let mut end_l = ptr::null_mut();
+    #[allow(invalid_value)]
     let mut offsets_l: [u8; BLOCK] = unsafe { mem::MaybeUninit::uninit().assume_init() };
 
     // The current block on the right side (from `r.offset(-block_r)` to `r`).
@@ -249,6 +250,7 @@ where
     let mut block_r = BLOCK;
     let mut start_r = ptr::null_mut();
     let mut end_r = ptr::null_mut();
+    #[allow(invalid_value)]
     let mut offsets_r: [u8; BLOCK] = unsafe { mem::MaybeUninit::uninit().assume_init() };
 
     // FIXME: When we get VLAs, try creating one array of length `min(v.len(), 2 * BLOCK)` rather
