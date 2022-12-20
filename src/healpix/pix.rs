@@ -1,6 +1,8 @@
 //! calculate the direction of some certain pixel
 
-use super::utils::{isqrt, nside2npix};
+use super::utils::{
+    isqrt, nside2npix, ring2xyf64, xyf2ring64, NB_FACEARRAY, NB_SWAPARRAY, NB_XOFFSET, NB_YOFFSET,
+};
 use crate::coordinates::{SphCoord, Vec3d};
 use num::traits::float::{Float, FloatConst};
 
@@ -95,5 +97,61 @@ where
     } else {
         let iring = 4 * nside - iring;
         T::from(iring.pow(2)).unwrap() * fact2 - T::one()
+    }
+}
+
+pub fn neighbors_ring(nside: usize, ipix: usize) -> Vec<usize> {
+    //let mut result = [0_isize, 0, 0, 0, 0, 0, 0, 0];
+    let (ix, iy, face_num) = ring2xyf64(nside as i64, ipix as i64);
+    let nsm1 = nside - 1;
+    if ix > 0 && ix < nsm1 as i32 && iy > 0 && iy < nsm1 as i32 {
+        (0..8)
+            .map(|m| {
+                xyf2ring64(
+                    nside as i64,
+                    ix + NB_XOFFSET[m],
+                    iy + NB_YOFFSET[m],
+                    face_num,
+                ) as usize
+            })
+            .collect()
+    } else {
+        (0..8)
+            .filter_map(|i| {
+                let mut x = ix + NB_XOFFSET[i];
+                let mut y = iy + NB_YOFFSET[i];
+                let mut nbnum = 4;
+                if x < 0 {
+                    x += nside as i32;
+                    nbnum -= 1;
+                } else if x >= nside as i32 {
+                    x -= nside as i32;
+                    nbnum += 1;
+                }
+                if y < 0 {
+                    y += nside as i32;
+                    nbnum -= 3;
+                } else if y >= nside as i32 {
+                    y -= nside as i32;
+                    nbnum += 3;
+                }
+                let f = NB_FACEARRAY[nbnum as usize][face_num as usize];
+                if f >= 0 {
+                    let bits = NB_SWAPARRAY[nbnum][face_num as usize >> 2];
+                    if bits & 1 != 0 {
+                        x = nside as i32 - x - 1;
+                    }
+                    if bits & 2 != 0 {
+                        y = nside as i32 - y - 1;
+                    }
+                    if bits & 4 != 0 {
+                        std::mem::swap(&mut x, &mut y);
+                    }
+                    Some(xyf2ring64(nside as i64, x, y, f) as usize)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }

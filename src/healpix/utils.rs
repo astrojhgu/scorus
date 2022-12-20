@@ -55,6 +55,32 @@ const UTAB: [i32; 256] = [
 const JRLL: [i32; 12] = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
 const JPLL: [i32; 12] = [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7];
 
+pub const NB_FACEARRAY: [[i32; 12]; 9] = [
+    [8, 9, 10, 11, -1, -1, -1, -1, 10, 11, 8, 9], // S
+    [5, 6, 7, 4, 8, 9, 10, 11, 9, 10, 11, 8],     // SE
+    [-1, -1, -1, -1, 5, 6, 7, 4, -1, -1, -1, -1], // E
+    [4, 5, 6, 7, 11, 8, 9, 10, 11, 8, 9, 10],     // SW
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],       // center
+    [1, 2, 3, 0, 0, 1, 2, 3, 5, 6, 7, 4],         // NE
+    [-1, -1, -1, -1, 7, 4, 5, 6, -1, -1, -1, -1], // W
+    [3, 0, 1, 2, 3, 0, 1, 2, 4, 5, 6, 7],         // NW
+    [2, 3, 0, 1, -1, -1, -1, -1, 0, 1, 2, 3],     // N
+];
+
+pub const NB_XOFFSET: [i32; 8] = [-1, -1, 0, 1, 1, 1, 0, -1];
+pub const NB_YOFFSET: [i32; 8] = [0, 1, 1, 1, 0, -1, -1, -1];
+
+pub const NB_SWAPARRAY: [[i32; 3]; 9] = [
+    [0, 0, 3], // S
+    [0, 0, 6], // SE
+    [0, 0, 0], // E
+    [0, 0, 5], // SW
+    [0, 0, 0], // center
+    [5, 0, 0], // NE
+    [0, 0, 0], // W
+    [6, 0, 0], // NW
+    [3, 0, 0], // N
+];
 /// get the total number of pixels corresponding to the nside parameter
 pub fn nside2npix32(nside: i32) -> i32 {
     12 * nside * nside
@@ -121,7 +147,7 @@ fn special_div32(mut a: i32, b: i32) -> i32 {
     (t << 1) + if a >= b { 1 } else { 0 }
 }
 
-fn ring2xyf32(nside: i32, pix: i32) -> (i32, i32, i32) {
+pub fn ring2xyf32(nside: i32, pix: i32) -> (i32, i32, i32) {
     let ncap = 2 * nside * (nside - 1);
     let npix = 12 * nside * nside;
     let nl2 = 2 * nside;
@@ -251,7 +277,7 @@ fn xyf2nest64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
         + (spread_bits64(iy) << 1)
 }
 
-fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
+pub fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
     let nl4 = 4_i64 * nside;
     let jr = <i64 as std::convert::From<_>>::from(JRLL[face_num as usize]) * nside
         - <i64 as std::convert::From<_>>::from(ix)
@@ -283,7 +309,7 @@ fn xyf2ring64(nside: i64, ix: i32, iy: i32, face_num: i32) -> i64 {
     n_before + jp - 1
 }
 
-fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
+pub fn ring2xyf64(nside: i64, pix: i64) -> (i32, i32, i32) {
     let ncap = 2 * nside * (nside - 1);
     let npix = 12 * nside * nside;
     let nl2 = 2 * nside;
@@ -401,7 +427,7 @@ pub fn nside2nring(nside: usize) -> usize {
 }
 
 pub fn nring2nside(nring: usize) -> usize {
-    let nside=(nring + 1) / 4;
+    let nside = (nring + 1) / 4;
     assert_eq!(nring, nside2nring(nside));
     nside
 }
