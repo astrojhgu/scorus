@@ -88,6 +88,12 @@ where
 {
     let two_pi = T::PI() * T::from(2).unwrap();
     let az = regulate(ptg.az, T::zero(), two_pi);
+    let az=if az>=two_pi{
+        az-two_pi
+    }else{
+        az
+    };
+    //let az=ptg.az;
     let pol = ptg.pol;
     let npix = nside2npix(nside);
 
@@ -95,6 +101,7 @@ where
     let z = pol.cos();
     let ir1 = ring_above(nside, z);
     let ir2 = ir1 + 1;
+    //println!("ir1={}",ir1);
     let mut pix = vec![0_usize, 0_usize, 0_usize, 0_usize];
     let mut wgt = vec![T::one(), T::one(), T::one(), T::one()];
     let mut theta1 = None;
@@ -102,24 +109,30 @@ where
 
     if ir1 > 0 {
         let (sp, nr, _theta1, shift) = get_ring_info2::<T>(nside, ir1);
+        //println!("info: {:?} {:?} {:?} {:?} {:?}",ir1, sp, nr, _theta1, shift);
         theta1 = Some(_theta1);
         let dphi = two_pi / T::from(nr).unwrap();
+        //println!("{:?} {:?}", az, dphi);
         let tmp = az / dphi - T::from(if shift { 0.5 } else { 0.0 }).unwrap();
+        //println!("tmp={:?}",tmp);
         let mut i1 = if tmp < T::zero() {
             <isize as NumCast>::from(tmp).unwrap() - 1
         } else {
             <isize as NumCast>::from(tmp).unwrap()
         };
+        //println!("i1={}", i1);
         let w1 = (az
             - (T::from(i1).unwrap() + T::from(if shift { 0.5 } else { 0.0 }).unwrap()) * dphi)
             / dphi;
         let mut i2 = i1 + 1;
+        
         if i1 < 0 {
             i1 += nr as isize;
         }
         if i2 as usize >= nr {
             i2 -= nr as isize;
         }
+        
         pix[0] = sp + i1 as usize;
         pix[1] = sp + i2 as usize;
         wgt[0] = T::one() - w1;
