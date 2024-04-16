@@ -390,7 +390,7 @@ pub fn nest2ring64(nside: i64, ipnest: i64) -> i64 {
 
 /// get the index of nest order pix corresponding to ring order
 pub fn ring2nest(nside: usize, ipring: usize) -> usize {
-    if 12 * nside * nside > i32::max_value() as usize {
+    if 12 * nside * nside > i32::MAX as usize {
         ring2nest64(nside as i64, ipring as i64) as usize
     } else {
         ring2nest32(nside as i32, ipring as i32) as usize
@@ -399,7 +399,7 @@ pub fn ring2nest(nside: usize, ipring: usize) -> usize {
 
 /// get the index of ring order pix corresponding to nest order
 pub fn nest2ring(nside: usize, ipnest: usize) -> usize {
-    if 12 * nside * nside > i32::max_value() as usize {
+    if 12 * nside * nside > i32::MAX as usize {
         nest2ring64(nside as i64, ipnest as i64) as usize
     } else {
         nest2ring32(nside as i32, ipnest as i32) as usize

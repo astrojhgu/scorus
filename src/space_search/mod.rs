@@ -39,6 +39,7 @@ impl<T> PartialOrd for IdxDistPair<T>
 where
     T: PartialOrd,
 {
+    #[allow(clippy::non_canonical_partial_ord_impl)]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.dist.partial_cmp(&(other.dist))
     }

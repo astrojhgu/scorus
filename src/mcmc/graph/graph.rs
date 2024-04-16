@@ -144,9 +144,9 @@ where
         self
     }
 
-    pub fn add_to<K: Debug>(mut self, g: &mut Graph<K, T>, k: &K) -> NodeHandle
+    pub fn add_to<K>(mut self, g: &mut Graph<K, T>, k: &K) -> NodeHandle
     where
-        K: std::hash::Hash + Eq + Clone,
+        K: std::hash::Hash + Eq + Clone + Debug,
     {
         let nid = g.nodes.len();
 
