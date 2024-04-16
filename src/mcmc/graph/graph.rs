@@ -27,7 +27,7 @@ pub struct NodeHandle(usize);
 
 impl Clone for NodeHandle {
     fn clone(&self) -> NodeHandle {
-        NodeHandle(self.0)
+        *self
     }
 }
 
@@ -85,10 +85,7 @@ where
     T: std::marker::Copy,
 {
     fn clone(&self) -> Self {
-        match *self {
-            ParamObservability::Observed(x) => ParamObservability::Observed(x),
-            ParamObservability::UnObserved(x) => ParamObservability::UnObserved(x),
-        }
+        *self
     }
 }
 
@@ -255,7 +252,8 @@ where
         let mut result1 = BTreeSet::<usize>::new();
         let mut stack = Stack::new();
         stack.push(nid);
-        while !stack.is_empty() {
+        #[allow(clippy::manual_while_let_some)]
+        while !stack.is_empty() {            
             let top = stack.pop().unwrap();
 
             for i in self.nodes[top].get_children() {
@@ -382,8 +380,7 @@ where
     }
 
     pub fn cached_values_of(&self, i: usize, gv: &GraphVar<T>) -> Vec<T> {
-        let mut result = Vec::<T>::new();
-        result.reserve(self.nodes[i].info.ndim_output);
+        let mut result = Vec::with_capacity(self.nodes[i].info.ndim_output);
         for j in 0..self.nodes[i].info.ndim_output {
             result.push(self.cached_value_of(i, j, gv));
         }
@@ -496,7 +493,7 @@ where
         &self,
         i: usize,
         j: usize,
-        mut gv: &mut GraphVar<T>,
+        gv: &mut GraphVar<T>,
         rng: &mut R,
         n: usize,
         nchanged: &mut usize,
@@ -504,7 +501,7 @@ where
         R: Rng,
     {
         let range = self.range(i, gv).unwrap();
-        let x0 = self.cached_value_of(i, j, &gv);
+        let x0 = self.cached_value_of(i, j, gv);
         let (x1, x2) = range[j];
         assert!(x2 > x1);
         //let initx=vec![x1+(x2-x1)*(T::from(0.3).unwrap()), (x1+x2)*(T::from(0.5).unwrap()), x1+(x2-x1)*T::from(0.6).unwrap()];
@@ -527,7 +524,7 @@ where
             nchanged,
         )
         .unwrap_or_else(|_| panic!("error when sampling {:?}", self.node_key_map[&i]));
-        self.set_value_then_update(i, j, x, &mut gv);
+        self.set_value_then_update(i, j, x, gv);
     }
 
     pub fn sample_all<R>(&self, gv: &mut GraphVar<T>, rng: &mut R, n: usize, nchanged: &mut usize)

@@ -9,25 +9,25 @@ use crate::{
     },
 };
 
-pub fn create_map_sph<T, U, F>(nside: usize, mut f: F) -> Vec<T>
+pub fn create_map_sph<T, U, F>(nside: usize, f: F) -> Vec<T>
 where
     F: FnMut(SphCoord<U>) -> T,
     U: Float + FloatConst,
 {
     (0..nside2npix(nside))
         .map(|ipix| pix2ang_ring(nside, ipix))
-        .map(|dir| f(dir))
+        .map(f)
         .collect()
 }
 
-pub fn create_map_vec<T, U, F>(nside: usize, mut f: F) -> Vec<T>
+pub fn create_map_vec<T, U, F>(nside: usize, f: F) -> Vec<T>
 where
     F: FnMut(Vec3d<U>) -> T,
     U: Float + FloatConst,
 {
     (0..nside2npix(nside))
         .map(|ipix| pix2vec_ring(nside, ipix))
-        .map(|dir| f(dir))
+        .map(f)
         .collect()
 }
 

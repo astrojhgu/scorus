@@ -24,10 +24,7 @@ where
     T: Float + Copy,
 {
     fn clone(&self) -> Self {
-        SphCoord::<T> {
-            pol: self.pol,
-            az: self.az,
-        }
+        *self
     }
 }
 

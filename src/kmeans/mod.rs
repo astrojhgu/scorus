@@ -107,7 +107,7 @@ where
         .map(|x| {
             centroids
                 .iter()
-                .map(|p| p.distance_to(&x))
+                .map(|p| p.distance_to(x))
                 .enumerate()
                 .min_by(|a, b| {
                     if a.1 > b.1 {

@@ -410,13 +410,10 @@ where
     T: Float + NumCast,
 {
     fn from<U: ToPrimitive>(n: U) -> Option<F<T>> {
-        match n.to_f64() {
-            Some(x) => Some(F {
-                x: T::from(x).unwrap(),
-                dx: T::zero(),
-            }),
-            None => None,
-        }
+        n.to_f64().map(|x| F {
+            x: T::from(x).unwrap(),
+            dx: T::zero(),
+        })
     }
 }
 impl<T> FromPrimitive for F<T>

@@ -56,6 +56,7 @@ impl<
         self
     }
 
+    #[allow(clippy::type_complexity)]
     pub fn done(self) -> Box<dyn Fn(&SphCoord<T>, usize) -> V> {
         let ipt = Interpolator {
             tree: VpTree::new(self.points),

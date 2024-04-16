@@ -750,7 +750,7 @@ where
                         if new_list.is_empty() {
                             None
                         } else {
-                            new_list.get(new_list.len() - 1)
+                            new_list.back()
                         },
                         Some(&news2),
                     )?;
@@ -759,7 +759,7 @@ where
                     news1 = news1.calc_int_exp_y()?;
                 }
                 {
-                    let (xi, yi) = calc_intersection(&news2, Some(&news1), section_list.get(0))?;
+                    let (xi, yi) = calc_intersection(&news2, Some(&news1), section_list.front())?;
                     news2.set_x_i(xi);
                     news2.set_y_i(yi);
                     news2 = news2.calc_int_exp_y()?;

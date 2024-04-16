@@ -243,6 +243,7 @@ where
     let mut start_l = ptr::null_mut();
     let mut end_l = ptr::null_mut();
     #[allow(invalid_value)]
+    #[allow(clippy::uninit_assumed_init)]
     let mut offsets_l: [u8; BLOCK] = unsafe { mem::MaybeUninit::uninit().assume_init() };
 
     // The current block on the right side (from `r.offset(-block_r)` to `r`).
@@ -251,6 +252,7 @@ where
     let mut start_r = ptr::null_mut();
     let mut end_r = ptr::null_mut();
     #[allow(invalid_value)]
+    #[allow(clippy::uninit_assumed_init)]
     let mut offsets_r: [u8; BLOCK] = unsafe { mem::MaybeUninit::uninit().assume_init() };
 
     // FIXME: When we get VLAs, try creating one array of length `min(v.len(), 2 * BLOCK)` rather
@@ -640,8 +642,8 @@ where
 ///
 /// `limit` is the number of allowed imbalanced partitions before switching to `heapsort`. If zero,
 /// this function will immediately switch to heapsort.
-fn recurse<'a, T, F>(
-    mut v: &'a mut [T],
+fn recurse<T, F>(
+    mut v: &mut [T],
     mut k: usize,
     is_less: &mut F, /*, mut pred: Option<&'a T>*//*b*/
 ) where

@@ -237,6 +237,7 @@ where
     NodeAdder::new(n, &[x])
 }
 
+#[allow(clippy::type_complexity)]
 pub fn scalar_func_node<T>(x: &[(NodeHandle, usize)], func: Box<dyn Fn(&[T]) -> T>) -> NodeAdder<T>
 where
     T: 'static + Float + Sync + Send + Display,

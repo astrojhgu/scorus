@@ -135,7 +135,7 @@ pub fn neighbors_ring(nside: usize, ipix: usize) -> Vec<usize> {
                     y -= nside as i32;
                     nbnum += 3;
                 }
-                let f = NB_FACEARRAY[nbnum as usize][face_num as usize];
+                let f = NB_FACEARRAY[nbnum][face_num as usize];
                 if f >= 0 {
                     let bits = NB_SWAPARRAY[nbnum][face_num as usize >> 2];
                     if bits & 1 != 0 {

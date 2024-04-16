@@ -31,8 +31,7 @@ where
 {
     let two = one::<T>() + one::<T>();
     let n = p.dimension();
-    let mut xi = Vec::new();
-    xi.reserve(n);
+    let mut xi = Vec::with_capacity(n);
     for i in 0..n {
         let mut xi1 = p.clone();
         for j in 0..n {

@@ -263,7 +263,7 @@ fn spread_bits64(v: i32) -> i64 {
 }
 
 fn nest2xyf64(nside: i64, mut pix: i64) -> (i32, i32, i32) {
-    let npface: i64 = nside as i64 * nside as i64;
+    let npface: i64 = nside * nside;
     let face_num = (pix / npface) as i32;
     pix &= npface - 1;
     let ix = compress_bits64(pix) as i32;

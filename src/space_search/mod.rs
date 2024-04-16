@@ -1,3 +1,4 @@
+#![allow(clippy::unconditional_recursion)]
 mod pdqselect;
 use std::boxed::Box;
 use std::cmp::{Ord, Ordering, PartialEq, PartialOrd};

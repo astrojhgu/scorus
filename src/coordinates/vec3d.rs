@@ -28,11 +28,7 @@ where
     T: Float + Copy,
 {
     fn clone(&self) -> Self {
-        Vec3d::<T> {
-            x: self.x,
-            y: self.y,
-            z: self.z,
-        }
+        *self
     }
 }
 
@@ -127,7 +123,7 @@ where
 
         let one = T::one();
 
-        let rm = vec![
+        let rm = [
             vec![
                 ca + ux * ux * (one - ca),
                 ux * uy * (one - ca) - uz * sa,

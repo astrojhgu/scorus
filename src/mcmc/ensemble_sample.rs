@@ -158,7 +158,7 @@ pub fn sample_pt<'a, T, U, V, F>(
         .map(|(&(i1, i2), (&z, f))| propose_move(&ensemble[i1], &ensemble[i2], z, Some(f)))
         .collect();
 
-    let new_logprob: Vec<_> = proposed_pt.par_iter().map(|p| flogprob(p)).collect();
+    let new_logprob: Vec<_> = proposed_pt.par_iter().map(flogprob).collect();
 
     //let nphi = T::from(flags.iter().filter(|&&x| x).count()).unwrap();
     let nphi: Vec<_> = flags

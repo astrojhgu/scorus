@@ -140,7 +140,7 @@ where
     let mut k = T::one();
     while !logpprime.is_normal() || any_inf(&gradprime) {
         k = k / two;
-        let a = leapfrog(theta0, &r0, &grad0, epsilon * k, fg);
+        let a = leapfrog(theta0, &r0, grad0, epsilon * k, fg);
         rprime = a.1;
         gradprime = a.2;
         logpprime = a.3;
@@ -158,7 +158,7 @@ where
 
     while a * logacceptprob > -a * two.ln() {
         epsilon = epsilon * two.powf(a);
-        let a = leapfrog(theta0, &r0, &grad0, epsilon, fg);
+        let a = leapfrog(theta0, &r0, grad0, epsilon, fg);
         rprime = a.1;
         logpprime = a.3;
 
@@ -385,7 +385,7 @@ pub fn nuts6<T, V, F, U>(
     if nutss.m == 0 {
         nutss.epsilon_bar = T::one();
         nutss.h_bar = T::zero();
-        nutss.epsilon = find_reasonable_epsilon(theta0, &grad0, *logp0, f, rng);
+        nutss.epsilon = find_reasonable_epsilon(theta0, grad0, *logp0, f, rng);
         nutss.mu = (T::from(10).unwrap() * nutss.epsilon).ln();
         nutss.m = 1;
     }

@@ -489,13 +489,13 @@ where
                 + T::from(nphi as isize - 2).unwrap() * b.unwrap().ln())
             .exp(),
             TWalkKernal::Blow => {
-                let w1 = g_blow_u(&yp, xp, x, phi);
-                let w2 = g_blow_u(xp, &yp, x, phi);
+                let w1 = g_blow_u(yp, xp, x, phi);
+                let w2 = g_blow_u(xp, yp, x, phi);
                 ((up_prop - up) * beta + (w1 - w2)).exp()
             }
             TWalkKernal::Hop => {
-                let w1 = g_hop_u(&yp, xp, x, &phi);
-                let w2 = g_hop_u(xp, &yp, x, &phi);
+                let w1 = g_hop_u(yp, xp, x, phi);
+                let w2 = g_hop_u(xp, yp, x, phi);
                 ((up_prop - up) * beta + (w1 - w2)).exp()
             }
         }

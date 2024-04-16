@@ -22,7 +22,7 @@ where
     T: Debug,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!("RotMat:[\n"))?;
+        f.write_str("RotMat:[\n")?;
         for i in 0..3 {
             for j in 0..3 {
                 f.write_str(&format!("{:?} ", self.elements[i][j]))?;

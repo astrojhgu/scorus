@@ -86,7 +86,7 @@ where
     }
 
     let m_inv = T::one();
-    let kinetic = |p: &V| p.dot(&p) / two * m_inv;
+    let kinetic = |p: &V| p.dot(p) / two * m_inv;
 
     let current_k = kinetic(&p);
     let mut q = q0.clone();
@@ -142,7 +142,7 @@ where
     F: Fn(&V) -> T + Sync,
     G: Fn(&V) -> V + Sync,
 {
-    let mut last_grad_logprob: Vec<_> = q0.iter().map(|x| grad_logprob(x)).collect();
+    let mut last_grad_logprob: Vec<_> = q0.iter().map(grad_logprob).collect();
     sample_ensemble_pt_impl(
         flogprob,
         grad_logprob,
@@ -202,7 +202,7 @@ where
         .collect();
 
     let m_inv = T::one();
-    let kinetic = |p: &V| p.dot(&p) / two * m_inv;
+    let kinetic = |p: &V| p.dot(p) / two * m_inv;
 
     let current_k: Vec<_> = p.iter().map(kinetic).collect();
     //println!("{:?}", current_k);
@@ -237,7 +237,7 @@ where
     let current_u: Vec<_> = lp.iter().map(|&x| -x).collect();
     let proposed_u: Vec<_> = q.par_iter().map(|q1| -flogprob(q1)).collect();
 
-    let proposed_k: Vec<_> = p.iter_mut().map(|p1| kinetic(&p1)).collect();
+    let proposed_k: Vec<_> = p.iter_mut().map(|p1| kinetic(p1)).collect();
     //println!("{:?}", (current_u-proposed_u+current_k-proposed_k));
 
     let dh: Vec<_> = current_u

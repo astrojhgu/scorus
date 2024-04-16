@@ -22,10 +22,7 @@ where
     T: Float + Copy,
 {
     fn clone(&self) -> Self {
-        Vec2d::<T> {
-            x: self.x,
-            y: self.y,
-        }
+        *self
     }
 }
 
