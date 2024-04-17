@@ -18,7 +18,7 @@ pub fn fmin<F, V, T, O>(
     p: &V,
     ftol: Tolerance<T>,
     itmax: usize,
-    mut observer: Option<&mut O>,
+    observer: &mut O,
 ) -> (V, OptErr)
 where
     T: Float + NumCast + std::cmp::PartialOrd + Copy + Debug,
@@ -82,9 +82,10 @@ where
         }
 
         let fptt = f(&ptt);
-        if let Some(ref mut obs) = observer {
-            obs(&ptt, fptt);
-        }
+        //if let Some(ref mut obs) = observer {
+        //    obs(&ptt, fptt);
+        //}
+        observer(&ptt, fptt);
         if fptt < fp {
             let t = two * (fp - two * fret + fptt) * sqr(fp - fret - del) - del * sqr(fp - fptt);
             if t < zero() {
