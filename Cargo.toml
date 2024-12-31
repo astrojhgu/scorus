@@ -1,8 +1,8 @@
 [dependencies]
-num = '0.4.0'
+num = '0.4.2'
 rand = '0.8.5'
 rand_distr = '0.4.3'
-rayon = '1.5.3'
+rayon = '1.10.0'
 
 [dev-dependencies]
 plotly = '0.7.0'
